@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ICUC — India Clean-Up Confluence
 
-## Getting Started
+Marketing site for the India Clean-Up Confluence: a landing page and a contact page.
 
-First, run the development server:
+Built with Next.js 16 (App Router), TypeScript, Tailwind CSS v4 and Motion.
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm run build    # production build
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Editing content
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**All copy, stats, names and image references live in one file: [`src/content/site.ts`](src/content/site.ts).**
+You should not need to touch a component to change what the site says.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| What you want to change | Edit |
+| --- | --- |
+| Headline, subtitle, hero CTAs | `hero` |
+| "What is ICUC" text and the three pillars | `about` |
+| Impact numbers | `stats` |
+| Award winners / speakers | `changemakers` |
+| Photo gallery | `gallery` |
+| Partner logos | `partners` |
+| Email, phone, socials, form dropdown | `contact` |
+| Nav links | `nav` |
 
-## Learn More
+## Adding photos
 
-To learn more about Next.js, take a look at the following resources:
+1. Drop the file into the matching folder:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```
+   public/images/hero/          hero.jpg              — full-bleed background, landscape, 2400×1600 or larger
+   public/images/changemakers/  one.jpg, two.jpg …    — portraits, 4:5 (e.g. 800×1000)
+   public/images/gallery/       01.jpg, 02.jpg …      — any aspect ratio, ~1600px on the long edge
+   public/images/partners/      carter.png …          — logos, transparent PNG or SVG
+   public/images/              og.jpg                 — social share card, exactly 1200×630
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Add or update the matching entry in `src/content/site.ts`, including the real
+   `width`/`height` in pixels and a descriptive `alt`.
 
-## Deploy on Vercel
+Until a file exists at a given path, `SmartImage` renders a themed gradient placeholder
+instead of a broken image — so the site always looks finished, and adding the real photo
+causes zero layout shift. The gallery accepts any number of entries.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Wiring up the contact form
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The form posts to [Web3Forms](https://web3forms.com) — free, no backend, no database.
+
+1. Get an access key at <https://web3forms.com> (enter the address that should receive
+   submissions; the key arrives by email).
+2. `cp .env.local.example .env.local` and fill it in:
+
+   ```
+   NEXT_PUBLIC_WEB3FORMS_KEY=your-access-key
+   ```
+
+3. Restart the dev server.
+
+Without the key, the form validates normally but shows a clear "not connected yet" notice on
+submit rather than silently failing. On Vercel, add the same variable under
+**Project → Settings → Environment Variables**.
+
+The form includes a honeypot field for spam and validates name, email and message client-side.
+
+## Before going live
+
+- [ ] Replace `site.url` in `src/content/site.ts` with the real domain (drives canonical URLs, OpenGraph and `sitemap.xml`).
+- [ ] Replace the placeholder phone number and email in `contact`.
+- [ ] Replace the placeholder social URLs.
+- [ ] Fill in real changemaker names, roles and bios.
+- [ ] Add `public/images/og.jpg` (1200×630) for link previews.
+- [ ] Replace `src/app/favicon.ico`.
+
+## Structure
+
+```
+src/
+├─ app/                 routes: / and /contact, plus 404, sitemap, robots
+├─ components/
+│  ├─ layout/           Header (sticky, blurs on scroll), Footer, Logo
+│  ├─ sections/         the landing page, one file per section
+│  ├─ ui/               Reveal, SmartImage, Button, CountUp, Lightbox, SectionHeading
+│  └─ contact/          ContactForm
+├─ content/site.ts      ← all content
+└─ lib/motion.ts        shared animation variants and easing
+```
+
+**Theme.** The palette, fonts and fluid type scale are defined in the `@theme` block at the
+top of `src/app/globals.css` — change a colour there and it updates everywhere.
+
+**Motion.** Scroll reveals fire once via `Reveal`. Everything checks
+`prefers-reduced-motion` and degrades to a plain fade, with a CSS backstop at the bottom
+of `globals.css`.
+
+## Deploying
+
+Push to GitHub and import into [Vercel](https://vercel.com) — no configuration needed. Set
+`NEXT_PUBLIC_WEB3FORMS_KEY` in the project's environment variables.
