@@ -421,10 +421,10 @@ export const contact = {
   phone: "+91 00000 00000",
   location: "Mumbai, Maharashtra, India",
   note: "ICUC grew out of Carter Clean Up, the beach clean-up movement on Carter Road, Bandra, founded in 2021.",
+  /** Carter Clean Up's accounts — ICUC posts through the movement it grew out
+      of rather than separate handles. There is no YouTube. */
   socials: [
-    { label: "Instagram", href: "https://instagram.com" },
-    { label: "LinkedIn", href: "https://linkedin.com" },
-    { label: "YouTube", href: "https://youtube.com" },
+    { label: "Instagram", href: "https://www.instagram.com/indiacleanupconfluence/" },
   ],
   /** Options in the contact form's subject dropdown. */
   subjects: [
