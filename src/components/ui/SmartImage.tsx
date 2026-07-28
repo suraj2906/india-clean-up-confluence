@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Leaf } from "lucide-react";
+import { Waves } from "lucide-react";
 import { useState } from "react";
 
 type SmartImageProps = {
@@ -44,12 +44,12 @@ export function SmartImage({
       <div
         role="img"
         aria-label={alt}
-        className={`flex items-center justify-center bg-gradient-to-br from-leaf-100 via-sand to-ocean-100 ${
+        className={`flex items-center justify-center bg-gradient-to-br from-sky-100 via-summit-100 to-leaf-100 ${
           fill ? "absolute inset-0" : ""
         } ${className}`}
         style={fill ? undefined : { aspectRatio: `${width} / ${height}` }}
       >
-        <Leaf className="size-8 text-leaf/40" aria-hidden />
+        <Waves className="size-8 text-sky-700/35" aria-hidden />
       </div>
     );
   }

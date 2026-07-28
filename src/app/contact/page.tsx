@@ -26,10 +26,10 @@ export default function ContactPage() {
   return (
     <>
       {/* Padded for the fixed header, which is transparent at scroll position 0. */}
-      <section className="bg-sand pb-20 pt-36 sm:pt-44">
+      <section className="bg-skywash pb-20 pt-36 sm:pt-44">
         <div className="container-page">
           <Reveal>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-ocean">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">
               {contact.eyebrow}
             </p>
           </Reveal>
@@ -53,7 +53,7 @@ export default function ContactPage() {
               <ul className="mt-8 space-y-6">
                 {details.map(({ icon: Icon, label, value, href }) => (
                   <li key={label} className="flex items-start gap-4">
-                    <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-leaf-100 text-leaf">
+                    <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
                       <Icon className="size-5" aria-hidden />
                     </span>
                     <span>
@@ -63,19 +63,19 @@ export default function ContactPage() {
                       {href ? (
                         <a
                           href={href}
-                          className="mt-1 block font-medium text-forest transition-colors hover:text-leaf"
+                          className="mt-1 block font-medium text-ink transition-colors hover:text-sky-700"
                         >
                           {value}
                         </a>
                       ) : (
-                        <span className="mt-1 block font-medium text-forest">{value}</span>
+                        <span className="mt-1 block font-medium text-ink">{value}</span>
                       )}
                     </span>
                   </li>
                 ))}
               </ul>
 
-              <div className="mt-10 border-t border-forest/10 pt-8">
+              <div className="mt-10 border-t border-summit pt-8">
                 <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
                   Follow the movement
                 </h3>
@@ -86,7 +86,7 @@ export default function ContactPage() {
                         href={s.href}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="inline-block rounded-full border border-forest/15 px-4 py-2 text-sm text-forest transition-colors hover:border-leaf hover:bg-leaf-100"
+                        className="inline-block rounded-full border border-summit px-4 py-2 text-sm text-ink transition-colors hover:border-sky hover:bg-sky-50"
                       >
                         {s.label}
                       </a>

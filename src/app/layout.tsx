@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     "environmental action",
     "sustainability India",
     "Carter Clean Up",
-    "Greenmyna",
+    "One Nation Many Missions",
   ],
   alternates: { canonical: "/" },
   openGraph: {
@@ -68,7 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex min-h-full flex-col antialiased">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-full focus:bg-forest focus:px-5 focus:py-3 focus:text-sm focus:text-white"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-full focus:bg-deep focus:px-5 focus:py-3 focus:text-sm focus:text-white"
         >
           Skip to content
         </a>

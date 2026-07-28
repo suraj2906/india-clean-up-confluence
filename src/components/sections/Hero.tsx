@@ -3,24 +3,20 @@
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, ArrowDown } from "lucide-react";
 
-import { hero } from "@/content/site";
+import { editions, hero } from "@/content/site";
 import { EASE } from "@/lib/motion";
 import { ButtonLink } from "@/components/ui/Button";
 import { SmartImage } from "@/components/ui/SmartImage";
 
 export function Hero() {
   const reduced = useReducedMotion();
-  const words = hero.title.split("\n");
+  const lines = hero.title.split("\n");
 
   return (
-    <section className="relative flex min-h-[92svh] items-end overflow-hidden bg-forest">
-      {/* Backdrop photo, slowly settling from a slight zoom. */}
-      <motion.div
-        className="absolute inset-0"
-        initial={{ scale: reduced ? 1 : 1.08, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: reduced ? 0.5 : 1.6, ease: EASE }}
-      >
+    <section className="relative isolate flex min-h-[92vh] items-center overflow-hidden pb-16 pt-32">
+      {/* Full-bleed photo, with a scrim so the overlaid text and the header
+          above it both stay legible regardless of what's in the shot. */}
+      <div className="absolute inset-0 -z-10">
         <SmartImage
           src={hero.image.src}
           alt={hero.image.alt}
@@ -29,34 +25,39 @@ export function Hero() {
           sizes="100vw"
           priority
           fill
+          className="object-cover"
         />
-      </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-t from-deep via-deep/70 to-deep/40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-deep/50 via-transparent to-transparent" />
+        {/* Soft handoff into the section below instead of a hard photo edge. */}
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-shell" />
+      </div>
 
-      {/* Two overlays: a vertical one for text legibility, a green one for warmth. */}
-      <div className="absolute inset-0 bg-gradient-to-t from-forest via-forest/70 to-forest/25" />
-      <div className="absolute inset-0 bg-forest/25 mix-blend-multiply" />
-
-      <div className="container-page relative z-10 pb-20 pt-32 sm:pb-28">
+      <div className="container-page relative z-10">
         <motion.p
-          className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-white backdrop-blur-sm"
+          className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-white backdrop-blur-sm"
           initial={{ opacity: 0, y: reduced ? 0 : 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15, ease: EASE }}
+          transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
         >
-          <span className="size-1.5 rounded-full bg-marigold" aria-hidden />
+          <span className="size-1.5 rounded-full bg-leaf" aria-hidden />
           {hero.eyebrow}
         </motion.p>
 
-        <h1 className="text-display max-w-4xl text-white">
-          {words.map((line, i) => (
+        <h1 className="text-display max-w-2xl text-white">
+          {lines.map((line, i) => (
             <motion.span
               key={line}
               className="block"
               initial={{ opacity: 0, y: reduced ? 0 : 32 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.25 + i * 0.12, ease: EASE }}
+              transition={{ duration: 0.8, delay: 0.2 + i * 0.12, ease: EASE }}
             >
-              {i === words.length - 1 ? <em className="not-italic text-marigold">{line}</em> : line}
+              {i === lines.length - 1 ? (
+                <em className="not-italic text-sky-300">{line}</em>
+              ) : (
+                line
+              )}
             </motion.span>
           ))}
         </h1>
@@ -65,7 +66,7 @@ export function Hero() {
           className="mt-7 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg"
           initial={{ opacity: 0, y: reduced ? 0 : 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.5, ease: EASE }}
+          transition={{ duration: 0.7, delay: 0.45, ease: EASE }}
         >
           {hero.subtitle}
         </motion.p>
@@ -74,21 +75,43 @@ export function Hero() {
           className="mt-10 flex flex-wrap items-center gap-3"
           initial={{ opacity: 0, y: reduced ? 0 : 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.62, ease: EASE }}
+          transition={{ duration: 0.7, delay: 0.58, ease: EASE }}
         >
           <ButtonLink href={hero.primaryCta.href}>
             {hero.primaryCta.label}
             <ArrowRight className="size-4" aria-hidden />
           </ButtonLink>
-          <ButtonLink
-            href={hero.secondaryCta.href}
-            variant="ghost"
-            className="border-white/30 text-white hover:border-white/60 hover:bg-white/10"
-          >
+          <ButtonLink href={hero.secondaryCta.href} variant="ghost-light">
             {hero.secondaryCta.label}
             <ArrowDown className="size-4" aria-hidden />
           </ButtonLink>
         </motion.div>
+
+        {/* Signposts the order the rest of the page runs in. */}
+        <motion.ol
+          className="mt-12 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-semibold uppercase tracking-[0.12em] text-white/65"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.75, ease: EASE }}
+        >
+          {editions.map((edition, i) => (
+            <li key={edition.id} className="flex items-center gap-3">
+              {i > 0 && (
+                <span className="text-white/30" aria-hidden>
+                  →
+                </span>
+              )}
+              <a
+                href={`#${edition.id}`}
+                className={`transition-colors hover:text-white ${
+                  edition.status === "upcoming" ? "text-sky-300" : ""
+                }`}
+              >
+                {edition.name}
+              </a>
+            </li>
+          ))}
+        </motion.ol>
       </div>
     </section>
   );

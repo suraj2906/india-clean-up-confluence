@@ -4,6 +4,7 @@ import { Expand } from "lucide-react";
 import { useState } from "react";
 
 import { gallery } from "@/content/site";
+import { HoverVideo } from "@/components/ui/HoverVideo";
 import { Lightbox } from "@/components/ui/Lightbox";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -21,30 +22,41 @@ export function Gallery() {
           intro="Sessions, drives and the people who showed up."
         />
 
-        {/* CSS columns give a masonry feel without a layout library. */}
+        {/* CSS columns give a masonry feel without a layout library. Every
+            tile — photo or video — opens the same lightbox at its own index. */}
         <div className="mt-16 gap-5 [column-count:1] sm:[column-count:2] lg:[column-count:3]">
-          {gallery.map((photo, i) => (
-            <Reveal key={photo.src} delay={(i % 3) * 0.08} className="mb-5 break-inside-avoid">
-              <button
-                onClick={() => setOpen(i)}
-                aria-label={`Open photo: ${photo.caption ?? photo.alt}`}
-                className="group relative block w-full overflow-hidden rounded-3xl bg-leaf-100 shadow-soft transition-shadow duration-300 hover:shadow-lift"
-              >
-                <SmartImage
-                  src={photo.src}
-                  alt={photo.alt}
-                  width={photo.width}
-                  height={photo.height}
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="h-auto w-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+          {gallery.map((item, i) => (
+            <Reveal key={item.src} delay={(i % 3) * 0.08} className="mb-5 break-inside-avoid">
+              {"type" in item ? (
+                <HoverVideo
+                  src={item.src}
+                  poster={item.poster}
+                  caption={item.caption}
+                  onExpand={() => setOpen(i)}
+                  className="rounded-3xl"
                 />
-                <span className="pointer-events-none absolute inset-0 flex items-end bg-gradient-to-t from-forest/85 via-forest/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
-                  <span className="flex w-full items-center justify-between gap-3 p-5 text-left text-sm font-medium text-white">
-                    {photo.caption}
-                    <Expand className="size-4 shrink-0" aria-hidden />
+              ) : (
+                <button
+                  onClick={() => setOpen(i)}
+                  aria-label={`Open photo: ${item.caption ?? item.alt}`}
+                  className="group relative block w-full overflow-hidden rounded-3xl bg-sky-100 shadow-soft transition-shadow duration-300 hover:shadow-lift"
+                >
+                  <SmartImage
+                    src={item.src}
+                    alt={item.alt}
+                    width={item.width}
+                    height={item.height}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="h-auto w-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                  />
+                  <span className="pointer-events-none absolute inset-0 flex items-end bg-gradient-to-t from-deep/85 via-deep/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
+                    <span className="flex w-full items-center justify-between gap-3 p-5 text-left text-sm font-medium text-white">
+                      {item.caption}
+                      <Expand className="size-4 shrink-0" aria-hidden />
+                    </span>
                   </span>
-                </span>
-              </button>
+                </button>
+              )}
             </Reveal>
           ))}
         </div>

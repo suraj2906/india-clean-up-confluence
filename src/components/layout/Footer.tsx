@@ -1,12 +1,19 @@
+"use client";
+
 import { Mail, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { contact, nav, site } from "@/content/site";
 import { Logo } from "./Logo";
 
 export function Footer() {
+  const pathname = usePathname();
+  // The proposal route reskins to the pitch deck's palette (see globals.css).
+  const deckThemed = pathname.startsWith("/proposal");
+
   return (
-    <footer className="bg-forest text-white/70">
+    <footer className={`bg-deep text-white/70 ${deckThemed ? "theme-deck" : ""}`}>
       <div className="container-page grid gap-12 py-16 md:grid-cols-[1.4fr_1fr_1.2fr] md:py-20">
         <div>
           <Logo tone="dark" />
@@ -21,13 +28,13 @@ export function Footer() {
           <ul className="space-y-2.5 text-sm">
             {nav.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="transition-colors hover:text-marigold">
+                <Link href={item.href} className="transition-colors hover:text-sky-300">
                   {item.label}
                 </Link>
               </li>
             ))}
             <li>
-              <Link href="/contact" className="transition-colors hover:text-marigold">
+              <Link href="/contact" className="transition-colors hover:text-sky-300">
                 Contact
               </Link>
             </li>
@@ -40,22 +47,22 @@ export function Footer() {
           </h3>
           <ul className="space-y-3 text-sm">
             <li className="flex items-start gap-3">
-              <Mail className="mt-0.5 size-4 shrink-0 text-marigold" aria-hidden />
-              <a href={`mailto:${contact.email}`} className="transition-colors hover:text-marigold">
+              <Mail className="mt-0.5 size-4 shrink-0 text-sky-300" aria-hidden />
+              <a href={`mailto:${contact.email}`} className="transition-colors hover:text-sky-300">
                 {contact.email}
               </a>
             </li>
             <li className="flex items-start gap-3">
-              <Phone className="mt-0.5 size-4 shrink-0 text-marigold" aria-hidden />
+              <Phone className="mt-0.5 size-4 shrink-0 text-sky-300" aria-hidden />
               <a
                 href={`tel:${contact.phone.replace(/\s/g, "")}`}
-                className="transition-colors hover:text-marigold"
+                className="transition-colors hover:text-sky-300"
               >
                 {contact.phone}
               </a>
             </li>
             <li className="flex items-start gap-3">
-              <MapPin className="mt-0.5 size-4 shrink-0 text-marigold" aria-hidden />
+              <MapPin className="mt-0.5 size-4 shrink-0 text-sky-300" aria-hidden />
               <span>{contact.location}</span>
             </li>
           </ul>
@@ -67,7 +74,7 @@ export function Footer() {
                   href={s.href}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="transition-colors hover:text-marigold"
+                  className="transition-colors hover:text-sky-300"
                 >
                   {s.label}
                 </a>

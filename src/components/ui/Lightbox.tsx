@@ -4,11 +4,16 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 
-import type { Img } from "@/content/site";
+import type { GalleryVideo, Img } from "@/content/site";
 import { EASE } from "@/lib/motion";
 import { SmartImage } from "./SmartImage";
 
-type Item = Img & { caption?: string };
+type Photo = Img & { caption?: string };
+type Item = Photo | GalleryVideo;
+
+const isVideo = (item: Item): item is GalleryVideo => "type" in item;
+/** Alt text lives on the item itself for photos, on the poster for videos. */
+const altOf = (item: Item) => (isVideo(item) ? item.poster.alt : item.alt);
 
 export function Lightbox({
   items,
@@ -77,8 +82,8 @@ export function Lightbox({
         <motion.div
           role="dialog"
           aria-modal="true"
-          aria-label={item.caption ?? item.alt}
-          className="fixed inset-0 z-100 flex items-center justify-center bg-forest/95 p-4 backdrop-blur-sm sm:p-8"
+          aria-label={item.caption ?? altOf(item)}
+          className="fixed inset-0 z-100 flex items-center justify-center bg-deep/95 p-4 backdrop-blur-sm sm:p-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -112,15 +117,27 @@ export function Lightbox({
           >
             {/* Both dimensions are capped so any aspect ratio fits the viewport
                 without overflowing — the caption's height is part of the budget. */}
-            <div className="flex justify-center overflow-hidden rounded-2xl bg-forest-700">
-              <SmartImage
-                src={item.src}
-                alt={item.alt}
-                width={item.width}
-                height={item.height}
-                sizes="(max-width: 896px) 100vw, 896px"
-                className="h-auto max-h-[calc(100dvh-9rem)] w-auto max-w-full object-contain"
-              />
+            <div className="flex justify-center overflow-hidden rounded-2xl bg-deep-700">
+              {isVideo(item) ? (
+                <video
+                  key={item.src}
+                  src={item.src}
+                  poster={item.poster.src}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="h-auto max-h-[calc(100dvh-9rem)] w-auto max-w-full object-contain"
+                />
+              ) : (
+                <SmartImage
+                  src={item.src}
+                  alt={item.alt}
+                  width={item.width}
+                  height={item.height}
+                  sizes="(max-width: 896px) 100vw, 896px"
+                  className="h-auto max-h-[calc(100dvh-9rem)] w-auto max-w-full object-contain"
+                />
+              )}
             </div>
             {item.caption && (
               <figcaption className="mt-4 text-center text-sm text-white/70">
@@ -142,7 +159,7 @@ function NavButton({ side, onClick }: { side: "left" | "right"; onClick: () => v
   return (
     <button
       data-lightbox-focus
-      aria-label={side === "left" ? "Previous photo" : "Next photo"}
+      aria-label={side === "left" ? "Previous item" : "Next item"}
       onClick={(e) => {
         e.stopPropagation();
         onClick();

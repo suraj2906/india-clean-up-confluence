@@ -1,20 +1,40 @@
 @import "tailwindcss";
 
 @theme {
-  /* "Coast & canopy" — greens of the land, teal of the coast, marigold accent. */
-  --color-forest: #0f3d2e;
-  --color-forest-700: #17513d;
-  --color-leaf: #2e9e5b;
-  --color-leaf-600: #268a4e;
-  --color-leaf-100: #dcf1e5;
-  --color-ocean: #0e7c86;
-  --color-ocean-100: #d7eef0;
-  --color-marigold: #e8a33d;
-  --color-marigold-100: #fbeed8;
-  --color-sand: #f5efe3;
-  --color-shell: #fbfaf7;
-  --color-ink: #12201a;
-  --color-muted: #5b6b63;
+  /* "Sky, wave & summit" — lifted from the ICUC identity: a bright sky-blue
+     wave breaking in front of a pale mountain, with a single green leaf. */
+
+  /* The wave. Primary brand colour. `sky` and `sky-300` are fills and dark-band
+     accents only — anything that has to be *read* on white uses `sky-700`. */
+  --color-sky: #4db8ff;
+  --color-sky-700: #0b6ba0;
+  --color-sky-600: #1f97e0;
+  --color-sky-300: #92dcff;
+  --color-sky-100: #ceeefd;
+  --color-sky-50: #eaf7ff;
+
+  /* The same water at depth. Carries the dark bands and the footer. */
+  --color-deep: #0e3554;
+  --color-deep-700: #17496f;
+
+  /* The leaf. */
+  --color-leaf: #038e4a;
+  --color-leaf-600: #04713c;
+  --color-leaf-100: #d9f0e3;
+
+  /* The mountain behind the wave — a cool neutral, never a text colour. */
+  --color-summit: #c8cee4;
+  --color-summit-100: #e9ecf5;
+
+  --color-shell: #ffffff;
+  --color-mist: #f2f9fe;
+
+  --color-ink: #2f333b;
+  --color-muted: #667085;
+
+  /* Form validation only. */
+  --color-alert: #c0392b;
+  --color-alert-100: #fdecea;
 
   /* Sources are the next/font variables set in layout.tsx. They must NOT be named
      --font-display / --font-sans, or these declarations become self-referential. */
@@ -23,8 +43,8 @@
 
   --radius-4xl: 2rem;
 
-  --shadow-lift: 0 18px 40px -18px rgb(15 61 46 / 0.28);
-  --shadow-soft: 0 2px 10px -4px rgb(15 61 46 / 0.15);
+  --shadow-lift: 0 18px 40px -18px rgb(14 53 84 / 0.28);
+  --shadow-soft: 0 2px 10px -4px rgb(14 53 84 / 0.14);
 }
 
 @layer base {
@@ -46,7 +66,7 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    color: var(--color-forest);
+    color: var(--color-ink);
     letter-spacing: -0.02em;
     text-wrap: balance;
   }
@@ -56,12 +76,12 @@
   }
 
   ::selection {
-    background-color: var(--color-leaf);
+    background-color: var(--color-sky-700);
     color: white;
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-ocean);
+    outline: 2px solid var(--color-sky-700);
     outline-offset: 3px;
     border-radius: 4px;
   }
@@ -91,6 +111,79 @@
       padding-inline: 2rem;
     }
   }
+
+  /* Scrollable but scrollbar-free — for carousels/strips where the snap
+     points and arrow controls are the only intended way to navigate. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* The poster's sky: pale blue overhead, clouds breaking, white at the horizon.
+     Layered radial gradients rather than an image, so it costs nothing. */
+  .bg-skywash {
+    background:
+      radial-gradient(70% 45% at 18% 22%, rgb(255 255 255 / 0.9) 0%, transparent 60%),
+      radial-gradient(55% 40% at 82% 8%, rgb(255 255 255 / 0.75) 0%, transparent 55%),
+      radial-gradient(90% 55% at 50% 108%, var(--color-shell) 0%, transparent 65%),
+      linear-gradient(
+        180deg,
+        var(--color-sky-100) 0%,
+        var(--color-sky-50) 58%,
+        var(--color-shell) 100%
+      );
+  }
+}
+
+/* The ICUC 3.0 pitch deck's palette, for `/proposal`.
+   Scoped to `.theme-deck` so every existing component reskins for free:
+   Tailwind's utilities compile to `var(--color-*)`, so redefining those on an
+   ancestor is enough — no component needs a second set of classes.
+
+   IMPORTANT — these are ROLE names here, not hue names. The deck inverts the
+   live site's hierarchy: it's green-forward on a pale cyan wash (every pill,
+   table fill and heading is green; blue is the supporting colour), where the
+   site is blue-forward on white with green as a small leaf accent. So rather
+   than nudge each hue — which is what made the first attempt invisible, since
+   both palettes derive from the same ICUC identity — the roles swap:
+
+     `sky-*`  = the primary role  -> the deck's greens
+     `leaf-*` = the secondary role -> the deck's blues
+     `shell` / `mist` = the pale cyan page wash, not white
+
+   Expect `text-sky-700` to paint green and `bg-leaf` to paint blue in here. */
+.theme-deck {
+  /* Primary: the deck's green — its pills, table fills and headings. */
+  --color-sky: #4bad74;
+  --color-sky-700: #17795c;
+  --color-sky-600: #1d9476;
+  /* The bright accent on the navy bands — the deck's olive-green table row. */
+  --color-sky-300: #9ed17f;
+  --color-sky-100: #d5eede;
+  --color-sky-50: #eaf7ef;
+
+  /* The deck's navy brush band. */
+  --color-deep: #063a5e;
+  --color-deep-700: #0d5580;
+
+  /* Secondary: the deck's blue — its headings and rules. */
+  --color-leaf: #2f7fae;
+  --color-leaf-600: #256a94;
+  --color-leaf-100: #d9ecf7;
+
+  /* The pale cyan the deck lays every slide on, instead of white. */
+  --color-shell: #eafcfe;
+  --color-mist: #dbf6ff;
+
+  --color-summit: #b3dced;
+  --color-summit-100: #daf1f9;
+
+  --color-ink: #123a52;
+  --color-muted: #4a7186;
 }
 
 /* Respect the OS setting: keep opacity fades, drop everything that moves. */

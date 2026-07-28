@@ -8,10 +8,10 @@ export function CtaBand() {
   return (
     <section className="bg-shell px-5 pb-24 sm:pb-32 md:px-8">
       <Reveal>
-        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-4xl bg-gradient-to-br from-forest via-forest-700 to-ocean px-8 py-16 text-center sm:px-16 sm:py-24">
+        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-4xl bg-gradient-to-br from-deep via-deep-700 to-sky-700 px-8 py-16 text-center sm:px-16 sm:py-24">
           <div
             aria-hidden
-            className="pointer-events-none absolute -bottom-24 left-1/2 size-96 -translate-x-1/2 rounded-full bg-marigold/10 blur-3xl"
+            className="pointer-events-none absolute -bottom-24 left-1/2 size-96 -translate-x-1/2 rounded-full bg-sky/20 blur-3xl"
           />
           <div className="relative">
             <h2 className="text-section text-white">{cta.title}</h2>

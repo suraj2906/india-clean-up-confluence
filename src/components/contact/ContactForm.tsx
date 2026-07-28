@@ -13,8 +13,8 @@ type Status = "idle" | "sending" | "sent" | "error";
 type Errors = Partial<Record<"name" | "email" | "message", string>>;
 
 const field =
-  "w-full rounded-2xl border border-forest/15 bg-white px-4 py-3 text-sm text-ink " +
-  "placeholder:text-muted/60 transition-colors focus:border-ocean focus:outline-none";
+  "w-full rounded-2xl border border-summit bg-white px-4 py-3 text-sm text-ink " +
+  "placeholder:text-muted/60 transition-colors focus:border-sky focus:outline-none";
 
 export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
@@ -102,7 +102,7 @@ export function ContactForm() {
     <form
       onSubmit={onSubmit}
       noValidate
-      className="rounded-4xl border border-forest/8 bg-white p-6 shadow-soft sm:p-9"
+      className="rounded-4xl border border-summit/60 bg-white p-6 shadow-soft sm:p-9"
     >
       {/* Honeypot — visually hidden, never focusable by keyboard. */}
       <input
@@ -164,9 +164,9 @@ export function ContactForm() {
       {status === "error" && (
         <p
           role="alert"
-          className="mt-5 flex items-start gap-2.5 rounded-2xl bg-marigold-100 p-4 text-sm text-forest"
+          className="mt-5 flex items-start gap-2.5 rounded-2xl bg-alert-100 p-4 text-sm text-ink"
         >
-          <AlertCircle className="mt-0.5 size-4 shrink-0 text-marigold" aria-hidden />
+          <AlertCircle className="mt-0.5 size-4 shrink-0 text-alert" aria-hidden />
           {message}
         </p>
       )}
@@ -208,14 +208,14 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={name} className="mb-2 flex items-baseline gap-2 text-sm font-medium text-forest">
+      <label htmlFor={name} className="mb-2 flex items-baseline gap-2 text-sm font-medium text-ink">
         {label}
-        {required && <span className="text-leaf">*</span>}
+        {required && <span className="text-alert">*</span>}
         {hint && <span className="text-xs font-normal text-muted">{hint}</span>}
       </label>
       {children}
       {error && (
-        <p className="mt-2 text-xs text-red-600" role="alert">
+        <p className="mt-2 text-xs text-alert" role="alert">
           {error}
         </p>
       )}

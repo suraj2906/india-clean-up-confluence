@@ -13,7 +13,7 @@ export function SectionHeading({
   title: ReactNode;
   intro?: ReactNode;
   align?: "left" | "center";
-  /** `dark` inverts the colours for use on the forest-green bands. */
+  /** `dark` inverts the colours for use on the deep-blue bands. */
   tone?: "light" | "dark";
 }) {
   const centered = align === "center";
@@ -24,7 +24,7 @@ export function SectionHeading({
         <Reveal>
           <p
             className={`mb-3 text-xs font-semibold uppercase tracking-[0.18em] ${
-              tone === "dark" ? "text-marigold" : "text-ocean"
+              tone === "dark" ? "text-sky-300" : "text-sky-700"
             }`}
           >
             {eyebrow}
