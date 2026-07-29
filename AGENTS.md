@@ -15,12 +15,32 @@ Motion (`motion/react`), `lucide-react` for icons.
 
 ## The rules that matter here
 
-**The landing page is a chronology.** `src/app/page.tsx` runs `Hero` → `Movement`
-(the Carter Clean Up beach clean-up we started) → `Confluence` (how that became
-ICUC) → `Editions` (1.0 → 2.0 → 3.0) → everything else. That order is the point of
-the page; the editions render straight out of the `editions` array in source order,
-so reordering the array reorders history. Don't insert a section between `Movement`
-and `Editions` that breaks the sequence.
+**The landing page is a chronology.** `src/app/page.tsx` runs `Cover` → `Hero` →
+`Movement` (the Carter Clean Up beach clean-up we started) → `Confluence` (how that
+became ICUC) → `Editions` (1.0 → 2.0 → 3.0) → everything else. That order is the
+point of the page; the editions render straight out of the `editions` array in
+source order, so reordering the array reorders history. Don't insert a section
+between `Movement` and `Editions` that breaks the sequence.
+
+`Cover` sits outside that chronology — it is a title card holding the ICUC 3.0 key
+art full-bleed, which after about four seconds scrolls the page down to `Hero` on
+its own. It is a normal section in the flow, not an overlay, so with JS off it
+degrades to a picture you scroll past. The auto-scroll fires once, only from a
+standing start at the top of the page, never under `prefers-reduced-motion`, and
+stands down the moment the reader scrolls, taps or types — if you touch it, keep
+all four of those true. While it holds, `data-intro` on `<html>` takes the header
+off screen so nothing competes with the artwork; scrolling is deliberately left
+unlocked, because the intro stands down on the first scroll and that has to work.
+`/proposal` leads with the same card, inside `.theme-deck`. Since nothing opens on
+the dark banner any more, `Header` no longer inverts to white nav text anywhere —
+pale key art would swallow it, and by the time the banner is in view the page has
+scrolled and the header is solid. Bring the inversion back if a route ever opens
+on `Hero` again.
+
+The key art appears exactly once, on `Cover`. `Hero` sits on `WaveField` instead —
+a crop of the same illustration behind copy that already says the same words was
+the third telling in two screens. `hero.image` still exists in `site.ts` because
+`HeroSplit` on `/classic` boxes it beside the copy, where it works.
 
 **Copy lives in `src/content/site.ts`, never in a component.** Headlines, stats,
 edition details, changemaker names, gallery entries, partner logos, nav links,
@@ -42,7 +62,12 @@ border and illustration colour, never a text colour.
 
 Headings automatically get the display font and `ink` via a base-layer rule, so
 don't re-apply `font-display` or a colour to an `h1`–`h4`. `.bg-skywash` is the
-poster's cloudy sky gradient — it belongs to page tops (`Hero`, `/contact`, 404).
+poster's cloudy sky gradient — it belongs to page tops (`Cover`, `/contact`, 404).
+`.bg-deepwater` is its dark twin and belongs under white copy; it is the base of
+`WaveField`, which draws the identity — deep water, a pale summit, the sky-blue
+wave — as the `Hero` backdrop instead of a photograph. The swell loops off
+`--animate-swell`, the one ambient keyframe here; it is weather rather than an
+entrance, which is why it is linear and not on `EASE`.
 
 **Images may not exist on disk.** The photo set is delivered after launch, so
 `public/images/{hero,movement,editions,changemakers,gallery,partners}/` are
@@ -73,8 +98,8 @@ per-component transitions or a second easing curve.
 
 **Client components are the exception.** Only things that genuinely need state or
 effects carry `"use client"`: `SmartImage`, `Lightbox`, `PhotoStrip`, `VideoEmbed`,
-`CountUp`, `Reveal`, `ContactForm`, `Header` (mobile nav), and the two interactive
-sections `Hero` and `Gallery`. Every other section — `Movement`, `Confluence`,
+`CountUp`, `Reveal`, `ContactForm`, `Header` (mobile nav), and the three interactive
+sections `Cover`, `Hero` and `Gallery`. Every other section — `Movement`, `Confluence`,
 `Editions`, `Stats`, `Changemakers`, `Partners`, `CtaBand` — is a server component
 that composes client leaves. Keep it that way when adding a section.
 

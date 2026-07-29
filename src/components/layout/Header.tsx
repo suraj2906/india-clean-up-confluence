@@ -25,12 +25,12 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Routes whose hero is the dark full-bleed banner (`Hero`). The header is
-  // transparent over it, so it has to invert to light text until scrolled past.
-  // `/classic` is deliberately absent — it uses `HeroSplit`, which is light,
-  // as do /contact and 404.
-  const bannerHero = pathname === "/" || pathname === "/proposal";
-  const overHero = bannerHero && !scrolled && !open;
+  // The header used to invert to white text while it sat transparent over the
+  // dark `Hero` banner. Nothing opens on that banner any more — `/` and
+  // `/proposal` both lead with `Cover`, whose pale key art would swallow white
+  // text, and `/classic`, `/contact` and 404 were always light. By the time the
+  // banner is in view the page has scrolled, so the header is solid anyway.
+  // Bring the inversion back if a route ever opens on `Hero` again.
 
   // The proposal route reskins to the pitch deck's palette (see globals.css).
   const deckThemed = pathname.startsWith("/proposal");
@@ -58,18 +58,14 @@ export function Header() {
       }`}
     >
       <div className="container-page flex h-20 items-center justify-between">
-        <Logo tone={overHero ? "dark" : "light"} />
+        <Logo />
 
         <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                overHero
-                  ? "text-white/85 hover:bg-white/10 hover:text-white"
-                  : "text-ink/75 hover:bg-sky-50 hover:text-sky-700"
-              }`}
+              className="rounded-full px-4 py-2 text-sm font-medium text-ink/75 transition-colors hover:bg-sky-50 hover:text-sky-700"
             >
               {item.label}
             </Link>
@@ -85,9 +81,7 @@ export function Header() {
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? "Close menu" : "Open menu"}
-            className={`rounded-full p-2.5 transition lg:hidden ${
-              overHero ? "text-white hover:bg-white/10" : "text-ink hover:bg-sky-50"
-            }`}
+            className="rounded-full p-2.5 text-ink transition hover:bg-sky-50 lg:hidden"
           >
             {open ? <X className="size-6" aria-hidden /> : <Menu className="size-6" aria-hidden />}
           </button>

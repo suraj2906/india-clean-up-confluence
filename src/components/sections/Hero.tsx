@@ -6,7 +6,7 @@ import { ArrowRight, ArrowDown } from "lucide-react";
 import { editions, hero } from "@/content/site";
 import { EASE } from "@/lib/motion";
 import { ButtonLink } from "@/components/ui/Button";
-import { SmartImage } from "@/components/ui/SmartImage";
+import { WaveField } from "@/components/ui/WaveField";
 
 export function Hero() {
   const reduced = useReducedMotion();
@@ -14,22 +14,12 @@ export function Hero() {
 
   return (
     <section className="relative isolate flex min-h-[92vh] items-center overflow-hidden pb-16 pt-32">
-      {/* Full-bleed photo, with a scrim so the overlaid text and the header
-          above it both stay legible regardless of what's in the shot. */}
+      {/* Drawn, not photographed. `Cover` has just shown the key art full-screen,
+          so repeating a crop of it here would be the third time in two screens —
+          and no scrim is needed when the backdrop is dark by construction. */}
       <div className="absolute inset-0 -z-10">
-        <SmartImage
-          src={hero.image.src}
-          alt={hero.image.alt}
-          width={hero.image.width}
-          height={hero.image.height}
-          sizes="100vw"
-          priority
-          fill
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-deep via-deep/70 to-deep/40" />
-        <div className="absolute inset-0 bg-gradient-to-b from-deep/50 via-transparent to-transparent" />
-        {/* Soft handoff into the section below instead of a hard photo edge. */}
+        <WaveField />
+        {/* The swell runs out onto the white of the section below. */}
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-shell" />
       </div>
 

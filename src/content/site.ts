@@ -35,6 +35,25 @@ export const nav = [
   { label: "Gallery", href: "/#gallery" },
 ] as const;
 
+/**
+ * The title card that holds the screen for a moment before the page walks itself
+ * down to the hero. `Cover` renders it whole — no crop, no scrim — which is the
+ * only place the key art reads the way it was designed to.
+ *
+ * The slide carries its own wording, so `alt` has to repeat it rather than
+ * describe the picture.
+ */
+export const cover = {
+  image: {
+    src: "/images/hero/hero-icuc-3.png",
+    alt: "ICUC 3.0 — India Clean-Up Confluence 2026. One nation, many missions — September 2026. A Carter Clean Up initiative.",
+    width: 1920,
+    height: 1080,
+  } satisfies Img,
+  /** The way past the wait, and the only way down for reduced-motion readers. */
+  skip: "Enter",
+};
+
 export const hero = {
   eyebrow: "ICUC 3.0 — India Clean-Up Confluence",
   title: "One nation,\nmany missions",
@@ -42,9 +61,11 @@ export const hero = {
     "It started with one beach. It became a national confluence of everyone cleaning up India — coastlines, lakes, hills, streets. Bringing Cleanup Movements Under One roof.",
   primaryCta: { label: "Get involved", href: "/contact" },
   secondaryCta: { label: "How it started", href: "/#movement" },
+  /** The key art cropped to the illustration. Deliberately text-free: the H1 and
+      the eyebrow are laid over it, and the full title card already ran above. */
   image: {
     src: "/images/hero/hero.jpg",
-    alt: "Volunteers gathered on an Indian coastline during a community clean-up drive",
+    alt: "Illustrated Delhi skyline — India Gate and the Qutub Minar ringed in green — with volunteers collecting waste along the riverbank",
     width: 2400,
     height: 1600,
   } satisfies Img,

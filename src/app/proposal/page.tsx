@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 // import { Changemakers } from "@/components/sections/Changemakers";
 import { Confluence } from "@/components/sections/Confluence";
+import { Cover } from "@/components/sections/Cover";
 import { CtaBand } from "@/components/sections/CtaBand";
 import { Editions } from "@/components/sections/Editions";
 import { Gallery } from "@/components/sections/Gallery";
@@ -28,6 +29,7 @@ export default function ProposalPage() {
   // wrapper carries it — <body> sits outside and keeps the site's white.
   return (
     <div className="theme-deck bg-shell">
+      <Cover />
       <Hero />
       <Movement />
       <Confluence />

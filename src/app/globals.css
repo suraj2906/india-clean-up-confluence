@@ -43,6 +43,11 @@
 
   --radius-4xl: 2rem;
 
+  /* The wave field behind the hero. One period of the swell is half the drawn
+     width, so translating the whole thing by -50% loops with no seam. Linear and
+     endless — it is weather, not an entrance, so it stays off `EASE`. */
+  --animate-swell: swell 26s linear infinite;
+
   --shadow-lift: 0 18px 40px -18px rgb(14 53 84 / 0.28);
   --shadow-soft: 0 2px 10px -4px rgb(14 53 84 / 0.14);
 }
@@ -123,6 +128,25 @@
     display: none;
   }
 
+  /* The same poster at depth — the dark water the hero copy is laid over. The
+     sky glows in from the top right and the leaf from the bottom left, so the
+     three identity colours are all present without a photograph. Same trick as
+     `.bg-skywash`, same cost: nothing. */
+  .bg-deepwater {
+    background:
+      radial-gradient(
+        62% 48% at 80% 4%,
+        color-mix(in oklab, var(--color-sky-600) 34%, transparent) 0%,
+        transparent 62%
+      ),
+      radial-gradient(
+        58% 46% at 8% 96%,
+        color-mix(in oklab, var(--color-leaf) 26%, transparent) 0%,
+        transparent 62%
+      ),
+      linear-gradient(170deg, var(--color-deep) 0%, var(--color-deep-700) 100%);
+  }
+
   /* The poster's sky: pale blue overhead, clouds breaking, white at the horizon.
      Layered radial gradients rather than an image, so it costs nothing. */
   .bg-skywash {
@@ -184,6 +208,29 @@
 
   --color-ink: #123a52;
   --color-muted: #4a7186;
+}
+
+/* Drives `--animate-swell`. Kept at the top level rather than inside `@theme` so
+   it is plain CSS that resolves whatever Tailwind does with the token. */
+@keyframes swell {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* The title-card takeover. `Cover` sets this on <html> while the ICUC 3.0 key art
+   holds the screen and drops it the moment the intro ends or the reader takes
+   over, so for those few seconds the artwork is the only thing on screen. The
+   header fades rather than cutting — it already carries its own transition.
+
+   Scrolling is deliberately NOT locked. The whole intro stands down on the first
+   scroll, so the way out has to stay open. */
+html[data-intro] body > header {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Respect the OS setting: keep opacity fades, drop everything that moves. */
