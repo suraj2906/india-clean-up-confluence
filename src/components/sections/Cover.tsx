@@ -133,15 +133,34 @@ export function Cover() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1.2, ease: EASE }}
       >
-        <SmartImage
-          src={cover.image.src}
-          alt={cover.image.alt}
-          width={cover.image.width}
-          height={cover.image.height}
-          sizes="100vw"
-          priority
-          fill
-        />
+        {/* Two cuts of the same card, picked by viewport orientation rather than
+            width, since it is the shape of the screen that decides which one
+            survives `object-cover`.
+
+            Neither carries `priority`: that preloads the hidden one too, and
+            sending a phone the 2 MB wide slide it will never show is worse than
+            an LCP hint on a picture that then sits on screen for four seconds.
+            Hidden means `display: none`, so the unused cut is never fetched. */}
+        <div className="absolute inset-0 portrait:hidden">
+          <SmartImage
+            src={cover.image.src}
+            alt={cover.image.alt}
+            width={cover.image.width}
+            height={cover.image.height}
+            sizes="100vw"
+            fill
+          />
+        </div>
+        <div className="absolute inset-0 landscape:hidden">
+          <SmartImage
+            src={cover.imagePortrait.src}
+            alt={cover.imagePortrait.alt}
+            width={cover.imagePortrait.width}
+            height={cover.imagePortrait.height}
+            sizes="100vw"
+            fill
+          />
+        </div>
       </motion.div>
 
       {/* Translucent rather than bare, because `object-cover` decides what is
@@ -149,7 +168,7 @@ export function Cover() {
       <motion.button
         type="button"
         onClick={scrollToHero}
-        className="absolute inset-x-0 bottom-7 mx-auto inline-flex w-fit items-center gap-2.5 rounded-full bg-shell/75 py-2 pl-4 pr-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-sky-700 backdrop-blur-sm transition-colors hover:bg-shell"
+        className="absolute inset-x-0 bottom-8 mx-auto inline-flex w-fit items-center gap-2.5 rounded-full bg-shell/75 py-2.5 pl-5 pr-3 text-xs font-semibold uppercase tracking-[0.16em] text-sky-700 backdrop-blur-sm transition-colors hover:bg-shell"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 1.3, ease: EASE }}

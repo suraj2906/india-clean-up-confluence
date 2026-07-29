@@ -50,6 +50,18 @@ export const cover = {
     width: 1920,
     height: 1080,
   } satisfies Img,
+  /**
+   * The same card restacked for portrait screens, shown instead of the wide one
+   * below `landscape`. The slide puts the wordmark left and the illustration
+   * right, so cropping it to a phone keeps the blank gutter between the two and
+   * slices both — this cut stacks them, type over illustration.
+   */
+  imagePortrait: {
+    src: "/images/hero/hero-icuc-3-portrait.png",
+    alt: "ICUC 3.0 — India Clean-Up Confluence 2026. One nation, many missions — September 2026. A Carter Clean Up initiative.",
+    width: 1080,
+    height: 1920,
+  } satisfies Img,
   /** The way past the wait, and the only way down for reduced-motion readers. */
   skip: "Enter",
 };
