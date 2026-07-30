@@ -450,7 +450,7 @@ export const contact = {
   eyebrow: "Get in touch",
   title: "Bring your mission to the confluence",
   body: "Tell us how you'd like to be involved and the right person from the ICUC team will get back to you.",
-  email: "hello@indiacleanupconfluence.org",
+  email: "indiacleanupconfluence@gmail.com",
   phone: "+91 00000 00000",
   location: "Mumbai, Maharashtra, India",
   note: "ICUC grew out of Carter Clean Up, the beach clean-up movement on Carter Road, Bandra, founded in 2021.",

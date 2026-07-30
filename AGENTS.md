@@ -110,6 +110,20 @@ server-side handler. The key comes from `NEXT_PUBLIC_WEB3FORMS_KEY`. It is a pub
 key by design — but that also means it must stay the *only* secret-shaped thing in
 the client bundle. `.env.local` is not committed; see `.env.local.example`.
 
+Submissions land in **IndiaCleanupConfluence@gmail.com**, and the only thing that
+decides that is the access key — Web3Forms has no per-submission recipient field,
+so the destination is a property of the key, not of this code. Changing where mail
+goes means issuing a new key for the new address; there is nothing to edit here.
+`replyto` is set to the sender so replying in the inbox reaches them directly.
+`contact.email` in `site.ts` is the same address and is what the form's failure
+messages tell people to fall back to — keep the two in step.
+
+Test it in a browser, never with `curl`. Web3Forms rejects non-browser POSTs on the
+free plan (`"This method is not allowed. Use our API in client side"`), so a failed
+`curl` says nothing about whether the form works. A submission that reaches the
+Web3Forms dashboard proves the key and the client path are fine; if no mail arrives
+after that, the fault is in the Web3Forms account, not in this repo.
+
 ## Before you call it done
 
 ```bash

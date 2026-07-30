@@ -47,7 +47,7 @@ export function ContactForm() {
     if (!ACCESS_KEY) {
       setStatus("error");
       setMessage(
-        "This form isn't connected yet. Add NEXT_PUBLIC_WEB3FORMS_KEY to .env.local to start receiving submissions.",
+        `This form isn't connected yet — please email us at ${contact.email} instead.`,
       );
       return;
     }
@@ -61,6 +61,8 @@ export function ContactForm() {
           access_key: ACCESS_KEY,
           subject: `${site.name} website — ${data.get("subject")}`,
           from_name: `${site.name} website`,
+          // Replying in the inbox goes to the person who wrote in, not to us.
+          replyto: email,
           name,
           email,
           organisation: data.get("organisation"),
@@ -75,11 +77,11 @@ export function ContactForm() {
         form.reset();
       } else {
         setStatus("error");
-        setMessage(json.message ?? "Something went wrong. Please email us instead.");
+        setMessage(json.message ?? `Something went wrong. Please email us at ${contact.email} instead.`);
       }
     } catch {
       setStatus("error");
-      setMessage("Couldn't reach the server. Check your connection, or email us directly.");
+      setMessage(`Couldn't reach the server. Check your connection, or email us at ${contact.email}.`);
     }
   }
 
