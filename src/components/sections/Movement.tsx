@@ -1,3 +1,6 @@
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+
 import { movement } from "@/content/site";
 import { Carousel } from "@/components/ui/Carousel";
 import { Reveal } from "@/components/ui/Reveal";
@@ -45,6 +48,16 @@ export function Movement() {
           </div>
 
           <Reveal delay={0.15}>
+            <Link
+              href={movement.more.href}
+              className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sky-700 transition-colors hover:text-deep"
+            >
+              {movement.more.label}
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          </Reveal>
+
+          <Reveal delay={0.2}>
             <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-summit/50 pt-8">
               {movement.facts.map((fact) => (
                 <div key={fact.label}>

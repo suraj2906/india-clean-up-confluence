@@ -1,24 +1,29 @@
-"use client";
-
 import { Mail, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 import { contact, nav, site } from "@/content/site";
 import { Logo } from "./Logo";
 
 export function Footer() {
-  const pathname = usePathname();
-  // The proposal route reskins to the pitch deck's palette (see globals.css).
-  const deckThemed = pathname.startsWith("/proposal");
-
+  // The deck palette used to be switched on here for `/proposal` only. It is on
+  // <body> for every route now, so there is nothing route-specific left and this
+  // is a plain server component again.
   return (
-    <footer className={`bg-deep text-white/70 ${deckThemed ? "theme-deck" : ""}`}>
+    <footer className="bg-deep text-white/70">
       <div className="container-page grid gap-12 py-16 md:grid-cols-[1.4fr_1fr_1.2fr] md:py-20">
         <div>
           <Logo tone="dark" />
           <p className="mt-5 max-w-sm text-sm leading-relaxed">{site.description}</p>
-          <p className="mt-5 text-sm text-white/50">{contact.note}</p>
+          <p className="mt-5 text-sm text-white/50">
+            {contact.note.before}
+            <Link
+              href={contact.note.link.href}
+              className="text-white/70 underline underline-offset-2 transition-colors hover:text-sky-300"
+            >
+              {contact.note.link.label}
+            </Link>
+            {contact.note.after}
+          </p>
         </div>
 
         <nav aria-label="Footer">

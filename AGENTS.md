@@ -31,11 +31,22 @@ stands down the moment the reader scrolls, taps or types — if you touch it, ke
 all four of those true. While it holds, `data-intro` on `<html>` takes the header
 off screen so nothing competes with the artwork; scrolling is deliberately left
 unlocked, because the intro stands down on the first scroll and that has to work.
-`/proposal` leads with the same card, inside `.theme-deck`. Since nothing opens on
-the dark banner any more, `Header` no longer inverts to white nav text anywhere —
-pale key art would swallow it, and by the time the banner is in view the page has
-scrolled and the header is solid. Bring the inversion back if a route ever opens
-on `Hero` again.
+`/proposal` leads with the same card. Since nothing opens on the dark banner any
+more, `Header` no longer inverts to white nav text anywhere — pale key art would
+swallow it, and by the time the banner is in view the page has scrolled and the
+header is solid. Bring the inversion back if a route ever opens on `Hero` again.
+
+The header's own logo is faded out for as long as the key art's "ICUC 3.0"
+wordmark sits below the header: the artwork carries the mark there, so a second
+copy in the header prints it twice. `Cover` marks that wordmark's height with the
+empty `#cover-wordmark` line — mid-frame on the wide cut, near the top on the
+portrait one — and `Header` measures it against its own 80px strip on every
+scroll, cross-fading the mark in and out in both directions. Routes with no
+`#cover-wordmark` (contact, `/classic`, 404) simply always show it. The
+percentages are eyeballed against the artwork, since `object-cover` crops per
+viewport; move them if the handover lands early or late, and keep the id.
+There is no call-to-action button in the header; `CtaBand` and the footer are the
+route to `/contact`.
 
 The key art appears exactly once, on `Cover`. `Hero` sits on `WaveField` instead —
 a crop of the same illustration behind copy that already says the same words was
@@ -47,6 +58,15 @@ edition details, changemaker names, gallery entries, partner logos, nav links,
 contact details and the form's subject dropdown are all keyed objects in that one
 file. If a change is "what the site says", it is a `site.ts` edit and nothing else.
 Components read from it; they do not hardcode strings.
+
+**The site runs on the ICUC 3.0 pitch deck's palette.** `.theme-deck` in
+`globals.css` — originally a `/proposal`-only reskin — now sits on `<body>` in
+`layout.tsx`, so every route inherits it and `/proposal` is just the homepage at a
+second, unindexed URL. The class redefines the same `--color-*` tokens the
+`@theme` block below declares, and it swaps *roles*, not hues: `sky-*` is the
+deck's green, `leaf-*` its blue, `shell`/`mist` a pale cyan rather than white.
+Read the comment above the class before touching a colour. Removing that one class
+from `<body>` reverts the whole site to the identity palette.
 
 **Design tokens live in the `@theme` block of `src/app/globals.css`.** Tailwind v4
 has no `tailwind.config.js` here. The palette is taken from the ICUC identity —

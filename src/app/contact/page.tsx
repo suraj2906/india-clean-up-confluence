@@ -1,5 +1,6 @@
 import { Mail, MapPin, Phone } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { contact, site } from "@/content/site";
 import { ContactForm } from "@/components/contact/ContactForm";
@@ -93,7 +94,16 @@ export default function ContactPage() {
                     </li>
                   ))}
                 </ul>
-                <p className="mt-8 text-sm leading-relaxed text-muted">{contact.note}</p>
+                <p className="mt-8 text-sm leading-relaxed text-muted">
+                  {contact.note.before}
+                  <Link
+                    href={contact.note.link.href}
+                    className="font-medium text-sky-700 underline underline-offset-2 transition-colors hover:text-deep"
+                  >
+                    {contact.note.link.label}
+                  </Link>
+                  {contact.note.after}
+                </p>
               </div>
             </div>
           </Reveal>

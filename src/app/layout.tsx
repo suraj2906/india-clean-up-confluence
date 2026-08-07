@@ -65,7 +65,12 @@ const organisationJsonLd = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-IN" className={`${display.variable} ${body.variable} h-full`}>
-      <body className="flex min-h-full flex-col antialiased">
+      {/* The ICUC 3.0 pitch deck's palette is the site's palette now, so
+          `.theme-deck` (globals.css) sits on <body> and every route inherits it —
+          it is no longer a per-route reskin. Custom properties apply to the
+          element that declares them, so body's own `background-color:
+          var(--color-shell)` picks up the deck's pale cyan too. */}
+      <body className="theme-deck flex min-h-full flex-col antialiased">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-full focus:bg-deep focus:px-5 focus:py-3 focus:text-sm focus:text-white"

@@ -48,6 +48,14 @@
      endless — it is weather, not an entrance, so it stays off `EASE`. */
   --animate-swell: swell 26s linear infinite;
 
+  /* The partner logo row. Same trick as the swell: the track holds two identical
+     copies of the list, so walking it -50% lands on the second copy in exactly
+     the position the first started, and the loop is seamless. Linear, because a
+     conveyor that eases is a conveyor that looks broken. Speed is set per
+     instance via `animationDuration`, since it depends on how many logos there
+     are — the token's own duration is only a fallback. */
+  --animate-marquee: marquee 40s linear infinite;
+
   --shadow-lift: 0 18px 40px -18px rgb(14 53 84 / 0.28);
   --shadow-soft: 0 2px 10px -4px rgb(14 53 84 / 0.14);
 }
@@ -163,7 +171,11 @@
   }
 }
 
-/* The ICUC 3.0 pitch deck's palette, for `/proposal`.
+/* The ICUC 3.0 pitch deck's palette — the site's palette, applied once on <body>
+   in layout.tsx. It began as a `/proposal`-only reskin, which is why it is still
+   a class and not the `@theme` block above; the tokens up there are the original
+   "sky, wave & summit" identity these override, and reverting is a one-class edit.
+
    Scoped to `.theme-deck` so every existing component reskins for free:
    Tailwind's utilities compile to `var(--color-*)`, so redefining those on an
    ancestor is enough — no component needs a second set of classes.
@@ -213,6 +225,23 @@
 /* Drives `--animate-swell`. Kept at the top level rather than inside `@theme` so
    it is plain CSS that resolves whatever Tailwind does with the token. */
 @keyframes swell {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Drives `--animate-marquee` — the partner logo row. Identical shape to `swell`
+   above and for the same reason: the track is two copies of the list wide, so
+   -50% is exactly one copy.
+
+   The global `prefers-reduced-motion` block below clamps this to a single 0.01ms
+   run, which parks the track at -50%. That is the second copy sitting exactly
+   where the first was, so the row simply reads as static — which is the intended
+   reduced-motion result, not a broken one. */
+@keyframes marquee {
   from {
     transform: translate3d(0, 0, 0);
   }

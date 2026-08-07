@@ -8,22 +8,41 @@ import { useEffect, useState } from "react";
 
 import { nav } from "@/content/site";
 import { EASE } from "@/lib/motion";
-import { ButtonLink } from "@/components/ui/Button";
 import { Logo } from "./Logo";
+
+/** The header strip's own height — `h-20` on the bar below. */
+const HEADER_H = 80;
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
+  // True while the key art's own "ICUC 3.0" wordmark is still below the header.
+  // The artwork carries the mark for those moments, so a second copy in the
+  // header would print it twice; the header's mark fades back in as soon as the
+  // wordmark reaches the header strip — which on the portrait cut, where the
+  // wordmark sits right under the header already, is straight away.
+  const [wordmarkBelow, setWordmarkBelow] = useState(false);
   const [open, setOpen] = useState(false);
   const reduced = useReducedMotion();
   const pathname = usePathname();
 
   // Transparent over the hero, solid once the user starts scrolling.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40);
+      // Measured off the marker `Cover` puts on the wordmark rather than off a
+      // scroll offset, so routes with no title card (contact, /classic, 404)
+      // simply never hide the logo, the two cuts of the key art each get the
+      // handover in the right place, and `h-svh` changing with the mobile URL bar
+      // can't shift it. Re-read every scroll: cheap, and the rect is the only
+      // thing that stays right through the intro's own animated scroll.
+      const wordmark = document.getElementById("cover-wordmark");
+      setWordmarkBelow(!!wordmark && wordmark.getBoundingClientRect().top > HEADER_H);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    // The cover element belongs to the page, so re-measure when the route swaps.
+  }, [pathname]);
 
   // The header used to invert to white text while it sat transparent over the
   // dark `Hero` banner. Nothing opens on that banner any more — `/` and
@@ -31,9 +50,6 @@ export function Header() {
   // text, and `/classic`, `/contact` and 404 were always light. By the time the
   // banner is in view the page has scrolled, so the header is solid anyway.
   // Bring the inversion back if a route ever opens on `Hero` again.
-
-  // The proposal route reskins to the pitch deck's palette (see globals.css).
-  const deckThemed = pathname.startsWith("/proposal");
 
   useEffect(() => {
     if (!open) return;
@@ -50,15 +66,24 @@ export function Header() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        deckThemed ? "theme-deck" : ""
-      } ${
         scrolled || open
           ? "border-b border-summit/60 bg-shell/85 backdrop-blur-md"
           : "border-b border-transparent"
       }`}
     >
       <div className="container-page flex h-20 items-center justify-between">
-        <Logo />
+        {/* Kept mounted and only faded, so the header's layout never shifts and
+            the mark can cross-fade with the artwork in both directions. Hidden
+            from the tab order and from screen readers while it is invisible. */}
+        <div
+          className={`transition-opacity duration-500 ${
+            wordmarkBelow ? "pointer-events-none opacity-0" : "opacity-100"
+          }`}
+          aria-hidden={wordmarkBelow}
+          inert={wordmarkBelow}
+        >
+          <Logo />
+        </div>
 
         <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
           {nav.map((item) => (
@@ -72,10 +97,9 @@ export function Header() {
           ))}
         </nav>
 
+        {/* No call-to-action button up here any more — the footer and `CtaBand`
+            carry the route to /contact. */}
         <div className="flex items-center gap-3">
-          <ButtonLink href="/contact" className="hidden sm:inline-flex">
-            Contact us
-          </ButtonLink>
           <button
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
@@ -120,11 +144,6 @@ export function Header() {
                   </Link>
                 </motion.li>
               ))}
-              <li className="mt-3 px-1 sm:hidden">
-                <ButtonLink href="/contact" className="w-full">
-                  Contact us
-                </ButtonLink>
-              </li>
             </ul>
           </motion.nav>
         )}

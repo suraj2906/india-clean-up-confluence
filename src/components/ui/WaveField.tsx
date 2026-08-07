@@ -12,10 +12,7 @@
  * renders it.
  */
 
-/** Two identical periods across the viewBox, so a -50% shift loops seamlessly. */
-const SWELL =
-  "M0,150 C120,88 240,88 360,150 C480,212 600,212 720,150 " +
-  "C840,88 960,88 1080,150 C1200,212 1320,212 1440,150 L1440,320 L0,320 Z";
+import { SUMMIT, SWELL } from "@/lib/waves";
 
 /** Back to front: slower and fainter behind, quicker and brighter at the break. */
 const LAYERS = [
@@ -33,11 +30,7 @@ export function WaveField() {
         preserveAspectRatio="none"
         className="absolute inset-x-0 bottom-0 h-[52%] w-full"
       >
-        <path
-          d="M0,320 L300,132 L452,236 L668,68 L900,252 L1128,158 L1440,320 Z"
-          className="fill-summit"
-          opacity="0.09"
-        />
+        <path d={SUMMIT} className="fill-summit" opacity="0.09" />
       </svg>
 
       {LAYERS.map((layer) => (
@@ -46,7 +39,7 @@ export function WaveField() {
           className={`absolute inset-x-0 bottom-0 ${layer.height} ${layer.shift}`}
         >
           {/* Drawn at double width and walked left by half of it — see `swell`.
-              The viewBox has to span both copies or the second one is clipped away. */}
+              The viewBox has to span the whole path or its tail is clipped away. */}
           <svg
             viewBox="0 0 2880 320"
             preserveAspectRatio="none"
@@ -54,7 +47,6 @@ export function WaveField() {
             style={{ animationDuration: layer.duration }}
           >
             <path d={SWELL} className={layer.fill} opacity={layer.opacity} />
-            <path d={SWELL} className={layer.fill} opacity={layer.opacity} transform="translate(1440)" />
           </svg>
         </div>
       ))}

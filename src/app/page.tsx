@@ -6,6 +6,7 @@ import { Editions } from "@/components/sections/Editions";
 import { Gallery } from "@/components/sections/Gallery";
 import { Hero } from "@/components/sections/Hero";
 import { Movement } from "@/components/sections/Movement";
+import { Partners } from "@/components/sections/Partners";
 import { Stats } from "@/components/sections/Stats";
 
 /**
@@ -25,6 +26,7 @@ export default function HomePage() {
       <Stats />
       {/* <Changemakers /> */}
       <Gallery />
+      <Partners />
       <CtaBand />
     </>
   );

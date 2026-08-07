@@ -27,7 +27,9 @@ const RING = 2 * Math.PI * 16;
  *
  * While it holds, `data-intro` on <html> takes the header off the screen (see
  * globals.css) so nothing competes with the artwork. It comes back the instant
- * the page starts moving.
+ * the page starts moving — minus its logo, which stays faded out for as long as
+ * the key art's own wordmark sits below the header, since the artwork is already
+ * carrying the mark. `Header` reads `#cover-wordmark` below to know when that is.
  *
  * This is an ordinary section in the flow, not an overlay, so with no JS at all
  * it degrades to "a big picture you scroll past" — the page underneath is never
@@ -162,6 +164,19 @@ export function Cover() {
           />
         </div>
       </motion.div>
+
+      {/* Where the "ICUC 3.0" wordmark sits inside the key art, as a fraction of
+          the card's height — mid-frame on the wide slide, near the top on the
+          portrait one, which is why it tracks the same orientation split as the
+          images above. Nothing is drawn: `Header` measures this line to decide
+          when the header's own mark may come back (see Header.tsx). Approximate
+          by nature, since `object-cover` crops differently per viewport — nudge
+          the percentages if the handover starts landing early or late. */}
+      <div
+        id="cover-wordmark"
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-[45%] h-px portrait:top-[12%]"
+      />
 
       {/* Translucent rather than bare, because `object-cover` decides what is
           behind this pill and that changes with the viewport. */}
