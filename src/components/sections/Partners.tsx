@@ -26,15 +26,25 @@ import { SmartImage } from "@/components/ui/SmartImage";
 /** Seconds per full pass. Long enough to read a logo as it goes by. */
 const DURATION = "48s";
 
-export function Partners() {
+/**
+ * The heading is overridable because `/carter-clean-up` runs the same row: the
+ * list of organisations is genuinely the same one, but "Who backs the confluence"
+ * is the wrong sentence on the movement's own page. Copy for both framings lives
+ * in `site.ts` (`partners` and `carter.partners`) — never inline here.
+ */
+export function Partners({
+  eyebrow = partners.eyebrow,
+  title = partners.title,
+  intro = partners.intro,
+}: {
+  eyebrow?: string;
+  title?: string;
+  intro?: string;
+} = {}) {
   return (
     <section className="overflow-hidden bg-mist py-24 sm:py-32">
       <div className="container-page">
-        <SectionHeading
-          eyebrow={partners.eyebrow}
-          title={partners.title}
-          intro={partners.intro}
-        />
+        <SectionHeading eyebrow={eyebrow} title={title} intro={intro} />
       </div>
 
       <Reveal className="mt-14">

@@ -1,6 +1,6 @@
 "use client";
 
-import { animate, motion, useReducedMotion } from "motion/react";
+import { animate, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import type { AnimationPlaybackControls } from "motion/react";
 import { ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
@@ -46,6 +46,25 @@ export function Cover() {
   const ref = useRef<HTMLElement>(null);
   const ring = useRef<SVGCircleElement>(null);
   const scroll = useRef<AnimationPlaybackControls | null>(null);
+
+  // Parallax on the artwork as the card leaves: it sinks and dims rather than
+  // sliding off at page speed, so the hand-off to the hero reads as the art
+  // settling behind it. Purely a style binding — it must not, and does not,
+  // touch the auto-scroll, the `data-intro` toggle, or the wordmark marker
+  // below, which `Header` measures by rect and so has to stay untransformed.
+  //
+  // Declared as a plain input/output range against the section, rather than a
+  // transformer function over the raw scroll offset. That form is what lets
+  // Motion hand the whole thing to the compositor: a function has to be called
+  // on the main thread every frame, and the result lands a frame behind the
+  // scroll the browser has already painted, which reads as jitter on the one
+  // element that fills the screen.
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+  const artY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
+  const artOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0.3]);
 
   // Aim at this section's own bottom edge rather than at the hero by id, so the
   // hero lands flush with the top of the viewport — `scrollIntoView` would stop
@@ -135,34 +154,59 @@ export function Cover() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1.2, ease: EASE }}
       >
-        {/* Two cuts of the same card, picked by viewport orientation rather than
-            width, since it is the shape of the screen that decides which one
-            survives `object-cover`.
+        {/* The parallax lives on its own layer inside the entrance fade, so the
+            two opacities compose instead of fighting over the same property.
 
-            Neither carries `priority`: that preloads the hidden one too, and
-            sending a phone the 2 MB wide slide it will never show is worse than
-            an LCP hint on a picture that then sits on screen for four seconds.
-            Hidden means `display: none`, so the unused cut is never fetched. */}
-        <div className="absolute inset-0 portrait:hidden">
-          <SmartImage
-            src={cover.image.src}
-            alt={cover.image.alt}
-            width={cover.image.width}
-            height={cover.image.height}
-            sizes="100vw"
-            fill
-          />
-        </div>
-        <div className="absolute inset-0 landscape:hidden">
-          <SmartImage
-            src={cover.imagePortrait.src}
-            alt={cover.imagePortrait.alt}
-            width={cover.imagePortrait.width}
-            height={cover.imagePortrait.height}
-            sizes="100vw"
-            fill
-          />
-        </div>
+            **Do not put a `scale` here.** One was added to hide a sliver of bare
+            skywash the downward drift was assumed to expose along the top edge,
+            but that strip is never on screen: the art travels down by 10% of the
+            section's height while the section itself scrolls up by its full
+            height, so the gap sits ~0.9 × that distance above the viewport and is
+            clipped away. What the scale did do is crop the artwork horizontally.
+
+            The portrait cut has no crop budget at all. Its "ICUC 3.0" wordmark
+            sits inside a ~9% side margin, and on a 390×844 phone `object-cover`
+            already spends 8.9% of it — so even `scale: 1.04` clips the leading
+            "I", and 1.12 cut it clean off. Any zoom here has to come out of the
+            artwork instead. */}
+        <motion.div
+          className="absolute inset-0"
+          style={
+            reduced
+              ? undefined
+              : { y: artY, opacity: artOpacity, willChange: "transform, opacity" }
+          }
+        >
+          {/* Two cuts of the same card, picked by viewport orientation rather
+              than width, since it is the shape of the screen that decides which
+              one survives `object-cover`.
+
+              Neither carries `priority`: that preloads the hidden one too, and
+              sending a phone the 2 MB wide slide it will never show is worse
+              than an LCP hint on a picture that then sits on screen for four
+              seconds. Hidden means `display: none`, so the unused cut is never
+              fetched. */}
+          <div className="absolute inset-0 portrait:hidden">
+            <SmartImage
+              src={cover.image.src}
+              alt={cover.image.alt}
+              width={cover.image.width}
+              height={cover.image.height}
+              sizes="100vw"
+              fill
+            />
+          </div>
+          <div className="absolute inset-0 landscape:hidden">
+            <SmartImage
+              src={cover.imagePortrait.src}
+              alt={cover.imagePortrait.alt}
+              width={cover.imagePortrait.width}
+              height={cover.imagePortrait.height}
+              sizes="100vw"
+              fill
+            />
+          </div>
+        </motion.div>
       </motion.div>
 
       {/* Where the "ICUC 3.0" wordmark sits inside the key art, as a fraction of

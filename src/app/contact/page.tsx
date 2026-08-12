@@ -12,15 +12,31 @@ export const metadata: Metadata = {
   alternates: { canonical: "/contact" },
 };
 
-const details = [
-  { icon: Mail, label: "Email", value: contact.email, href: `mailto:${contact.email}` },
+/**
+ * A row can carry more than one value, because email does: ICUC's inbox and
+ * Carter Clean Up's are both live. They sit under one "Email" heading rather
+ * than in two rows, since two rows both labelled Email reads as a mistake.
+ */
+const details: Array<{
+  icon: typeof Mail;
+  label: string;
+  /** `href` is optional — "Based in" is a place, not something to link to. */
+  items: Array<{ text: string; href?: string }>;
+}> = [
+  {
+    icon: Mail,
+    label: "Email",
+    items: [
+      { text: contact.email, href: `mailto:${contact.email}` },
+      { text: contact.emailAlt, href: `mailto:${contact.emailAlt}` },
+    ],
+  },
   {
     icon: Phone,
     label: "Phone",
-    value: contact.phone,
-    href: `tel:${contact.phone.replace(/\s/g, "")}`,
+    items: [{ text: contact.phone, href: `tel:${contact.phone.replace(/\s/g, "")}` }],
   },
-  { icon: MapPin, label: "Based in", value: contact.location },
+  { icon: MapPin, label: "Based in", items: [{ text: contact.location }] },
 ];
 
 export default function ContactPage() {
@@ -52,24 +68,29 @@ export default function ContactPage() {
               <h2 className="text-2xl">Reach us directly</h2>
 
               <ul className="mt-8 space-y-6">
-                {details.map(({ icon: Icon, label, value, href }) => (
+                {details.map(({ icon: Icon, label, items }) => (
                   <li key={label} className="flex items-start gap-4">
                     <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
                       <Icon className="size-5" aria-hidden />
                     </span>
-                    <span>
+                    <span className="min-w-0">
                       <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-muted">
                         {label}
                       </span>
-                      {href ? (
-                        <a
-                          href={href}
-                          className="mt-1 block font-medium text-ink transition-colors hover:text-sky-700"
-                        >
-                          {value}
-                        </a>
-                      ) : (
-                        <span className="mt-1 block font-medium text-ink">{value}</span>
+                      {items.map(({ text, href }) =>
+                        href ? (
+                          <a
+                            key={text}
+                            href={href}
+                            className="mt-1 block break-words font-medium text-ink transition-colors hover:text-sky-700"
+                          >
+                            {text}
+                          </a>
+                        ) : (
+                          <span key={text} className="mt-1 block font-medium text-ink">
+                            {text}
+                          </span>
+                        ),
                       )}
                     </span>
                   </li>

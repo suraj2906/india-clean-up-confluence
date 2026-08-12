@@ -51,11 +51,24 @@ export function Footer() {
             Reach us
           </h3>
           <ul className="space-y-3 text-sm">
+            {/* Both inboxes under one icon: a second mail glyph directly beneath
+                the first reads as a repeated row rather than a second address. */}
             <li className="flex items-start gap-3">
               <Mail className="mt-0.5 size-4 shrink-0 text-sky-300" aria-hidden />
-              <a href={`mailto:${contact.email}`} className="transition-colors hover:text-sky-300">
-                {contact.email}
-              </a>
+              <span className="min-w-0">
+                <a
+                  href={`mailto:${contact.email}`}
+                  className="block break-words transition-colors hover:text-sky-300"
+                >
+                  {contact.email}
+                </a>
+                <a
+                  href={`mailto:${contact.emailAlt}`}
+                  className="mt-1 block break-words transition-colors hover:text-sky-300"
+                >
+                  {contact.emailAlt}
+                </a>
+              </span>
             </li>
             <li className="flex items-start gap-3">
               <Phone className="mt-0.5 size-4 shrink-0 text-sky-300" aria-hidden />

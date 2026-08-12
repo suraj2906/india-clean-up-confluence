@@ -18,6 +18,18 @@ export type Img = {
   height: number;
 };
 
+/**
+ * One film in an edition's recap. See the `editions` comment below for what a
+ * `src` may be — a local file plays inline, anything else is an embed URL.
+ */
+export type RecapVideo = {
+  src: string;
+  title: string;
+  poster: Img;
+  /** Frame a vertical (9:16) film instead of the default 16:9. */
+  portrait?: boolean;
+};
+
 export const site = {
   name: "ICUC",
   fullName: "India Clean-Up Confluence",
@@ -274,6 +286,19 @@ export const carter = {
     title: "Saturday mornings on Carter Road",
   },
 
+  /**
+   * Headings only — `/carter-clean-up` runs the landing page's `Partners` row
+   * with the same `partners.items` list, so a logo added there shows up on both
+   * pages. Only the framing changes: on this page the organisations are read as
+   * backers of the movement rather than of the confluence.
+   */
+  partners: {
+    eyebrow: "Who backs the movement",
+    title: "The people who showed up with us",
+    intro:
+      "Carter Clean Up started the India Clean-Up Confluence, and these are the organisations that have funded and supported it since — the same names behind both editions.",
+  },
+
   cta: {
     title: "The next clean-up is this Saturday.",
     body: "No experience, no equipment and no commitment needed — turn up once and see. Tell us you're coming and we'll send you the time and the meeting point.",
@@ -316,15 +341,22 @@ export const editionsSection = {
     photosLabel: "Photos from the day",
     playLabel: "Play the recap film",
     videoPending: "Recap film coming soon",
+    /** Sits beside the films when an edition has no photo strip yet. */
+    filmsIntro: "Press play to relive the day.",
   },
 };
 
 /**
  * Chapter three: the editions, oldest first. Order here is the order on the page.
  *
- * Each past edition carries a `recap` — one film and a strip of photos.
+ * Each past edition carries a `recap` — its films and a strip of photos.
  *
- *   • Film — set `src`. A local path ending in a video extension (e.g.
+ *   • Films — `videos` is a list, rendered left to right in source order, so the
+ *     first entry is the one that reads as *the* after-movie. One is the normal
+ *     case; ICUC 2.0 has two because the after-movie and the speakers' testimonial
+ *     reel were cut and posted separately.
+ *
+ *     Set `src` on each. A local path ending in a video extension (e.g.
  *     `/videos/icuc-2024-recap.mp4`) plays inline in a native <video>; anything
  *     else is treated as an embed URL and loaded in an <iframe> — for YouTube use
  *     `https://www.youtube-nocookie.com/embed/<VIDEO_ID>`, for Vimeo
@@ -332,6 +364,9 @@ export const editionsSection = {
  *     mounted once someone presses play. An empty `src` renders a labelled
  *     placeholder instead of a broken player, so it is safe to ship before the
  *     cut is ready. `portrait: true` frames a vertical (9:16) film.
+ *
+ *     An empty `videos: []` renders no film at all — use it, not a blank `src`,
+ *     when an edition simply has no footage.
  *   • Photos — drop files into `public/images/editions/<id>/` and list them here
  *     with their real `width`/`height`. Any number works; they open in a lightbox.
  *
@@ -348,7 +383,7 @@ export const editions: Array<{
   body: string;
   highlights: string[];
   recap: {
-    video: { src: string; title: string; poster: Img; portrait?: boolean };
+    videos: RecapVideo[];
     photos: Array<Img & { caption?: string }>;
   } | null;
   /** The edition's own event mark, when one was designed for it. */
@@ -369,17 +404,22 @@ export const editions: Array<{
       "Grassroots organisers, corporates and civic bodies in one room",
     ],
     recap: {
-      video: {
-        src: "/videos/icuc-2024-recap.mp4",
-        title: "ICUC 1.0 after-movie",
-        portrait: true,
-        poster: {
-          src: "/images/editions/1-0/recap-poster.jpg",
-          alt: "A panel session at ICUC 1.0, beneath footage of plastic waste washed up on a beach",
-          width: 720,
-          height: 1280,
+      // Sourced from @greenmyna's "ICUC24 Compliments" reel and self-hosted with
+      // their permission — it is the only cut of the first edition there is, and
+      // it is not ours, so check before re-cutting or re-captioning it.
+      videos: [
+        {
+          src: "/videos/icuc-2024-recap.mp4",
+          title: "ICUC 1.0 — what people said",
+          portrait: true,
+          poster: {
+            src: "/images/editions/1-0/recap-poster.jpg",
+            alt: "A speaker addressing the room from the stage at ICUC 1.0",
+            width: 720,
+            height: 1280,
+          },
         },
-      },
+      ],
       // Drop real event photos into public/images/editions/1-0/ and list them
       // here to add a photo strip beside the film. Empty = film only.
       photos: [],
@@ -406,17 +446,33 @@ export const editions: Array<{
       "Run on solar power instead of diesel generators",
     ],
     recap: {
-      video: {
-        src: "/videos/icuc-2025-recap.mp4",
-        title: "ICUC 2.0 after-movie",
-        portrait: true,
-        poster: {
-          src: "/images/editions/2-0/recap-poster.jpg",
-          alt: "A grassroots leader receiving their ICUC Changemaker Award on stage at ICUC 2.0",
-          width: 720,
-          height: 1280,
+      // Two cuts, both @cartercleanup's own. The after-movie leads because it is
+      // the edition itself; the testimonial reel is the room talking about it
+      // afterwards, which only means anything once you've seen the day.
+      videos: [
+        {
+          src: "/videos/icuc-2025-recap.mp4",
+          title: "ICUC 2.0 after-movie",
+          portrait: true,
+          poster: {
+            src: "/images/editions/2-0/recap-poster.jpg",
+            alt: "The ICUC 2.0 team gathered on stage in front of the sponsor backdrop",
+            width: 720,
+            height: 1280,
+          },
         },
-      },
+        {
+          src: "/videos/icuc-2025-voices.mp4",
+          title: "ICUC 2.0 — voices from the day",
+          portrait: true,
+          poster: {
+            src: "/images/editions/2-0/voices-poster.jpg",
+            alt: "Sahir Doshi raising a hand in salute to camera in front of the ICUC 2.0 sponsor backdrop",
+            width: 720,
+            height: 1280,
+          },
+        },
+      ],
       // Drop real event photos into public/images/editions/2-0/ and list them
       // here to add a photo strip beside the film. Empty = film only.
       photos: [],
@@ -518,60 +574,164 @@ export type GalleryVideo = {
   caption?: string;
 };
 
-/** Add or remove freely — the gallery grid and lightbox adapt to any count. */
+/**
+ * Headings and control labels for the gallery section. The component renders
+ * them and holds no strings of its own.
+ */
+export const gallerySection = {
+  eyebrow: "Gallery",
+  title: "Moments from the confluence",
+  intro: "Sessions, awards and the people who showed up.",
+  /** `{n}` is replaced with the number of items still hidden. */
+  showMore: "Show {n} more",
+  showLess: "Show fewer",
+};
+
+/**
+ * The photographs run in camera sequence, which is roughly the order the day
+ * happened in. Don't sort this by shape or colour.
+ *
+ * All nineteen are from ICUC 2.0 (the "From Ripples to Waves" backdrop is
+ * visible in several), processed from the original camera JPEGs: auto-rotated,
+ * longest edge 2000px, JPEG q80, and stripped of EXIF. See the gallery note in
+ * AGENTS.md before adding more.
+ *
+ * `caption` is deliberately absent on the photographs. A first pass of them was
+ * written by reading the thumbnails and got the events wrong, and a confidently
+ * wrong label on a photo of real people is worse than no label — so the tiles
+ * carry none until someone who was actually in the room writes them. `alt` stays
+ * mandatory regardless: it is what a screen reader gets instead of the picture,
+ * and it describes only what is plainly visible. The video keeps its caption,
+ * which predates that pass.
+ *
+ * Add or remove freely — the grid and lightbox adapt to any count, and to
+ * entries with or without a caption.
+ */
 export const gallery: Array<(Img & { caption?: string }) | GalleryVideo> = [
   {
     src: "/images/gallery/01.jpg",
-    alt: "Six panellists standing together on stage with ICUC tote bags, in front of a screen showing the India Clean Up Confluence backdrop",
-    caption: "Panel",
-    width: 873,
-    height: 701,
+    alt: "Delegates seated in the front rows of the audience, listening to a session",
+    width: 2000,
+    height: 1333,
   },
   {
     src: "/images/gallery/02.jpg",
-    alt: "Malhar Kalambe, founder of Beach Please, speaking on stage at ICUC 2.0",
-    caption: "Malhar Kalambe on stage at ICUC 2.0",
-    width: 1600,
-    height: 2400,
+    alt: "A wide view of the seated audience across several rows of the venue",
+    width: 2000,
+    height: 1333,
   },
   {
     src: "/images/gallery/03.jpg",
-    alt: "The Mangrove Marshalls receiving their ICUC Changemaker Award on stage, holding the framed certificate",
-    caption: "ICUC Changemaker Awards",
-    width: 1600,
-    height: 1067,
+    alt: "An older delegate passing a microphone to a young boy seated beside him during a session",
+    width: 2000,
+    height: 1333,
   },
   {
     src: "/images/gallery/04.jpg",
-    alt: "Delegates in conversation between sessions",
-    caption: "Between sessions",
-    width: 1600,
-    height: 1067,
+    alt: "Two delegates exchanging an ICUC tote bag in front of the sponsor backdrop",
+    width: 2000,
+    height: 1333,
   },
   {
     src: "/images/gallery/05.jpg",
-    alt: "Segregated waste sorted into labelled collection bags",
-    caption: "Sorting and segregation",
-    width: 1600,
-    height: 1067,
-  },
-  {
-    src: "/images/gallery/06.jpg",
-    alt: "Group photograph of ICUC participants and volunteers",
-    caption: "The confluence, together",
-    width: 1600,
-    height: 1067,
+    alt: "Two delegates shaking hands over an ICUC tote bag in front of the sponsor backdrop",
+    width: 2000,
+    height: 1333,
   },
   {
     type: "video",
     src: "/videos/djembe-jitesh.mp4",
     poster: {
-      src: "/images/gallery/07.jpg",
+      src: "/images/gallery/djembe-poster.jpg",
       alt: "Jitesh Jain leading a djembe drum circle performance with the audience on stage at ICUC 2.0",
       width: 1280,
       height: 720,
     },
     caption: "Djembe performance with Jitesh Jain",
+  },
+  {
+    src: "/images/gallery/06.jpg",
+    alt: "A panellist seated on stage beneath a screen reading People and Policies",
+    width: 1333,
+    height: 2000,
+  },
+  {
+    src: "/images/gallery/07.jpg",
+    alt: "A panellist speaking on stage during the People and Policies session",
+    width: 1333,
+    height: 2000,
+  },
+  {
+    src: "/images/gallery/08.jpg",
+    alt: "Two panellists seated in conversation on stage under the ICUC screen",
+    width: 2000,
+    height: 1333,
+  },
+  {
+    src: "/images/gallery/09.jpg",
+    alt: "Two panellists mid-discussion on stage in front of the From Ripples to Waves backdrop",
+    width: 2000,
+    height: 1333,
+  },
+  {
+    src: "/images/gallery/10.jpg",
+    alt: "Two delegates on stage, one holding a framed award",
+    width: 2000,
+    height: 1333,
+  },
+  {
+    src: "/images/gallery/11.jpg",
+    alt: "An ICUC Changemaker Award being handed over on stage",
+    width: 2000,
+    height: 1333,
+  },
+  {
+    src: "/images/gallery/12.jpg",
+    alt: "A group of delegates standing together with ICUC tote bags in front of the sponsor backdrop",
+    width: 2000,
+    height: 1333,
+  },
+  {
+    src: "/images/gallery/13.jpg",
+    alt: "A panellist speaking on stage beneath a screen of speaker portraits",
+    width: 1333,
+    height: 2000,
+  },
+  {
+    src: "/images/gallery/14.jpg",
+    alt: "A panellist seated on stage during a session on waste and innovation",
+    width: 1333,
+    height: 2000,
+  },
+  {
+    src: "/images/gallery/15.jpg",
+    alt: "A speaker seated on stage in front of the session title screen",
+    width: 1333,
+    height: 2000,
+  },
+  {
+    src: "/images/gallery/16.jpg",
+    alt: "A five-person panel seated on stage for a session on waste handling and its challenges",
+    width: 2000,
+    height: 1333,
+  },
+  {
+    src: "/images/gallery/17.jpg",
+    alt: "A speaker with a microphone making a point during a panel session",
+    width: 2000,
+    height: 1333,
+  },
+  {
+    src: "/images/gallery/18.jpg",
+    alt: "A panellist listening during a session on solutions to waste",
+    width: 2000,
+    height: 1333,
+  },
+  {
+    src: "/images/gallery/19.jpg",
+    alt: "Two delegates exchanging an ICUC tote bag on stage at the close of a session",
+    width: 2000,
+    height: 1333,
   },
 ];
 
@@ -730,11 +890,33 @@ export const cta = {
   button: { label: "Contact us", href: "/contact" },
 };
 
+/** The 404 page. Leans on the clean-up rather than apologising for the URL. */
+export const notFound = {
+  eyebrow: "404 — page not found",
+  title: "This one washed away",
+  body: "The page you're looking for isn't on this shore. It may have moved, or it may have been picked up and cleared away. Either way, there's plenty left to do.",
+  primaryCta: { label: "Back to home", href: "/" },
+  secondaryCta: { label: "Get in touch", href: "/contact" },
+};
+
 export const contact = {
   eyebrow: "Get in touch",
   title: "Bring your mission to the confluence",
   body: "Tell us how you'd like to be involved and the right person from the ICUC team will get back to you.",
+  /**
+   * The primary inbox, and the one the Web3Forms key delivers to. `ContactForm`
+   * names this address (and only this one) when a submission fails, so it has to
+   * stay in step with the key — see the contact-form note in AGENTS.md. Do not
+   * point that fallback at `emailAlt`: mail sent there does not reach the same
+   * place a form submission would.
+   */
   email: "indiacleanupconfluence@gmail.com",
+  /**
+   * Carter Clean Up's own inbox, listed as a second route on the contact page and
+   * in the footer. ICUC grew out of the movement and the two are staffed by the
+   * same people, but this is the movement's address, not the confluence's.
+   */
+  emailAlt: "cartercleanupb@gmail.com",
   phone: "+91 00000 00000",
   location: "Mumbai, Maharashtra, India",
   /** Split in three so the movement's name inside the sentence can be a link to

@@ -76,6 +76,32 @@ export function Lightbox({
 
   const item = index === null ? null : items[index];
 
+  /**
+   * Swipe, for the case the arrows are worst at: a large set on a phone, where
+   * the buttons are small targets and the thumb is already on the picture.
+   *
+   * Raw pointer events rather than a gesture library — this is one axis and one
+   * threshold. The vertical guard is what keeps a swipe distinct from a scroll
+   * attempt, and the horizontal one from a tap that drifted a few pixels.
+   */
+  const swipeFrom = useRef<{ x: number; y: number } | null>(null);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    swipeFrom.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const onPointerUp = (e: React.PointerEvent) => {
+    const from = swipeFrom.current;
+    swipeFrom.current = null;
+    if (!from) return;
+
+    const dx = e.clientX - from.x;
+    const dy = e.clientY - from.y;
+    // Mostly-vertical travel is a scroll gesture, not a request for the next photo.
+    if (Math.abs(dx) < 50 || Math.abs(dx) <= Math.abs(dy)) return;
+    go(dx < 0 ? 1 : -1);
+  };
+
   return (
     <AnimatePresence>
       {item && (
@@ -109,10 +135,15 @@ export function Lightbox({
 
           <motion.figure
             key={item.src}
-            className="max-h-full w-full max-w-4xl"
+            className="max-h-full w-full max-w-4xl touch-pan-y"
             onClick={(e) => e.stopPropagation()}
+            onPointerDown={onPointerDown}
+            onPointerUp={onPointerUp}
             initial={{ opacity: 0, scale: reduced ? 1 : 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
+            // Without a matching exit the picture vanished on the first frame
+            // while the backdrop behind it was still fading out.
+            exit={{ opacity: 0, scale: reduced ? 1 : 0.96 }}
             transition={{ duration: 0.35, ease: EASE }}
           >
             {/* Both dimensions are capped so any aspect ratio fits the viewport
@@ -139,14 +170,15 @@ export function Lightbox({
                 />
               )}
             </div>
-            {item.caption && (
-              <figcaption className="mt-4 text-center text-sm text-white/70">
-                {item.caption}
-                <span className="ml-2 text-white/40">
-                  {(index ?? 0) + 1} / {items.length}
-                </span>
-              </figcaption>
-            )}
+            {/* The counter is outside the caption test on purpose. It used to be
+                nested inside it, so an item with no caption lost its position in
+                the set too — and most of the gallery now has no caption. */}
+            <figcaption className="mt-4 text-center text-sm text-white/70">
+              {item.caption}
+              <span className={item.caption ? "ml-2 text-white/40" : "text-white/40"}>
+                {(index ?? 0) + 1} / {items.length}
+              </span>
+            </figcaption>
           </motion.figure>
         </motion.div>
       )}

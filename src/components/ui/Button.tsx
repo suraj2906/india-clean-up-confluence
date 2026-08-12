@@ -3,9 +3,13 @@ import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 type Variant = "primary" | "secondary" | "ghost" | "ghost-light";
 
+// Deliberately CSS and not `whileHover`/`whileTap`: this leaf is on every route,
+// and a hover lift is not worth turning it into a client component. The press
+// scale beats the lift on the way down, which is what makes a tap feel answered.
 const base =
   "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold " +
-  "transition-all duration-300 ease-out active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none";
+  "transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 " +
+  "active:scale-[0.98] active:duration-75 disabled:opacity-60 disabled:pointer-events-none";
 
 const variants: Record<Variant, string> = {
   primary: "bg-sky-700 text-white hover:bg-deep hover:shadow-lift",

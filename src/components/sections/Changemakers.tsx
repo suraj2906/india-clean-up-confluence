@@ -1,5 +1,5 @@
 import { changemakers } from "@/content/site";
-import { Reveal } from "@/components/ui/Reveal";
+import { Stagger, StaggerItem } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SmartImage } from "@/components/ui/SmartImage";
 
@@ -13,9 +13,9 @@ export function Changemakers() {
           intro="The ICUC Changemaker Awards recognise grassroots leaders whose clean-up efforts have reshaped their cities, coastlines and catchments."
         />
 
-        <ul className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {changemakers.map((person, i) => (
-            <Reveal as="li" key={person.name} delay={i * 0.07}>
+        <Stagger as="ul" className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {changemakers.map((person) => (
+            <StaggerItem as="li" key={person.name}>
               <article className="group h-full overflow-hidden rounded-4xl bg-white shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lift">
                 <div className="relative aspect-4/5 overflow-hidden bg-sky-100">
                   <SmartImage
@@ -36,9 +36,9 @@ export function Changemakers() {
                   <p className="mt-3 text-sm leading-relaxed text-muted">{person.bio}</p>
                 </div>
               </article>
-            </Reveal>
+            </StaggerItem>
           ))}
-        </ul>
+        </Stagger>
       </div>
     </section>
   );

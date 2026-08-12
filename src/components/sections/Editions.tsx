@@ -1,11 +1,48 @@
 import { CalendarDays, Check, MapPin } from "lucide-react";
 
+import type { RecapVideo } from "@/content/site";
 import { editions, editionsSection } from "@/content/site";
 import { PhotoStrip } from "@/components/ui/PhotoStrip";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SmartImage } from "@/components/ui/SmartImage";
+import { TimelineRail } from "@/components/ui/TimelineRail";
 import { VideoEmbed } from "@/components/ui/VideoEmbed";
+
+/**
+ * An edition's films, in source order — the first is the one that reads as *the*
+ * after-movie, so the list is never sorted here.
+ *
+ * Each tile keeps its own title underneath. With one film that is mild
+ * redundancy; with two it is the only thing telling a reader which is the recap
+ * of the day and which is the room talking about it afterwards, and a caption
+ * that appears only when there happen to be two would read as a glitch.
+ *
+ * The tiles are a `flex-wrap` row rather than a grid so a lone film sits at its
+ * natural width instead of being stretched across a column it doesn't need.
+ */
+function RecapFilms({ videos }: { videos: RecapVideo[] }) {
+  if (videos.length === 0) return null;
+
+  return (
+    <ul className="flex flex-wrap gap-5 sm:gap-6">
+      {videos.map((video) => (
+        <li key={video.src || video.title} className="w-40 shrink-0 sm:w-44">
+          <VideoEmbed
+            src={video.src}
+            title={video.title}
+            poster={video.poster}
+            portrait={video.portrait}
+            playLabel={editionsSection.recap.playLabel}
+            pendingLabel={editionsSection.recap.videoPending}
+            className="w-full"
+          />
+          <p className="mt-2.5 text-xs leading-snug text-muted">{video.title}</p>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 /**
  * Chapter three: 1.0 → 2.0 → 3.0 on a single rail. The list order in `site.ts`
@@ -27,11 +64,9 @@ export function Editions() {
         </div>
 
         <ol className="relative mt-16">
-          {/* The rail: solid through the editions that happened, fading into the one that hasn't. */}
-          <span
-            aria-hidden
-            className="absolute bottom-6 left-[15px] top-6 w-0.5 bg-gradient-to-b from-sky via-sky/50 to-summit"
-          />
+          {/* The rail, drawn as you read down it — the chronology filling in
+              rather than sitting there finished. */}
+          <TimelineRail className="bottom-6 left-[15px] top-6" />
 
           {editions.map((edition, i) => {
             const upcoming = edition.status === "upcoming";
@@ -110,47 +145,35 @@ export function Editions() {
                       </ul>
                     </div>
 
-                    {/* Recap: the after-movie, plus a strip of photos once they exist. */}
-                    {edition.recap && (
-                      <div className="mt-8 border-t border-summit/60 pt-8">
-                        <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">
-                          {editionsSection.recap.label}
-                        </h4>
+                    {/* Recap: the films, plus a strip of photos once they exist.
+                        An edition can carry more than one cut — ICUC 2.0 has the
+                        after-movie and a separate testimonial reel — so the block
+                        shows as soon as there is either a film or a photo. */}
+                    {edition.recap &&
+                      (edition.recap.videos.length > 0 || edition.recap.photos.length > 0) && (
+                        <div className="mt-8 border-t border-summit/60 pt-8">
+                          <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">
+                            {editionsSection.recap.label}
+                          </h4>
 
-                        {edition.recap.photos.length > 0 ? (
-                          <div className="mt-5 grid gap-6 sm:grid-cols-[minmax(0,15rem)_1fr] sm:items-start">
-                            <VideoEmbed
-                              src={edition.recap.video.src}
-                              title={edition.recap.video.title}
-                              poster={edition.recap.video.poster}
-                              portrait={edition.recap.video.portrait}
-                              playLabel={editionsSection.recap.playLabel}
-                              pendingLabel={editionsSection.recap.videoPending}
-                              className="mx-auto w-full max-w-[15rem] sm:mx-0"
-                            />
-                            <PhotoStrip
-                              photos={edition.recap.photos}
-                              label={editionsSection.recap.photosLabel}
-                            />
-                          </div>
-                        ) : (
-                          <div className="mt-5 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-7">
-                            <VideoEmbed
-                              src={edition.recap.video.src}
-                              title={edition.recap.video.title}
-                              poster={edition.recap.video.poster}
-                              portrait={edition.recap.video.portrait}
-                              playLabel={editionsSection.recap.playLabel}
-                              pendingLabel={editionsSection.recap.videoPending}
-                              className="w-40 shrink-0 sm:w-44"
-                            />
-                            <p className="max-w-sm text-sm leading-relaxed text-muted">
-                              {edition.recap.video.title} — press play to relive the day.
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                          {edition.recap.photos.length > 0 ? (
+                            <div className="mt-5 grid gap-6 sm:grid-cols-[minmax(0,15rem)_1fr] sm:items-start">
+                              <RecapFilms videos={edition.recap.videos} />
+                              <PhotoStrip
+                                photos={edition.recap.photos}
+                                label={editionsSection.recap.photosLabel}
+                              />
+                            </div>
+                          ) : (
+                            <div className="mt-5 flex flex-col items-start gap-5 sm:flex-row sm:gap-7">
+                              <RecapFilms videos={edition.recap.videos} />
+                              <p className="max-w-sm text-sm leading-relaxed text-muted sm:pt-2">
+                                {editionsSection.recap.filmsIntro}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
                   </article>
                 </Reveal>
               </li>

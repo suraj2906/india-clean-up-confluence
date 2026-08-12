@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 
+import { carter } from "@/content/site";
 import { CarterCta } from "@/components/sections/carter/CarterCta";
 import { CarterFounders } from "@/components/sections/carter/CarterFounders";
 import { CarterHero } from "@/components/sections/carter/CarterHero";
 import { CarterNumbers } from "@/components/sections/carter/CarterNumbers";
 import { CarterPhotos } from "@/components/sections/carter/CarterPhotos";
 import { CarterStory } from "@/components/sections/carter/CarterStory";
+import { Partners } from "@/components/sections/Partners";
 
 export const metadata: Metadata = {
   title: "Carter Clean Up",
@@ -29,6 +31,13 @@ export default function CarterCleanUpPage() {
       <CarterNumbers />
       <CarterFounders />
       <CarterPhotos />
+      {/* The landing page's logo row, reframed for this page — same list, same
+          position in the flow: the last argument before the ask. */}
+      <Partners
+        eyebrow={carter.partners.eyebrow}
+        title={carter.partners.title}
+        intro={carter.partners.intro}
+      />
       <CarterCta />
     </>
   );

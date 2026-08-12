@@ -97,19 +97,67 @@ which falls back to a themed gradient on error — never bare `next/image`. Real
 space and dropping the file in later causes zero layout shift.
 
 **Edition recaps degrade the same way.** Each past edition in `site.ts` carries a
-`recap` with one film and an (optionally empty) photo strip. The after-movies are
-self-hosted vertical clips in `public/videos/` — the source poster and any real
-event photos come from those. `VideoEmbed` reads `recap.video.src`: a local file
-(`/videos/*.mp4`) plays inline in a native `<video>`, anything else is treated as
-an embed URL and loaded in an `<iframe>` — either way nothing mounts until a click,
-so no player (and no embed cookie) loads for anyone who doesn't press play, and an
-empty `src` renders a labelled placeholder. `portrait: true` frames a 9:16 film.
-Photos live in `public/images/editions/<id>/`; an empty `photos: []` renders the
-film alone. An edition that hasn't happened yet has `recap: null`.
+`recap` with a list of films and an (optionally empty) photo strip. The films are
+self-hosted vertical clips in `public/videos/` — the poster frames are pulled from
+those. `VideoEmbed` reads each `src`: a local file (`/videos/*.mp4`) plays inline
+in a native `<video>`, anything else is treated as an embed URL and loaded in an
+`<iframe>` — either way nothing mounts until a click, so no player (and no embed
+cookie) loads for anyone who doesn't press play, and an empty `src` renders a
+labelled placeholder. `portrait: true` frames a 9:16 film. Photos live in
+`public/images/editions/<id>/`; an empty `photos: []` renders the films alone. An
+edition that hasn't happened yet has `recap: null`.
 
-The 2024/2025 after-movies were transcoded to 720p H.264 with `+faststart` (the
-2024 original was 193 MB — far too big to serve statically). If you add a new film,
-keep it web-sized the same way and don't commit multi-hundred-MB masters.
+`recap.videos` is a **list**, rendered in source order, and the first entry is the
+one that reads as *the* after-movie — so don't reorder it to put a shorter cut
+first. ICUC 2.0 carries two (the after-movie and a separate testimonial reel);
+ICUC 1.0 carries one. Every tile prints its own title underneath, which is what
+distinguishes two cuts of the same edition — keep the titles doing real work.
+An edition with no footage gets `videos: []`, not a film with a blank `src`.
+
+All three films came off Instagram and are **re-hosted, not embedded** — an embed
+would load Meta's player and its cookies, and would break the day a post is
+archived. Provenance matters when re-cutting them: the ICUC 2.0 pair are
+[@cartercleanup](https://www.instagram.com/cartercleanup/)'s own, but the ICUC 1.0
+film is **@greenmyna's** "ICUC24 Compliments" reel, used with permission. It is
+not ours to re-caption.
+
+Films are transcoded to 720p H.264 with `+faststart` (`scale=720:-2`, `-crf 27`)
+and kept in the ~10–15 MB range. Two rules learned the hard way: check the output
+is actually *smaller* than the input — CRF 23 on high-motion footage came out
+larger than the source — and if a source is already 720p H.264 at a sane bitrate,
+remux with `-c copy -movflags +faststart` rather than re-encoding it into a second
+generation of artefacts. Don't commit multi-hundred-MB masters.
+
+**The gallery is a uniform grid, and that is a decision, not a default.** It once
+used CSS `column-count`, which fills column one top-to-bottom before starting
+column two — fine at six photos, incoherent at twenty, because item 2 lands under
+item 1 and the reading order stops matching `site.ts`. It is now
+`grid-cols-2 / sm:3 / lg:4` with every tile in an `aspect-4/3` cell. Equal cells
+are what make a large set read as curated: the ragged rhythm of masonry is what
+looks like clutter, not the number of photos. Tiles crop, and that is the trade —
+every tile opens `Lightbox`, which shows the photo whole.
+
+Twelve tiles show, the rest sit behind a "Show more" button, and the batch is
+keyed so newly revealed tiles run their own stagger. Two things to keep true if
+you touch it: `Lightbox` receives the **whole** array rather than the visible
+slice, so arrow keys and swipe walk all of it and indices survive expansion; and
+`sizes` tracks the column count — the old `100vw` on a two-column phone grid
+fetched images twice as wide as any slot they could land in. Use `Stagger` /
+`StaggerItem` from `Reveal.tsx`, never a hand-computed `delay={i * 0.0x}`.
+
+Gallery photos are processed from the original camera JPEGs with `sharp`:
+**`.rotate()` first**, then longest edge 2000px, JPEG q80 `mozjpeg`, metadata
+dropped. The order matters — six of the nineteen carried `orientation=8`, and
+stripping EXIF without auto-rotating first publishes them silently sideways. That
+run took ~150 MB of originals to 4.4 MB. The originals are not committed.
+
+`alt` is mandatory on every entry — it replaces the picture entirely for a screen
+reader — and it should describe only what is plainly visible. **`caption` is
+optional, and the photographs deliberately have none.** A first pass was written
+by reading thumbnails and misidentified what was happening in them; a confidently
+wrong label on a photo of real people is worse than no label. Both the grid and
+`Lightbox` handle a missing caption, so leave them off until someone who was in
+the room writes them. Don't infer captions from the images.
 
 **Animation goes through `src/lib/motion.ts`.** Shared `riseIn` / `fadeIn` /
 `stagger` variants, one `EASE` curve, one `VIEWPORT` config. Scroll reveals use the
@@ -152,3 +200,12 @@ npx eslint         # must be silent
 ```
 
 Both are expected to pass clean. There is no test suite.
+
+**Do not drive the browser to check your work.** Claude in Chrome is off limits
+unless the maintainer explicitly asks for it in that message. Run the two commands
+above, then say what you changed and ask them to look at it — they have the site
+open already, and a browser session that has to be driven blind is slower and less
+reliable than the person who can just see it. Screenshots taken through a
+backgrounded window are worse than useless: `requestAnimationFrame` stops, CSS
+animations freeze at their first frame, and every "it isn't animating" reading you
+take is a lie about the code.

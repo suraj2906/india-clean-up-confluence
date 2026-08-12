@@ -52,13 +52,18 @@ export function HoverVideo({
       aria-label={`Open video: ${caption ?? poster.alt}`}
       className={`group relative block w-full overflow-hidden bg-sky-100 shadow-soft transition-shadow duration-300 hover:shadow-lift ${className}`}
     >
+      {/* `fill`, not intrinsic height: this tile sits in the gallery's uniform
+          4:3 cell alongside the photos, and a poster sized to its own aspect
+          ratio would make the one video tile a different height from every
+          other tile in the row. `sizes` tracks the grid's column count. */}
       <SmartImage
         src={poster.src}
         alt={poster.alt}
         width={poster.width}
         height={poster.height}
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        className={`h-auto w-full transition-opacity duration-300 ${playing ? "opacity-0" : "opacity-100"}`}
+        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        fill
+        className={`transition-opacity duration-300 ${playing ? "opacity-0" : "opacity-100"}`}
       />
       <video
         ref={videoRef}

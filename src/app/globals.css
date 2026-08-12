@@ -56,6 +56,16 @@
      are — the token's own duration is only a fallback. */
   --animate-marquee: marquee 40s linear infinite;
 
+  /* The 404's floating litter. Linear for the same reason as the swell: the
+     keyframes already describe the orbit's shape, so easing the playback on top
+     would make the water pulse. 19s is one wave period of the `sea` band the
+     litter rides — half its 38s travel, since the band is two periods wide. */
+  --animate-float: float 19s linear infinite;
+
+  /* One pass of the broom. Unlike the two above this is an interaction, so it
+     runs once and takes `EASE` — it is an entrance, and it does arrive. */
+  --animate-sweep: sweep 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+
   --shadow-lift: 0 18px 40px -18px rgb(14 53 84 / 0.28);
   --shadow-soft: 0 2px 10px -4px rgb(14 53 84 / 0.14);
 }
@@ -247,6 +257,124 @@
   }
   to {
     transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Drives `--animate-float` — the 404's litter riding the swell.
+
+   Water in a wave travels in orbits rather than straight up and down: forward at
+   the crest, back in the trough. That is why flotsam appears to stay roughly put
+   while it rises, tips and slides, and it is the whole difference between this
+   reading as floating and reading as bobbing. So x is a sine and y a cosine of
+   the same angle, and the tilt shares the *sway's* phase, not the bob's, because
+   the surface is flat at the crest and steepest halfway down.
+
+   Phase 0 is the crest. `wavePhaseAt` in lib/waves.ts works out where in this
+   cycle each piece starts, from its position across the band, so a piece is at
+   its high point exactly when the wave beneath it is — it rides that wave rather
+   than merely keeping its time. The band travels left, so the orbit runs left at
+   the crest and back right in the trough, which is why x is a *negative* sine.
+
+   Sixteen stops, and the count is not decoration: CSS interpolates *linearly*
+   between keyframes, so every stop is a chord across the real curve and the sag
+   in the middle of each chord is tracking error. At four stops the orbit is
+   visibly a diamond; at eight it still sat a few px off the water. At sixteen,
+   measured against the rendered wave across a full cycle, the vertical tracking
+   is within 0.4px. The remaining ~1px once the sway is switched on is the orbit
+   itself: the piece slides along a sloped surface while its height is driven by
+   time, and correcting for that slope is not worth a pixel.
+
+   The vertical multipliers are the curve's own values, not a sine's — 0.75 at
+   the eighth-points where a sine would say 0.707, because `swellPath` draws a
+   cubic Bézier. The horizontal and rotational stops do stay sinusoidal: those
+   are the orbit, which is a choice, not the water's own shape.
+
+   Deliberately CSS and not Motion, like `swell` above — this is ambient weather
+   that never ends, it belongs on the compositor next to the wave it rides, and
+   the global reduced-motion block below parks it without needing a JS branch. */
+@keyframes float {
+  0% {
+    transform: translate(0, calc(var(--bob) * -1)) rotate(0deg);
+  }
+  6.25% {
+    transform: translate(calc(var(--sway) * -0.383), calc(var(--bob) * -0.938))
+      rotate(calc(var(--tilt) * 0.383));
+  }
+  12.5% {
+    transform: translate(calc(var(--sway) * -0.707), calc(var(--bob) * -0.75))
+      rotate(calc(var(--tilt) * 0.707));
+  }
+  18.75% {
+    transform: translate(calc(var(--sway) * -0.924), calc(var(--bob) * -0.438))
+      rotate(calc(var(--tilt) * 0.924));
+  }
+  25% {
+    transform: translate(calc(var(--sway) * -1), 0) rotate(var(--tilt));
+  }
+  31.25% {
+    transform: translate(calc(var(--sway) * -0.924), calc(var(--bob) * 0.438))
+      rotate(calc(var(--tilt) * 0.924));
+  }
+  37.5% {
+    transform: translate(calc(var(--sway) * -0.707), calc(var(--bob) * 0.75))
+      rotate(calc(var(--tilt) * 0.707));
+  }
+  43.75% {
+    transform: translate(calc(var(--sway) * -0.383), calc(var(--bob) * 0.938))
+      rotate(calc(var(--tilt) * 0.383));
+  }
+  50% {
+    transform: translate(0, var(--bob)) rotate(0deg);
+  }
+  56.25% {
+    transform: translate(calc(var(--sway) * 0.383), calc(var(--bob) * 0.938))
+      rotate(calc(var(--tilt) * -0.383));
+  }
+  62.5% {
+    transform: translate(calc(var(--sway) * 0.707), calc(var(--bob) * 0.75))
+      rotate(calc(var(--tilt) * -0.707));
+  }
+  68.75% {
+    transform: translate(calc(var(--sway) * 0.924), calc(var(--bob) * 0.438))
+      rotate(calc(var(--tilt) * -0.924));
+  }
+  75% {
+    transform: translate(var(--sway), 0) rotate(calc(var(--tilt) * -1));
+  }
+  81.25% {
+    transform: translate(calc(var(--sway) * 0.924), calc(var(--bob) * -0.438))
+      rotate(calc(var(--tilt) * -0.924));
+  }
+  87.5% {
+    transform: translate(calc(var(--sway) * 0.707), calc(var(--bob) * -0.75))
+      rotate(calc(var(--tilt) * -0.707));
+  }
+  93.75% {
+    transform: translate(calc(var(--sway) * 0.383), calc(var(--bob) * -0.938))
+      rotate(calc(var(--tilt) * -0.383));
+  }
+  100% {
+    transform: translate(0, calc(var(--bob) * -1)) rotate(0deg);
+  }
+}
+
+/* Drives `--animate-sweep` — the broom that clears a piece of litter away.
+   Swings in fast, follows through, and lifts off; the broom is drawn hanging
+   from its own origin so this rotates it around the hand, not its middle. */
+@keyframes sweep {
+  0% {
+    transform: rotate(-42deg);
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  45% {
+    transform: rotate(26deg);
+  }
+  100% {
+    transform: rotate(16deg);
+    opacity: 0;
   }
 }
 

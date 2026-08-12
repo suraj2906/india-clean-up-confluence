@@ -1,4 +1,4 @@
-import { SUMMIT, SWELL } from "@/lib/waves";
+import { SHORE_TRAVEL, SUMMIT, SWELL } from "@/lib/waves";
 
 /**
  * Carter Road drawn rather than photographed: headland, sea, a pale beach, and
@@ -24,15 +24,18 @@ import { SUMMIT, SWELL } from "@/lib/waves";
  * run the water up behind the buttons. The sea layers have to be this saturated
  * to register on `bg-skywash`, which is already pale sky at the top.
  *
+ * The travel times come from `SHORE_TRAVEL` rather than living here, because the
+ * 404's floating litter derives its bob from the same numbers.
+ *
  * The front layer is `shell`, which is deliberately the same colour as the section
  * that follows. That is what stops the picture looking guillotined: the water
  * breaks onto a beach, and the beach simply carries on into the next section
  * instead of meeting a hard line at the bottom of this one.
  */
 const LAYERS = [
-  { key: "sea", fill: "fill-summit", opacity: 0.55, duration: "38s", height: "h-40" },
-  { key: "swell", fill: "fill-sky-300", opacity: 0.4, duration: "27s", height: "h-28" },
-  { key: "sand", fill: "fill-shell", opacity: 1, duration: "19s", height: "h-24" },
+  { key: "sea", fill: "fill-summit", opacity: 0.55, duration: `${SHORE_TRAVEL.sea}s`, height: "h-40" },
+  { key: "swell", fill: "fill-sky-300", opacity: 0.4, duration: `${SHORE_TRAVEL.swell}s`, height: "h-28" },
+  { key: "sand", fill: "fill-shell", opacity: 1, duration: `${SHORE_TRAVEL.sand}s`, height: "h-24" },
 ] as const;
 
 /**

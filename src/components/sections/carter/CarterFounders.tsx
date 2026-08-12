@@ -23,8 +23,12 @@ export function CarterFounders() {
         />
 
         <ul className="mt-16 space-y-16 sm:space-y-24">
+          {/* No stagger, and deliberately not a `Stagger` container: these rows
+              are half a screen tall each, so no two are ever on screen together
+              and a delay off the list would only hold the row you are looking at.
+              Each reveals on its own as you reach it. */}
           {carter.founders.people.map((person, i) => (
-            <Reveal as="li" key={person.name} delay={0.05}>
+            <Reveal as="li" key={person.name}>
               <article className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
                 <div
                   // Square, because the headshots are. Capped at 28rem even on

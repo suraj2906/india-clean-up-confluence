@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 
 import { nav } from "@/content/site";
 import { EASE } from "@/lib/motion";
+import { ScrollProgress } from "@/components/ui/ScrollProgress";
 import { Logo } from "./Logo";
 
 /** The header strip's own height — `h-20` on the bar below. */
@@ -111,6 +112,10 @@ export function Header() {
           </button>
         </div>
       </div>
+
+      {/* Pinned to the bottom of the `h-20` strip rather than the header's own
+          bottom edge, so opening the mobile drawer doesn't drag it down the page. */}
+      <ScrollProgress className="top-20" />
 
       <AnimatePresence>
         {open && (

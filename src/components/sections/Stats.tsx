@@ -1,6 +1,6 @@
 import { stats, statsSection } from "@/content/site";
 import { CountUp } from "@/components/ui/CountUp";
-import { Reveal } from "@/components/ui/Reveal";
+import { Stagger, StaggerItem } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function Stats() {
@@ -28,9 +28,15 @@ export function Stats() {
           tone="dark"
         />
 
-        <dl className="mt-16 grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-4">
-          {stats.map((stat, i) => (
-            <Reveal key={stat.label} delay={i * 0.08}>
+        {/* The whole grid fits one screen, so it is staggered from the container
+            rather than triggered per stat — the numbers walk in left to right. */}
+        <Stagger
+          as="dl"
+          each={0.08}
+          className="mt-16 grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-4"
+        >
+          {stats.map((stat) => (
+            <StaggerItem key={stat.label}>
               <div className="border-l-2 border-sky/60 pl-5">
                 <dd className="font-display text-4xl font-bold text-white sm:text-5xl">
                   <CountUp value={stat.value} suffix={stat.suffix} />
@@ -38,9 +44,9 @@ export function Stats() {
                 <dt className="mt-2 text-sm font-semibold text-white">{stat.label}</dt>
                 <p className="mt-1 text-xs leading-relaxed text-white/50">{stat.detail}</p>
               </div>
-            </Reveal>
+            </StaggerItem>
           ))}
-        </dl>
+        </Stagger>
       </div>
     </section>
   );
