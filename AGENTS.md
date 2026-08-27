@@ -93,14 +93,15 @@ click compete for the same pointer on the same element, so a drag would open the
 lightbox on the slide it started from. Read the component's header comment before
 touching the scroll handling.
 
-**The ICUC 3.0 dates are fixed and live in one place.** `site.dates`
-("19 & 20 September 2026") and `site.datesLong` ("Saturday 19 – Sunday 20
-September 2026") are read by the edition entry and by the registration page's
-copy, so the dates cannot drift between two screens. The venue is genuinely still
-to be announced — leave it that way rather than guessing Mumbai from the past two
-editions. The key art's `alt` text still says only "September 2026" because it
-transcribes what the artwork itself prints; re-cut the artwork before changing
-that line.
+**The ICUC 3.0 dates and venue are fixed and live in one place.** `site.dates`
+("19th & 20th September 2026"), `site.datesLong` ("Saturday 19th – Sunday 20th
+September 2026") and `site.venue` ("India Habitat, New Delhi") are read by the
+edition entry and by the registration page's copy, so neither can drift between
+two screens. The venue is confirmed and prints straight after the dates wherever
+they appear — it is no longer "to be announced" anywhere, including on the ICUC
+3.0 edition entry. The key art's `alt` text still says only "September 2026"
+because it transcribes what the artwork itself prints; re-cut the artwork before
+changing that line.
 
 There is no phone number on the site. `contact.phone` held a `+91 00000 00000`
 placeholder that read as a real number, so the field and both rows that rendered
@@ -303,26 +304,50 @@ after that, the fault is in the Web3Forms account, not in this repo.
 ## Registration
 
 `/register` is the sign-up form for ICUC 3.0 and it is **one form for everyone** —
-volunteers, NGOs, corporates, students, civic bodies, press. It posts to Web3Forms
-the same way `ContactForm` does, with the same key and therefore the same inbox;
-everything in the contact-form section above applies to it unchanged, including
-testing it in a browser rather than with `curl`.
+volunteers, NGOs, corporates, students, civic bodies, press.
 
-It carries a second form inside it. **One CEO, Many Missions** is a pitch session:
-NGOs that want to scale into a business apply through this same form, ten are
-selected from everyone who applies, and those ten give an elevator pitch to a
-panel of CEOs at the event. There is deliberately no second application form and
-no separate page — a shortlist people can apply to twice is a shortlist somebody
-has to de-duplicate by hand.
+**It posts to two destinations at once, and that is on purpose.** The Google
+Sheet is the record: an Apps Script Web App (`scripts/registrations.gs`, deployed
+per `scripts/README.md`, URL in `NEXT_PUBLIC_SHEETS_ENDPOINT`) appends one row per
+registration. Web3Forms is kept alongside it on the same key and therefore the
+same inbox as `ContactForm`, as the copy that survives a revoked or broken
+deployment. A registration counts as captured if **either** accepted it — that is
+the whole reason both are there — so a half failure is a `console.warn` and only
+losing both is an error the registrant sees. Don't collapse this to one
+destination without deciding which failure you are willing to lose people to.
+Everything in the contact-form section above still applies, including testing in
+a browser rather than with `curl` — and the Apps Script leg has the same property
+for its own reason: it is posted as `text/plain` so the browser treats it as a
+CORS simple request, because an Apps Script Web App redirects to a second origin
+before `doPost` runs and cannot answer a preflight. Don't 'fix' that content type.
+
+**The sheet has two tabs and the split happens at write time.** The payload's
+`sheet` field (`one_mentor` / `general`) decides which: pitch applicants and their
+answers land on the One Mentor, Many Missions tab, everyone else on the general
+one. The panel then opens one tab and reads nothing else, and general
+registrations are not diluted by a column per application question. The script
+aligns each row to the header row and appends a column the first time it meets a
+key it has no header for, so adding a question is still a `site.ts` edit and
+nothing else — but never reorder or rename a header by hand once rows exist.
+
+It carries a second form inside it. **One Mentor, Many Missions** is a pitch
+session: NGOs that want to scale into a business apply through this same form, ten
+are selected from everyone who applies, those ten give an elevator pitch to a panel
+of mentors at the event, and **five of the ten are chosen by that panel and carry
+on with them as mentors afterwards**. The five are the outcome the whole track is
+for, so they get their own beat in `oneMentor.steps` rather than a clause inside
+the pitch step — buried, it is the thing applicants miss. There is deliberately no
+second application form and no separate page — a shortlist people can apply to
+twice is a shortlist somebody has to de-duplicate by hand.
 
 **That track reveals itself in two stages, and both are inside the form.**
 Choosing `registration.ngoType` ("NGO or clean-up movement") in the "I'm
 registering as" dropdown unfolds the explanation — what the session is, and the
-three steps from applying to pitching — directly above the tick box it explains.
-Ticking the box opens the application questions, and also unfolds that same
-explanation if the dropdown never said NGO: someone who ticks first and reads
-later is precisely the person who needs telling what they just applied to. The explainer was
-originally a section *under* the form and was moved for a plain reason: nobody
+four steps from applying to being mentored — directly above the tick box it
+explains. Ticking the box opens the application questions, and also unfolds that
+same explanation if the dropdown never said NGO: someone who ticks first and
+reads later is precisely the person who needs telling what they just applied to.
+The explainer was originally a section *under* the form and was moved for a plain reason: nobody
 scrolls past a form they came to fill in, so an explainer below it is an
 explainer nobody reads. Don't put a second copy back on the page. Two things to
 keep true: `ngoType` has to match one of `attendeeTypes` character for character
@@ -330,26 +355,31 @@ or the pitch session silently stops explaining itself to the people it is for,
 and the tick box stays visible for every other kind of registrant — someone who
 runs an NGO but registers as an individual still has to be able to find it.
 
-**The pitch questions live in `registration.oneCeo.questions`** and nowhere else
-— the form renders whatever is in that list, in order, and validates every
+**The pitch questions live in `registration.oneMentor.questions`** and nowhere
+else — the form renders whatever is in that list, in order, and validates every
 non-`optional` one. They are grouped in four movements: who you are (verification
 only), where you are now (the honesty check), the pitch itself, and logistics.
 Only the third group is what the ten are chosen on, so if the application ever
-has to get shorter, cut from the bottom, never from the pitch block.
+has to get shorter, cut from the bottom, never from the pitch block. The pitch
+block now closes on `pitch_expectations` — what the applicant wants from the
+mentorship — because five of the ten leave with a mentor, which makes that part
+of what the panel is picking on rather than an afterthought.
 
 **A question's `name` is frozen the moment the first application arrives.** It is
-what labels the answer in the inbox, so renaming one later leaves two batches of
-submissions that no longer line up — add a new question instead. Settle the
+what labels the answer in the inbox *and* the column heading in the sheet, so
+renaming one later leaves two batches of submissions that no longer line up, and
+an orphaned column beside a new one — add a new question instead. Settle the
 wording before the form is shared anywhere.
 
-If the list is ever emptied, the revealed block falls back to `oneCeo.pending`
-and the registration still submits, flagged in both the subject line and the
-`one_ceo_many_missions` field. Leave `pending` in place: it is the fallback for
-an empty list, not a temporary notice.
+If the list is ever emptied, the revealed block falls back to `oneMentor.pending`
+and the registration still submits, flagged in the subject line, in the
+`one_mentor_many_missions` field and by landing on the pitch tab. Leave `pending`
+in place: it is the fallback for an empty list, not a temporary notice.
 
 TODO: the current questions are a draft written to make the form usable. The
-wording is Freishia's call — she is the one who knows what the CEO panel needs in
-order to pick ten out of the pile. Review with her before this is shared.
+wording is Freishia's call — she is the one who knows what the mentor panel needs
+in order to pick ten out of the pile, and then five out of the ten. Review with
+her before this is shared.
 
 `CtaBand` at the foot of the landing page now leads with `/register` and keeps
 `/contact` as the quieter second button, and `Register` is an entry in `nav`, so

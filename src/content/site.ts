@@ -38,13 +38,19 @@ export const site = {
     "India's national platform uniting clean-up movements, grassroots changemakers, corporates and policymakers behind scalable environmental action.",
   url: "https://indiacleanupconfluence.org",
   /**
-   * ICUC 3.0, fixed: Saturday 19 and Sunday 20 September 2026. Every place the
-   * dates are printed reads them from here, so there is one line to change if
-   * they ever move. The venue is still to be announced — don't fill it in here
-   * until it is confirmed.
+   * ICUC 3.0, fixed: Saturday 19th and Sunday 20th September 2026, at India
+   * Habitat, New Delhi. Every place the dates or the venue are printed reads
+   * them from here, so there is one line to change if either ever moves and
+   * neither can drift between two screens.
    */
-  dates: "19 & 20 September 2026",
-  datesLong: "Saturday 19 – Sunday 20 September 2026",
+  dates: "19th & 20th September 2026",
+  datesLong: "Saturday 19th – Sunday 20th September 2026",
+  /**
+   * Confirmed, and printed straight after the dates wherever they appear — the
+   * registration page, the success message and the ICUC 3.0 edition entry all
+   * read this rather than repeating it.
+   */
+  venue: "India Habitat, New Delhi",
 } as const;
 
 /**
@@ -495,7 +501,7 @@ export const editions: Array<{
     theme: "One Nation, Many Missions",
     blurb: "Every mission, mapped — and pointed in the same direction.",
     date: site.datesLong,
-    venue: "To be announced",
+    venue: site.venue,
     status: "upcoming",
     body: "The next edition takes the confluence past the coastline. Mangroves, lakes, rivers, hills, wards and streets are different missions with different tools — but one nation's waste problem. 3.0 is about making those missions legible to each other, to funders and to policy.",
     highlights: [
@@ -939,9 +945,10 @@ export type RegistrationQuestion = {
  * The registration page (`/register`), which is open to everyone: volunteers,
  * NGOs, corporates, students, press. One form, one inbox.
  *
- * It carries a second track inside it. `oneCeo` is the "One CEO, Many Missions"
- * pitch session — NGOs that want to scale into a business apply here, ten are
- * selected, and those ten pitch to a panel of CEOs at ICUC 3.0.
+ * It carries a second track inside it. `oneMentor` is the "One Mentor, Many
+ * Missions" pitch session — NGOs that want to scale into a business apply here,
+ * ten are selected to pitch to a panel of mentors at ICUC 3.0, and five of those
+ * ten come away with mentorship from the panel.
  *
  * All of that copy is read *inside the form*: choosing `ngoType` in the "I'm
  * registering as" dropdown opens the explanation right there, next to the tick
@@ -949,9 +956,9 @@ export type RegistrationQuestion = {
  * reaching it would ever have scrolled past the thing they came to fill in.
  */
 export const registration = {
-  eyebrow: `ICUC 3.0 — ${site.dates}`,
+  eyebrow: `ICUC 3.0 — ${site.dates} — ${site.venue}`,
   title: "Register for the confluence",
-  body: `ICUC 3.0 is on ${site.datesLong}. Everyone registers here — volunteers, clean-up movements, corporates, students, civic bodies and press. Tell us who you are and we will send you the venue and the schedule as they are confirmed.`,
+  body: `ICUC 3.0 is on ${site.datesLong}, at ${site.venue}. It's time to come together for a better tomorrow — register for the confluence here.`,
   /** The first dropdown. Order is roughly most to least common. */
   attendeeTypes: [
     "Individual volunteer",
@@ -965,16 +972,16 @@ export const registration = {
   ],
   /**
    * Must match one of `attendeeTypes` exactly. Selecting it is what opens the
-   * One CEO, Many Missions explanation inside the form, so a typo here silently
+   * One Mentor, Many Missions explanation inside the form, so a typo here silently
    * means the pitch session never explains itself to the people it is for.
    */
   ngoType: "NGO or clean-up movement",
-  oneCeo: {
-    eyebrow: "One CEO, Many Missions",
-    title: "Ten NGOs. One panel of CEOs. One pitch each.",
+  oneMentor: {
+    eyebrow: "One Mentor, Many Missions",
+    title: "Ten NGOs pitch. Five leave with a mentor.",
     body: [
       "A clean-up movement that wants to outlast its founders has to work like a business — revenue, a model, people who are paid to stay. Most never get in a room with anyone who has built one.",
-      "One CEO, Many Missions puts ten of them in that room. Apply through this form; ten are selected from everyone who applies; those ten give an elevator pitch to a panel of CEOs on how they would scale their NGO into a business.",
+      "One Mentor, Many Missions puts ten of them in that room. Apply through this form; ten are selected from everyone who applies; those ten give an elevator pitch to a panel of mentors on how they would scale their NGO into a business. Five of the ten are then chosen by that panel and carry on with them as mentors afterwards.",
     ],
     /**
      * How it runs, in three beats. Rendered as a numbered row inside the form —
@@ -992,7 +999,11 @@ export const registration = {
       },
       {
         title: "Ten pitches, one panel",
-        body: "Each of the ten gives an elevator pitch to a panel of CEOs: how they would scale their NGO into a business.",
+        body: "Each of the ten gives an elevator pitch to a panel of mentors: how they would scale their NGO into a business.",
+      },
+      {
+        title: "Five win a mentor",
+        body: "Five of the ten are chosen by the panel and keep working with them afterwards — mentorship on turning the pitch into a business.",
       },
     ],
     /**
@@ -1000,11 +1011,11 @@ export const registration = {
      * application below. The hint has to carry that, because a bare tick box is
      * a decision asked before the information that would inform it — anyone who
      * has not chosen NGO in the dropdown is reading this line with no idea what
-     * One CEO, Many Missions is, and won't tick a box to find out unless told
+     * One Mentor, Many Missions is, and won't tick a box to find out unless told
      * that ticking is how they find out.
      */
-    question: "I run an NGO and would like to pitch at One CEO, Many Missions",
-    hint: "Ten NGOs will be selected to pitch to a panel of CEOs on how they would scale their NGO into a business. Tick this to read how it works and to open the application — nothing is submitted until you press Register, and you can untick it if it turns out not to be for you.",
+    question: "I run an NGO and would like to pitch at One Mentor, Many Missions",
+    hint: "Ten NGOs will be selected to pitch to a panel of mentors on how they would scale their NGO into a business, and five of the ten win mentorship from that panel. Tick this to read how it works and to open the application — nothing is submitted until you press Register, and you can untick it if it turns out not to be for you.",
     /**
      * The application, in four movements: who you are, where you are now, the
      * pitch, and the logistics.
@@ -1020,7 +1031,7 @@ export const registration = {
      * submissions that no longer line up — add a new question instead.
      *
      * TODO (2026-08-28): drafted here so the form is usable, but the wording is
-     * Freishia's call — she is the one who knows what the CEO panel needs in
+     * Freishia's call — she is the one who knows what the mentor panel needs in
      * order to pick ten out of the pile. Review with her before this goes out
      * anywhere, and settle it *before* applications start coming in, for the
      * renaming reason above.
@@ -1092,6 +1103,12 @@ export const registration = {
         type: "textarea",
       },
       {
+        name: "pitch_five_year",
+        label: "What is your 5 year plan?",
+        hint: "Where you want the organisation to be by 2031, and what has to happen to get there",
+        type: "textarea",
+      },
+      {
         name: "pitch_blocker",
         label: "What is the single biggest thing stopping you from scaling right now?",
         type: "textarea",
@@ -1100,6 +1117,12 @@ export const registration = {
         name: "pitch_ask",
         label: "What do you want out of this room?",
         hint: "Be specific — capital, a customer, a distribution partner, an operator to hire",
+        type: "textarea",
+      },
+      {
+        name: "pitch_expectations",
+        label: "What are your expectations from the mentorship?",
+        hint: "Five of the ten carry on with the panel afterwards — what would you want a mentor to actually do with you?",
         type: "textarea",
       },
 
@@ -1111,7 +1134,7 @@ export const registration = {
       // which is the opposite of who this is for.
       {
         name: "pitch_who",
-        label: "Who would give the pitch, and what is their role?",
+        label: "Who will give the pitch from your organization?",
         optional: true,
       },
       {
@@ -1127,7 +1150,7 @@ export const registration = {
   /** Shown in place of the form once a registration goes through. */
   success: {
     title: "You're registered",
-    body: `Thank you — your registration has reached the ICUC team. Keep ${site.dates} free; we will be in touch with the venue and the schedule as they are confirmed.`,
+    body: `Thank you — your registration has reached the ICUC team. Keep ${site.dates} free — we are at ${site.venue} — and we will be in touch with the schedule as it is confirmed.`,
     again: "Register someone else",
   },
 };
