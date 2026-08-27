@@ -995,9 +995,16 @@ export const registration = {
         body: "Each of the ten gives an elevator pitch to a panel of CEOs: how they would scale their NGO into a business.",
       },
     ],
-    /** The gate on the form. Ticking it reveals `questions` below. */
-    question: "I run an NGO and want to pitch at One CEO, Many Missions",
-    hint: "Ten NGOs will be selected to pitch to the CEO panel.",
+    /**
+     * The gate on the form: ticking it opens the explanation above and the
+     * application below. The hint has to carry that, because a bare tick box is
+     * a decision asked before the information that would inform it — anyone who
+     * has not chosen NGO in the dropdown is reading this line with no idea what
+     * One CEO, Many Missions is, and won't tick a box to find out unless told
+     * that ticking is how they find out.
+     */
+    question: "I run an NGO and would like to pitch at One CEO, Many Missions",
+    hint: "Ten NGOs will be selected to pitch to a panel of CEOs on how they would scale their NGO into a business. Tick this to read how it works and to open the application — nothing is submitted until you press Register, and you can untick it if it turns out not to be for you.",
     /**
      * The application, in four movements: who you are, where you are now, the
      * pitch, and the logistics.
