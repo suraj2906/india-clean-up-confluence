@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 import Link from "next/link";
 
 import { contact, nav, site } from "@/content/site";
@@ -69,15 +69,6 @@ export function Footer() {
                   {contact.emailAlt}
                 </a>
               </span>
-            </li>
-            <li className="flex items-start gap-3">
-              <Phone className="mt-0.5 size-4 shrink-0 text-sky-300" aria-hidden />
-              <a
-                href={`tel:${contact.phone.replace(/\s/g, "")}`}
-                className="transition-colors hover:text-sky-300"
-              >
-                {contact.phone}
-              </a>
             </li>
             <li className="flex items-start gap-3">
               <MapPin className="mt-0.5 size-4 shrink-0 text-sky-300" aria-hidden />

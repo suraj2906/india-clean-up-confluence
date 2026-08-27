@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -31,11 +31,8 @@ const details: Array<{
       { text: contact.emailAlt, href: `mailto:${contact.emailAlt}` },
     ],
   },
-  {
-    icon: Phone,
-    label: "Phone",
-    items: [{ text: contact.phone, href: `tel:${contact.phone.replace(/\s/g, "")}` }],
-  },
+  // No phone row: there is no published number for the confluence yet, and the
+  // placeholder that used to sit here read as a real one. Email is the route in.
   { icon: MapPin, label: "Based in", items: [{ text: contact.location }] },
 ];
 

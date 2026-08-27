@@ -23,10 +23,19 @@ export function CtaBand() {
             <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
               {cta.body}
             </p>
-            <div className="mt-9 flex justify-center">
+            <div className="mt-9 flex flex-wrap justify-center gap-3">
               <ButtonLink href={cta.button.href} className="px-8 py-3.5">
                 {cta.button.label}
                 <ArrowRight className="size-4" aria-hidden />
+              </ButtonLink>
+              {/* `ghost-light`, not `ghost`: this card is one of the deep bands,
+                  and the sky-blue outline disappears into it. */}
+              <ButtonLink
+                href={cta.secondaryButton.href}
+                variant="ghost-light"
+                className="px-8 py-3.5"
+              >
+                {cta.secondaryButton.label}
               </ButtonLink>
             </div>
           </div>

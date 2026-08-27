@@ -6,9 +6,17 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # ICUC website
 
-Marketing site for the India Clean-Up Confluence. Two routes: a long landing page
-(`/`) and a contact page (`/contact`). Everything is statically prerendered — there
-is no database, no API route and no auth.
+Marketing site for the India Clean-Up Confluence. Everything is statically
+prerendered — there is no database, no API route and no auth.
+
+Six routes plus a 404. `/` is the long landing page, `/carter-clean-up` is the
+movement's own page, `/register` takes sign-ups for ICUC 3.0 and `/contact` is
+the general enquiry form. The last two are `noindex` previews
+kept alive on purpose: `/proposal` (the homepage at the URL already shared with
+sponsors) and `/classic` (the homepage with `HeroSplit` in place of `Hero`).
+Those three homepage-shaped routes render the *same* section list in the same
+order, so a section added to `page.tsx` almost always has to be added to
+`/proposal` and `/classic` as well.
 
 Stack: Next.js 16 App Router (Turbopack), React 19, TypeScript, Tailwind CSS v4,
 Motion (`motion/react`), `lucide-react` for icons.
@@ -53,6 +61,52 @@ a crop of the same illustration behind copy that already says the same words was
 the third telling in two screens. `hero.image` still exists in `site.ts` because
 `HeroSplit` on `/classic` boxes it beside the copy, where it works.
 
+`Changemakers` is currently commented out of all three homepage routes and of
+`nav`. Three of its four entries are still `Changemaker One`/`Two`/`Four`
+placeholders with no portrait on disk, and a wall of placeholder people read
+worse than no section at all. Nothing was deleted: fill in `changemakers` in
+`site.ts`, drop the portraits into `public/images/changemakers/`, and uncomment
+the four lines (`page.tsx`, `/proposal`, `/classic`, `nav`) to bring it back.
+
+**`/carter-clean-up` is chapter one at full length.** `Movement` on the landing
+page has to stay short — it is one beat of the ICUC chronology — so the movement
+gets its own route: `CarterHero` → `CarterStory` → `CarterNumbers` →
+`CarterFounders` → `CarterPhotos` → `Partners` → `CarterCta`, every one of them
+reading from the `carter` export in `site.ts`. Two things are shared on purpose
+and should stay shared. `CarterPhotos` renders `movement.carousel` rather than a
+second array, so a photo dropped in there appears in both places; and the page
+runs the landing page's own `Partners` row over the same `partners.items`,
+passing only its headings (`carter.partners`) — the row takes
+`eyebrow`/`title`/`intro` props for exactly that reason. The founder bios carry
+`TODO`s: they were drafted from public profiles and are waiting on the founders'
+own words. Don't quietly promote them to fact. There is no `Cover` on this route,
+so the header shows its logo throughout.
+
+**`Carousel` is the one photo strip that moves on its own**, and it is what both
+`Movement` and `CarterPhotos` render. Native scroll-snap does the moving; the
+arrows and the autoplay only set the track's scroll offset, so touch swiping
+comes free. The loop is seamless via cloned edges — the last photo is rendered
+before the first and the first after the last — so "next" off the end scrolls
+forward into a copy rather than rewinding through the whole strip. There is
+deliberately **no click-and-drag**: it was tried and removed, because drag and
+click compete for the same pointer on the same element, so a drag would open the
+lightbox on the slide it started from. Read the component's header comment before
+touching the scroll handling.
+
+**The ICUC 3.0 dates are fixed and live in one place.** `site.dates`
+("19 & 20 September 2026") and `site.datesLong` ("Saturday 19 – Sunday 20
+September 2026") are read by the edition entry and by the registration page's
+copy, so the dates cannot drift between two screens. The venue is genuinely still
+to be announced — leave it that way rather than guessing Mumbai from the past two
+editions. The key art's `alt` text still says only "September 2026" because it
+transcribes what the artwork itself prints; re-cut the artwork before changing
+that line.
+
+There is no phone number on the site. `contact.phone` held a `+91 00000 00000`
+placeholder that read as a real number, so the field and both rows that rendered
+it (the contact page, the footer) are gone. Email is the only published route in.
+Add the field and the rows back the day there is a number worth printing.
+
 **Copy lives in `src/content/site.ts`, never in a component.** Headlines, stats,
 edition details, changemaker names, gallery entries, partner logos, nav links,
 contact details and the form's subject dropdown are all keyed objects in that one
@@ -86,15 +140,32 @@ poster's cloudy sky gradient — it belongs to page tops (`Cover`, `/contact`, 4
 `.bg-deepwater` is its dark twin and belongs under white copy; it is the base of
 `WaveField`, which draws the identity — deep water, a pale summit, the sky-blue
 wave — as the `Hero` backdrop instead of a photograph. The swell loops off
-`--animate-swell`, the one ambient keyframe here; it is weather rather than an
-entrance, which is why it is linear and not on `EASE`.
+`--animate-swell`; it is weather rather than an entrance, which is why it is
+linear and not on `EASE`.
 
-**Images may not exist on disk.** The photo set is delivered after launch, so
-`public/images/{hero,movement,editions,changemakers,gallery,partners}/` are
-currently empty. Always render photos through `src/components/ui/SmartImage.tsx`,
-which falls back to a themed gradient on error — never bare `next/image`. Real
-`width`/`height` are required on every entry so the fallback reserves identical
-space and dropping the file in later causes zero layout shift.
+The site draws its water rather than photographing it, and every drawing comes
+off one set of curves in `src/lib/waves.ts` — several components tracing subtly
+different seas would read as a mistake. `WaveField` is the deep-water version,
+for white copy on a dark band (`Hero`). `ShoreField` is its daylight twin for
+`ink` copy on `bg-skywash` — headland, sea, pale beach, mangroves at both edges —
+and carries `CarterHero` and the 404; its front layer is `shell`, so the picture
+runs out into whatever sits below instead of ending on a line. Both are plain
+markup, so the scenery costs no client JavaScript. `DriftingLitter` on the 404 is
+the one exception: three sweepable pieces of litter that ride `ShoreField`'s
+`sea` band, deriving their bob from the same constants rather than eyeballing the
+curve — so moving a wave moves the litter with it.
+
+**Images may not exist on disk.** The photo set arrives in batches, so at any
+moment some paths in `site.ts` point at nothing. As of the last pass the gallery
+(nineteen photos plus a video poster), the partner wall (fifteen logos),
+`movement/carousel` (six), the edition recap posters, the key art and two founder
+portraits are all real files on disk; `changemakers/{one,two,four}.jpg` and the
+OG image (`/images/og.jpg`, referenced from `layout.tsx`) are still missing. That
+list will keep changing — the rule below is what does not. Always render photos
+through `src/components/ui/SmartImage.tsx`, which falls back to a themed gradient
+on error — never bare `next/image`. Real `width`/`height` are required on every
+entry so the fallback reserves identical space and dropping the file in later
+causes zero layout shift.
 
 **Edition recaps degrade the same way.** Each past edition in `site.ts` carries a
 `recap` with a list of films and an (optionally empty) photo strip. The films are
@@ -145,6 +216,17 @@ slice, so arrow keys and swipe walk all of it and indices survive expansion; and
 fetched images twice as wide as any slot they could land in. Use `Stagger` /
 `StaggerItem` from `Reveal.tsx`, never a hand-computed `delay={i * 0.0x}`.
 
+**One tile in that grid is a film, and the array is typed for it.** `gallery` is
+`Array<(Img & { caption?: string }) | GalleryVideo>`; an entry carrying
+`type: "video"` renders `HoverVideo` instead of a photo button — a muted, looping
+preview on hover or focus that hands off to `Lightbox`, with sound and controls,
+on click. That is the same click-to-expand contract every photo tile has, which
+is the point: the tile is not a second kind of thing to the reader. `Lightbox`
+takes both kinds. Two traps worth knowing: a film's alt text lives on
+`poster.alt` rather than on the item itself, and `HoverVideo` must be passed
+`h-full` and never `absolute inset-0` — its button is already `relative`,
+Tailwind emits `.relative` after `.absolute`, and the tile collapses to nothing.
+
 Gallery photos are processed from the original camera JPEGs with `sharp`:
 **`.rotate()` first**, then longest edge 2000px, JPEG q80 `mozjpeg`, metadata
 dropped. The order matters — six of the nineteen carried `orientation=8`, and
@@ -164,12 +246,38 @@ the room writes them. Don't infer captions from the images.
 `Reveal` wrapper, which already handles `prefers-reduced-motion`. Don't hand-roll
 per-component transitions or a second easing curve.
 
+There are exactly two sanctioned escapes from `EASE`, both in that same file.
+`SPRING` is for anything a scroll or a pointer drives, where the end point keeps
+moving and a fixed duration would fight it. `DRIFT` is the linear infinite loop
+for ambient motion — the same category as the `swell`, `marquee` and `float`
+keyframes in `globals.css`, and linear for the same reason: those keyframes
+already carry the shape of the cycle, and `EASE` is a decelerating *arrival*
+curve, which reads wrong on something that never arrives. Anything that does
+arrive still takes `EASE`.
+
+Two scroll-driven hairlines exist, and both are transform-only. `ScrollProgress`
+sits under the header — how far down the document you are, since phones show no
+scrollbar and the landing page is long — and springs the raw progress value,
+because a trackpad flick moves it in visible steps. It renders nothing at all
+under reduced motion. `TimelineRail` draws the editions chronology in as you read
+down it, over a static low-opacity track so the list never looks truncated; under
+reduced motion it simply renders complete. `TimelineRail` is also why `Editions`
+can stay a server component — the scroll-driven part is pushed into a client
+leaf. Copy that arrangement.
+
 **Client components are the exception.** Only things that genuinely need state or
-effects carry `"use client"`: `SmartImage`, `Lightbox`, `PhotoStrip`, `VideoEmbed`,
-`CountUp`, `Reveal`, `ContactForm`, `Header` (mobile nav), and the three interactive
-sections `Cover`, `Hero` and `Gallery`. Every other section — `Movement`, `Confluence`,
-`Editions`, `Stats`, `Changemakers`, `Partners`, `CtaBand` — is a server component
-that composes client leaves. Keep it that way when adding a section.
+effects carry `"use client"`: `SmartImage`, `Lightbox`, `PhotoStrip`, `Carousel`,
+`VideoEmbed`, `HoverVideo`, `CountUp`, `Reveal`, `ScrollProgress`, `TimelineRail`,
+`DriftingLitter`, `ContactForm`, `Header` (mobile nav), and the interactive
+sections `Cover`, `Hero`, `HeroSplit` and `Gallery`. Every other section —
+`Movement`, `Confluence`, `Editions`, `Stats`, `Changemakers`, `Partners`,
+`CtaBand` and all six `carter/*` sections — is a server component that composes
+client leaves.
+
+Note what is *not* a client component even though it moves: `Partners`' marquee,
+`WaveField` and `ShoreField` are markup plus a CSS animation and nothing else.
+Reach for `"use client"` when there is state or an effect, not when there is
+motion. Keep it that way when adding a section.
 
 ## Contact form
 
@@ -191,6 +299,57 @@ free plan (`"This method is not allowed. Use our API in client side"`), so a fai
 `curl` says nothing about whether the form works. A submission that reaches the
 Web3Forms dashboard proves the key and the client path are fine; if no mail arrives
 after that, the fault is in the Web3Forms account, not in this repo.
+
+## Registration
+
+`/register` is the sign-up form for ICUC 3.0 and it is **one form for everyone** —
+volunteers, NGOs, corporates, students, civic bodies, press. It posts to Web3Forms
+the same way `ContactForm` does, with the same key and therefore the same inbox;
+everything in the contact-form section above applies to it unchanged, including
+testing it in a browser rather than with `curl`.
+
+It carries a second form inside it. **One CEO, Many Missions** is a pitch session:
+NGOs that want to scale into a business apply through this same form, ten are
+selected from everyone who applies, and those ten give an elevator pitch to a
+panel of CEOs at the event. There is deliberately no second application form and
+no separate page — a shortlist people can apply to twice is a shortlist somebody
+has to de-duplicate by hand.
+
+**That track reveals itself in two stages, and both are inside the form.**
+Choosing `registration.ngoType` ("NGO or clean-up movement") in the "I'm
+registering as" dropdown unfolds the explanation — what the session is, and the
+three steps from applying to pitching — directly above the tick box it explains.
+Ticking the box opens the application questions, and also unfolds that same
+explanation if the dropdown never said NGO: someone who ticks first and reads
+later is precisely the person who needs telling what they just applied to. The explainer was
+originally a section *under* the form and was moved for a plain reason: nobody
+scrolls past a form they came to fill in, so an explainer below it is an
+explainer nobody reads. Don't put a second copy back on the page. Two things to
+keep true: `ngoType` has to match one of `attendeeTypes` character for character
+or the pitch session silently stops explaining itself to the people it is for,
+and the tick box stays visible for every other kind of registrant — someone who
+runs an NGO but registers as an individual still has to be able to find it.
+
+**The pitch questions are not written yet, and the form ships without them on
+purpose.** `registration.oneCeo.questions` in `site.ts` is an empty
+`RegistrationQuestion[]`; while it is empty the revealed block shows
+`oneCeo.pending` instead, and the registration still submits, flagged in both the
+subject line and the `one_ceo_many_missions` field. So the page is live and
+recording applicants before anyone has decided what the panel needs to know.
+Filling the questions in is a `site.ts` edit and nothing else — the form renders
+whatever is in the list, in order, and validates every non-`optional` one. Two
+things to keep true: a question's `name` is what labels its answer in the inbox,
+so pick it once and never rename it, or submissions from different weeks stop
+lining up; and leave `pending` in place when the questions land, since it is the
+fallback for an empty list rather than a temporary notice.
+
+TODO: the questions themselves are Freishia's to write. Ask her what the CEO panel
+needs in order to pick ten out of the pile.
+
+`CtaBand` at the foot of the landing page now leads with `/register` and keeps
+`/contact` as the quieter second button, and `Register` is an entry in `nav`, so
+it appears in the desktop bar, the mobile drawer and the footer. That is a nav
+*link*, not a button — the header still has no call-to-action button in it.
 
 ## Before you call it done
 

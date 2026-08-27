@@ -37,6 +37,14 @@ export const site = {
   description:
     "India's national platform uniting clean-up movements, grassroots changemakers, corporates and policymakers behind scalable environmental action.",
   url: "https://indiacleanupconfluence.org",
+  /**
+   * ICUC 3.0, fixed: Saturday 19 and Sunday 20 September 2026. Every place the
+   * dates are printed reads them from here, so there is one line to change if
+   * they ever move. The venue is still to be announced — don't fill it in here
+   * until it is confirmed.
+   */
+  dates: "19 & 20 September 2026",
+  datesLong: "Saturday 19 – Sunday 20 September 2026",
 } as const;
 
 /**
@@ -52,6 +60,7 @@ export const nav = [
   { label: "Impact", href: "/#impact" },
   // { label: "Changemakers", href: "/#changemakers" },
   { label: "Gallery", href: "/#gallery" },
+  { label: "Register", href: "/register" },
 ] as const;
 
 /**
@@ -90,7 +99,9 @@ export const hero = {
   title: "One nation,\nmany missions",
   subtitle:
     "It started with one beach. It became a national confluence of everyone cleaning up India — coastlines, lakes, hills, streets. Bringing Cleanup Movements Under One roof.",
-  primaryCta: { label: "Get involved", href: "/contact" },
+  /** The page's main action. Registration is the thing with a date on it, so
+      "Get involved" means "register" — not "write to us". */
+  primaryCta: { label: "Get involved", href: "/register" },
   secondaryCta: { label: "How it started", href: "/#movement" },
   /** The key art cropped to the illustration. Deliberately text-free: the H1 and
       the eyebrow are laid over it, and the full title card already ran above. */
@@ -483,14 +494,14 @@ export const editions: Array<{
     name: "ICUC 3.0",
     theme: "One Nation, Many Missions",
     blurb: "Every mission, mapped — and pointed in the same direction.",
-    date: "Dates to be announced",
+    date: site.datesLong,
     venue: "To be announced",
     status: "upcoming",
     body: "The next edition takes the confluence past the coastline. Mangroves, lakes, rivers, hills, wards and streets are different missions with different tools — but one nation's waste problem. 3.0 is about making those missions legible to each other, to funders and to policy.",
     highlights: [
       "Missions beyond the shoreline — inland, urban and upland",
       "A national map of who is cleaning what, and where",
-      "Registration opens closer to the date",
+      "Registration is open to everyone — volunteers, NGOs, corporates and press",
     ],
     recap: null,
   },
@@ -886,8 +897,14 @@ export const partners = {
 
 export const cta = {
   title: "One nation. Many missions. Room for yours.",
-  body: "Whether you run a collective, lead a CSR programme, or simply want to show up on a Sunday morning — there is a place for you at the confluence.",
-  button: { label: "Contact us", href: "/contact" },
+  body: "Whether you run a collective, lead a CSR programme, or simply want to show up on a Sunday morning — there is a place for you at the confluence. Registration for ICUC 3.0 is open to everyone.",
+  /**
+   * Two asks, and the order is the point: registering is the thing with a date
+   * on it, so it leads. Writing to us is the fallback for anyone whose question
+   * a form can't take, which is why it stays and why it is the quieter button.
+   */
+  button: { label: "Register for ICUC 3.0", href: "/register" },
+  secondaryButton: { label: "Contact us", href: "/contact" },
 };
 
 /** The 404 page. Leans on the clean-up rather than apologising for the URL. */
@@ -897,6 +914,111 @@ export const notFound = {
   body: "The page you're looking for isn't on this shore. It may have moved, or it may have been picked up and cleared away. Either way, there's plenty left to do.",
   primaryCta: { label: "Back to home", href: "/" },
   secondaryCta: { label: "Get in touch", href: "/contact" },
+};
+
+/**
+ * One question on the registration form's NGO track. The form renders this list
+ * in order, so adding a question is a `site.ts` edit and nothing else.
+ *
+ * `name` is what the answer is labelled as in the inbox — it goes straight into
+ * the Web3Forms payload. Pick it once and don't rename it later, or two months
+ * of submissions stop lining up with each other.
+ */
+export type RegistrationQuestion = {
+  name: string;
+  label: string;
+  hint?: string;
+  placeholder?: string;
+  /** Defaults to a single-line text input. */
+  type?: "text" | "textarea" | "url" | "number";
+  /** Defaults to required — an application form with optional questions isn't one. */
+  optional?: boolean;
+};
+
+/**
+ * The registration page (`/register`), which is open to everyone: volunteers,
+ * NGOs, corporates, students, press. One form, one inbox.
+ *
+ * It carries a second track inside it. `oneCeo` is the "One CEO, Many Missions"
+ * pitch session — NGOs that want to scale into a business apply here, ten are
+ * selected, and those ten pitch to a panel of CEOs at ICUC 3.0.
+ *
+ * All of that copy is read *inside the form*: choosing `ngoType` in the "I'm
+ * registering as" dropdown opens the explanation right there, next to the tick
+ * box it is explaining. It used to sit in a section under the form, where nobody
+ * reaching it would ever have scrolled past the thing they came to fill in.
+ */
+export const registration = {
+  eyebrow: `ICUC 3.0 — ${site.dates}`,
+  title: "Register for the confluence",
+  body: `ICUC 3.0 is on ${site.datesLong}. Everyone registers here — volunteers, clean-up movements, corporates, students, civic bodies and press. Tell us who you are and we will send you the venue and the schedule as they are confirmed.`,
+  /** The first dropdown. Order is roughly most to least common. */
+  attendeeTypes: [
+    "Individual volunteer",
+    "NGO or clean-up movement",
+    "Corporate or CSR team",
+    "Student or college group",
+    "Government or civic body",
+    "Speaker or panellist",
+    "Press and media",
+    "Something else",
+  ],
+  /**
+   * Must match one of `attendeeTypes` exactly. Selecting it is what opens the
+   * One CEO, Many Missions explanation inside the form, so a typo here silently
+   * means the pitch session never explains itself to the people it is for.
+   */
+  ngoType: "NGO or clean-up movement",
+  oneCeo: {
+    eyebrow: "One CEO, Many Missions",
+    title: "Ten NGOs. One panel of CEOs. One pitch each.",
+    body: [
+      "A clean-up movement that wants to outlast its founders has to work like a business — revenue, a model, people who are paid to stay. Most never get in a room with anyone who has built one.",
+      "One CEO, Many Missions puts ten of them in that room. Apply through this form; ten are selected from everyone who applies; those ten give an elevator pitch to a panel of CEOs on how they would scale their NGO into a business.",
+    ],
+    /**
+     * How it runs, in three beats. Rendered as a numbered row inside the form —
+     * the component supplies one icon per step in this order, so adding a fourth
+     * means adding a fourth icon too.
+     */
+    steps: [
+      {
+        title: "Everyone applies here",
+        body: "Tick the box below. NGOs of any size are welcome to — this is not a shortlist you have to already be on.",
+      },
+      {
+        title: "Ten are selected",
+        body: "The applications are read and ten NGOs are picked to take the stage at ICUC 3.0.",
+      },
+      {
+        title: "Ten pitches, one panel",
+        body: "Each of the ten gives an elevator pitch to a panel of CEOs: how they would scale their NGO into a business.",
+      },
+    ],
+    /** The gate on the form. Ticking it reveals `questions` below. */
+    question: "I run an NGO and want to pitch at One CEO, Many Missions",
+    hint: "Ten NGOs will be selected to pitch to the CEO panel.",
+    /**
+     * TODO (2026-08-28): these are Freishia's to write — ask her what the panel
+     * needs to know to pick ten out of the pile, then add them here. Nothing
+     * else has to change: the form renders whatever is in this list, and while
+     * it is empty it shows `pending` instead and still records the applicant, so
+     * the page is live and collecting names in the meantime.
+     *
+     * Shape is `RegistrationQuestion` above, e.g.
+     *   { name: "ngo_years", label: "How long has the NGO been running?" },
+     *   { name: "ngo_model", label: "How would you make it pay for itself?", type: "textarea" },
+     */
+    questions: [] as RegistrationQuestion[],
+    /** Stands in for the questions until they exist. Delete nothing when they do — this stays as the fallback. */
+    pending: "The application questions are being finalised. Tick the box and submit, and we will email you the full application as soon as it opens — your place in the queue is already recorded.",
+  },
+  /** Shown in place of the form once a registration goes through. */
+  success: {
+    title: "You're registered",
+    body: `Thank you — your registration has reached the ICUC team. Keep ${site.dates} free; we will be in touch with the venue and the schedule as they are confirmed.`,
+    again: "Register someone else",
+  },
 };
 
 export const contact = {
@@ -917,7 +1039,6 @@ export const contact = {
    * same people, but this is the movement's address, not the confluence's.
    */
   emailAlt: "cartercleanupb@gmail.com",
-  phone: "+91 00000 00000",
   location: "Mumbai, Maharashtra, India",
   /** Split in three so the movement's name inside the sentence can be a link to
       its own page. Rendered by both `Footer` and the contact page. */
