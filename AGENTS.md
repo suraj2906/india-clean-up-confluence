@@ -330,21 +330,26 @@ or the pitch session silently stops explaining itself to the people it is for,
 and the tick box stays visible for every other kind of registrant — someone who
 runs an NGO but registers as an individual still has to be able to find it.
 
-**The pitch questions are not written yet, and the form ships without them on
-purpose.** `registration.oneCeo.questions` in `site.ts` is an empty
-`RegistrationQuestion[]`; while it is empty the revealed block shows
-`oneCeo.pending` instead, and the registration still submits, flagged in both the
-subject line and the `one_ceo_many_missions` field. So the page is live and
-recording applicants before anyone has decided what the panel needs to know.
-Filling the questions in is a `site.ts` edit and nothing else — the form renders
-whatever is in the list, in order, and validates every non-`optional` one. Two
-things to keep true: a question's `name` is what labels its answer in the inbox,
-so pick it once and never rename it, or submissions from different weeks stop
-lining up; and leave `pending` in place when the questions land, since it is the
-fallback for an empty list rather than a temporary notice.
+**The pitch questions live in `registration.oneCeo.questions`** and nowhere else
+— the form renders whatever is in that list, in order, and validates every
+non-`optional` one. They are grouped in four movements: who you are (verification
+only), where you are now (the honesty check), the pitch itself, and logistics.
+Only the third group is what the ten are chosen on, so if the application ever
+has to get shorter, cut from the bottom, never from the pitch block.
 
-TODO: the questions themselves are Freishia's to write. Ask her what the CEO panel
-needs in order to pick ten out of the pile.
+**A question's `name` is frozen the moment the first application arrives.** It is
+what labels the answer in the inbox, so renaming one later leaves two batches of
+submissions that no longer line up — add a new question instead. Settle the
+wording before the form is shared anywhere.
+
+If the list is ever emptied, the revealed block falls back to `oneCeo.pending`
+and the registration still submits, flagged in both the subject line and the
+`one_ceo_many_missions` field. Leave `pending` in place: it is the fallback for
+an empty list, not a temporary notice.
+
+TODO: the current questions are a draft written to make the form usable. The
+wording is Freishia's call — she is the one who knows what the CEO panel needs in
+order to pick ten out of the pile. Review with her before this is shared.
 
 `CtaBand` at the foot of the landing page now leads with `/register` and keeps
 `/contact` as the quieter second button, and `Register` is an entry in `nav`, so

@@ -999,17 +999,121 @@ export const registration = {
     question: "I run an NGO and want to pitch at One CEO, Many Missions",
     hint: "Ten NGOs will be selected to pitch to the CEO panel.",
     /**
-     * TODO (2026-08-28): these are Freishia's to write — ask her what the panel
-     * needs to know to pick ten out of the pile, then add them here. Nothing
-     * else has to change: the form renders whatever is in this list, and while
-     * it is empty it shows `pending` instead and still records the applicant, so
-     * the page is live and collecting names in the meantime.
+     * The application, in four movements: who you are, where you are now, the
+     * pitch, and the logistics.
      *
-     * Shape is `RegistrationQuestion` above, e.g.
-     *   { name: "ngo_years", label: "How long has the NGO been running?" },
-     *   { name: "ngo_model", label: "How would you make it pay for itself?", type: "textarea" },
+     * Only the third block is what the ten are *chosen* on. The first two are
+     * there to keep it honest — a strong `pitch_model` from an organisation with
+     * no work behind it should not outrank a real one — and the fourth is
+     * housekeeping. If this ever has to get shorter, cut from the bottom and
+     * from `ngo_founded`/`ngo_registered`, never from the pitch block.
+     *
+     * A `name` is what labels the answer in the inbox, so it is fixed the moment
+     * the first application arrives. Renaming one later means two months of
+     * submissions that no longer line up — add a new question instead.
+     *
+     * TODO (2026-08-28): drafted here so the form is usable, but the wording is
+     * Freishia's call — she is the one who knows what the CEO panel needs in
+     * order to pick ten out of the pile. Review with her before this goes out
+     * anywhere, and settle it *before* applications start coming in, for the
+     * renaming reason above.
      */
-    questions: [] as RegistrationQuestion[],
+    questions: [
+      // A. Who you are. Verification rather than scoring — "not registered yet"
+      // must not disqualify anyone, since a two-year-old unregistered movement
+      // scaling into a business is exactly who this session is for.
+      {
+        name: "ngo_name",
+        label: "Name of your NGO or movement",
+        placeholder: "Carter Clean Up",
+      },
+      {
+        name: "ngo_link",
+        label: "Website or Instagram",
+        hint: "Wherever your work is visible",
+        type: "url",
+        placeholder: "https://instagram.com/…",
+      },
+      { name: "ngo_founded", label: "What year did you start?", placeholder: "2021" },
+      {
+        name: "ngo_city",
+        label: "Which city or region do you work in?",
+        placeholder: "Mumbai, Maharashtra",
+      },
+      {
+        name: "ngo_registered",
+        label: "Are you formally registered?",
+        hint: "Section 8, Trust, Society, 12A, 80G — or not yet, which is fine",
+        placeholder: "Section 8 company, 12A and 80G",
+      },
+
+      // B. Where you are now. `ngo_team` is the sharpest question here: "twelve
+      // people, none paid" and "twelve people, four paid" are different
+      // organisations, and it is the fastest read on whether scaling is a real
+      // prospect or an aspiration.
+      {
+        name: "ngo_work",
+        label: "In one or two sentences, what does your NGO actually do?",
+        type: "textarea",
+      },
+      {
+        name: "ngo_scale",
+        label: "Your work in numbers",
+        hint: "Volunteers, drives, waste collected, people reached — whatever you count",
+        type: "textarea",
+      },
+      {
+        name: "ngo_team",
+        label: "How many people work on this, and how many are paid?",
+        placeholder: "12 core volunteers, 2 paid full-time",
+      },
+      {
+        name: "ngo_funding",
+        label: "How is it funded today?",
+        hint: "Grants, CSR, donations, your own pocket",
+        type: "textarea",
+      },
+
+      // C. The pitch. This is what the ten are picked on. `pitch_blocker` is the
+      // tiebreaker — an applicant who names a real constraint ("we can't
+      // invoice, so corporates can't pay us") is a better bet than one who
+      // writes "funding".
+      {
+        name: "pitch_model",
+        label: "How would your NGO make money?",
+        hint: "What would you sell, to whom, and why would they pay? About 150 words",
+        type: "textarea",
+      },
+      {
+        name: "pitch_blocker",
+        label: "What is the single biggest thing stopping you from scaling right now?",
+        type: "textarea",
+      },
+      {
+        name: "pitch_ask",
+        label: "What do you want out of this room?",
+        hint: "Be specific — capital, a customer, a distribution partner, an operator to hire",
+        type: "textarea",
+      },
+
+      // D. Logistics, and only what cannot wait. Attendance is deliberately not
+      // asked here — the ten who are selected will be asked directly, and making
+      // every applicant commit to a date before they know whether they are
+      // pitching only costs applications. The deck is optional for the same kind
+      // of reason: requiring one filters for NGOs that already have polish,
+      // which is the opposite of who this is for.
+      {
+        name: "pitch_who",
+        label: "Who would give the pitch, and what is their role?",
+        optional: true,
+      },
+      {
+        name: "pitch_deck",
+        label: "Link to a deck or one-pager, if you have one",
+        type: "url",
+        optional: true,
+      },
+    ] satisfies RegistrationQuestion[],
     /** Stands in for the questions until they exist. Delete nothing when they do — this stays as the fallback. */
     pending: "The application questions are being finalised. Tick the box and submit, and we will email you the full application as soon as it opens — your place in the queue is already recorded.",
   },
