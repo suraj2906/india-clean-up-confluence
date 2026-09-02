@@ -39,7 +39,7 @@ const field =
   "w-full rounded-2xl border border-summit bg-white px-4 py-3 text-sm text-ink " +
   "placeholder:text-muted/60 transition-colors focus:border-sky focus:outline-none";
 
-const { oneMentor } = registration;
+const { oneMentor, redFort } = registration;
 
 /** One per `oneMentor.steps`, in the same order. */
 const stepIcons = [Users, Trophy, Megaphone, Handshake];
@@ -48,8 +48,9 @@ const stepIcons = [Users, Trophy, Megaphone, Handshake];
  * The one registration form, for everyone. No server handler: it posts straight
  * from the browser to two destinations at once.
  *
- * The Google Sheet is the record — every registration becomes a row, and which of
- * its two tabs the row lands on is decided by the tick box (see `postToSheet`).
+ * The Google Sheet is the record — every registration becomes a row, and which
+ * of its three tabs the row lands on is decided by the two tick boxes (see
+ * `postToSheet`).
  * Web3Forms is kept alongside it as the copy that survives a broken deployment,
  * on the same access key and therefore the same inbox as `ContactForm` (see the
  * contact-form note in AGENTS.md). A registration counts as captured if *either*
@@ -77,12 +78,18 @@ const stepIcons = [Users, Trophy, Megaphone, Handshake];
  * instead and the registration still submits, flagged as a pitch applicant. That
  * is the fallback rather than a temporary notice — the page can be live and
  * collecting names before anyone has decided what the panel needs to know.
+ *
+ * The second tick box, the Red Fort clean-up, is a much smaller thing: a head
+ * count with nothing to apply for, so it reveals nothing and asks nothing
+ * further. It only adds a column to the row and a copy of that row on the
+ * clean-up's own tab.
  */
 export function RegistrationForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<Errors>({});
   const [message, setMessage] = useState("");
   const [pitching, setPitching] = useState(false);
+  const [joiningRedFort, setJoiningRedFort] = useState(false);
   const [attendee, setAttendee] = useState(registration.attendeeTypes[0]);
   const reduced = useReducedMotion();
 
@@ -141,13 +148,14 @@ export function RegistrationForm() {
       city: text(data, "city"),
       registering_as: attendee,
       one_mentor_many_missions: pitching ? "Yes — wants to pitch" : "No",
+      red_fort_clean_up: joiningRedFort ? "Yes — joining" : "No",
       ...answers,
       message: text(data, "message"),
     };
 
     setStatus("sending");
     const [sheet, mail] = await Promise.allSettled([
-      postToSheet(payload, pitching),
+      postToSheet(payload, { pitching, joiningRedFort }),
       postToMail(payload, { attendee, email, pitching }),
     ]);
 
@@ -160,8 +168,9 @@ export function RegistrationForm() {
       setStatus("sent");
       form.reset();
       // `form.reset()` returns the uncontrolled fields to their defaults but not
-      // these two, which React owns.
+      // these three, which React owns.
       setPitching(false);
+      setJoiningRedFort(false);
       setAttendee(registration.attendeeTypes[0]);
       return;
     }
@@ -382,6 +391,27 @@ export function RegistrationForm() {
         )}
       </div>
 
+      {/* The Red Fort clean-up: a head count, not an application. Deliberately
+          a flat tick box with no unfolding panel — everything it needs to say
+          fits in the hint, and a second expanding block beside One Mentor would
+          make the form read as two applications stacked on each other. It sits
+          below the pitch track because it is open to every registrant, and the
+          last thing before the free-text field. */}
+      <div className="mt-5 rounded-3xl border border-leaf/25 bg-leaf-100/50 p-5 sm:p-6">
+        <label className="flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            checked={joiningRedFort}
+            onChange={(e) => setJoiningRedFort(e.target.checked)}
+            className="mt-0.5 size-4 shrink-0 accent-leaf"
+          />
+          <span>
+            <span className="block text-sm font-semibold text-ink">{redFort.question}</span>
+            <span className="mt-1 block text-xs leading-relaxed text-muted">{redFort.hint}</span>
+          </span>
+        </label>
+      </div>
+
       <div className="mt-5">
         <Field label="Anything else we should know" name="message" hint="Optional">
           <textarea
@@ -432,10 +462,17 @@ function text(data: FormData, name: string) {
 /**
  * The Google Sheet, through the Apps Script Web App.
  *
- * `sheet` is what decides which tab the row lands on: pitch applicants go to the
- * One Mentor, Many Missions tab along with their answers, everyone else to the
- * general one. Splitting them at write time rather than with a filter is the
- * point of the arrangement — the panel opens one tab and reads nothing else.
+ * `sheet` is what decides which tab (or tabs) the row lands on. Every
+ * registration lands on exactly one of the two *primary* tabs — pitch applicants
+ * on One Mentor, Many Missions along with their answers, everyone else on the
+ * general one — and a Red Fort clean-up tick adds a second copy on the clean-up
+ * tab. Splitting at write time rather than with a filter is the point of the
+ * arrangement: each panel opens one tab and reads nothing else.
+ *
+ * The Red Fort tab takes a *copy* rather than diverting the row, because the two
+ * questions are unrelated — an NGO that applies to pitch and also turns up to
+ * the clean-up has to appear on both lists, and neither list is complete if one
+ * tick can remove someone from the other.
  *
  * The body goes as `text/plain` on purpose. That keeps it a CORS *simple*
  * request, which needs no preflight — and an Apps Script Web App cannot answer a
@@ -443,15 +480,21 @@ function text(data: FormData, name: string) {
  * The script parses `e.postData.contents` itself, so the content type is a
  * formality to everything except the browser. Don't 'fix' it to application/json.
  */
-async function postToSheet(payload: Payload, pitching: boolean): Promise<Delivery> {
+async function postToSheet(
+  payload: Payload,
+  { pitching, joiningRedFort }: { pitching: boolean; joiningRedFort: boolean },
+): Promise<Delivery> {
   if (!SHEETS_ENDPOINT) return "skipped";
+
+  const sheets = [pitching ? "one_mentor" : "general"];
+  if (joiningRedFort) sheets.push("red_fort");
 
   const res = await fetch(SHEETS_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
     body: JSON.stringify({
       ...payload,
-      sheet: pitching ? "one_mentor" : "general",
+      sheet: sheets,
       submitted_at: new Date().toISOString(),
     }),
   });

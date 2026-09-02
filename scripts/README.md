@@ -42,18 +42,33 @@ it.
    `{"success":true,"message":"ICUC registrations endpoint is live."}`.
 7. Then submit the real form in a browser and confirm a row lands. Tick the One
    Mentor, Many Missions box on a second submission and confirm that one lands on
-   the *other* tab.
+   the *other* tab. Tick the Red Fort clean-up box on a third and confirm it
+   lands on **two** tabs — the clean-up tab and whichever primary tab it would
+   have gone to anyway.
 
-## The two tabs
+## The three tabs
 
 | Payload `sheet` | Tab                          | What lands there                                     |
 | --------------- | ---------------------------- | ---------------------------------------------------- |
 | `one_mentor`    | `One Mentor, Many Missions`  | Registrations that ticked the pitch box, with answers |
 | `general`       | `General registrations`      | Everyone else                                        |
+| `red_fort`      | `Red Fort clean-up`          | A copy of anyone who ticked the clean-up box          |
 
 The split happens at write time rather than as a filter, so the panel opens one
 tab and reads nothing else, and general registrations are not diluted by a
 column per application question.
+
+`sheet` is a **list**, and every name in it gets the same row. The first two tabs
+are the primary pair — a registration lands on exactly one of them — and
+`red_fort` is added alongside, so ticking the clean-up box writes a *copy* rather
+than diverting the row. The two questions are unrelated: an NGO can apply to
+pitch and also turn up to the clean-up, and neither list is complete if one tick
+can take somebody off the other. Both rows carry the `red_fort_clean_up` column
+either way, so the answer is readable without opening the third tab.
+
+Adding a tab is the one change that does need a script edit and a redeploy — the
+tab names live in `TABS` at the top of `registrations.gs`. Adding a *question*
+still does not; see below.
 
 ## Changing the questions
 

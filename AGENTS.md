@@ -321,14 +321,21 @@ for its own reason: it is posted as `text/plain` so the browser treats it as a
 CORS simple request, because an Apps Script Web App redirects to a second origin
 before `doPost` runs and cannot answer a preflight. Don't 'fix' that content type.
 
-**The sheet has two tabs and the split happens at write time.** The payload's
-`sheet` field (`one_mentor` / `general`) decides which: pitch applicants and their
-answers land on the One Mentor, Many Missions tab, everyone else on the general
-one. The panel then opens one tab and reads nothing else, and general
+**The sheet has three tabs and the split happens at write time.** The payload's
+`sheet` field is a *list*, and every name in it gets the same row. `one_mentor`
+and `general` are the primary pair — a registration lands on exactly one of them:
+pitch applicants and their answers on the One Mentor, Many Missions tab, everyone
+else on the general one. `red_fort` is added *alongside* whichever of those two
+applies, so a Red Fort clean-up tick writes a copy rather than diverting the row.
+The two questions are unrelated — an NGO can apply to pitch and also turn up to
+the clean-up — and neither list is complete if one tick can take somebody off the
+other. Each panel then opens one tab and reads nothing else, and general
 registrations are not diluted by a column per application question. The script
 aligns each row to the header row and appends a column the first time it meets a
 key it has no header for, so adding a question is still a `site.ts` edit and
 nothing else — but never reorder or rename a header by hand once rows exist.
+Adding a *tab* is the exception: tab names live in `TABS` in `registrations.gs`,
+so that one needs a script edit and a redeploy.
 
 It carries a second form inside it. **One Mentor, Many Missions** is a pitch
 session: NGOs that want to scale into a business apply through this same form, ten
@@ -370,6 +377,16 @@ what labels the answer in the inbox *and* the column heading in the sheet, so
 renaming one later leaves two batches of submissions that no longer line up, and
 an orphaned column beside a new one — add a new question instead. Settle the
 wording before the form is shared anywhere.
+
+**The second tick box is the Red Fort clean-up, and it is a head count rather
+than an application.** `registration.redFort` is two lines of copy — a question
+and a hint — and that is the whole feature: nobody is selected, nothing further
+opens, and the answer rides along as the `red_fort_clean_up` column on whichever
+primary tab the row lands on as well as on its own tab. It is deliberately flat
+where One Mentor unfolds; a second expanding panel beside it would make the form
+read as two applications stacked on each other. Its `hint` is also where the
+date, start time and meeting point go once they are settled — it currently
+promises those by email, which is the honest version until they exist.
 
 If the list is ever emptied, the revealed block falls back to `oneMentor.pending`
 and the registration still submits, flagged in the subject line, in the

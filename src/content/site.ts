@@ -1147,6 +1147,27 @@ export const registration = {
     /** Stands in for the questions until they exist. Delete nothing when they do — this stays as the fallback. */
     pending: "The application questions are being finalised. Tick the box and submit, and we will email you the full application as soon as it opens — your place in the queue is already recorded.",
   },
+  /**
+   * The second tick box on the form, and a much smaller thing than the one
+   * above it: a head count for the Red Fort clean-up, not an application.
+   * Nobody is selected and nothing is asked beyond yes or no, so it gets one
+   * question and a line of context rather than an explainer block — a second
+   * unfolding panel next to `oneMentor` would make the form read as two
+   * applications stacked on top of each other.
+   *
+   * Ticking it also routes a copy of the row onto its own tab of the
+   * registrations sheet, so whoever runs the clean-up opens one tab and reads a
+   * list of people who said yes. See `scripts/registrations.gs`.
+   *
+   * TODO (2026-09-02): the date, start time and meeting point aren't settled
+   * yet, so `hint` says only what is true today. Put them in this line the
+   * moment they are — a head count nobody can plan around is worth less than
+   * one that comes with a place to be.
+   */
+  redFort: {
+    question: "I'd like to join the Red Fort clean-up",
+    hint: "A clean-up at the Red Fort, run alongside ICUC 3.0. Ticking this is a head count rather than a commitment — we'll email you the date, the start time and where to meet before anything is expected of you.",
+  },
   /** Shown in place of the form once a registration goes through. */
   success: {
     title: "You're registered",

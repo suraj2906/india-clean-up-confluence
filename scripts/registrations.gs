@@ -10,16 +10,24 @@
  * so the browser treats it as a CORS simple request and skips the preflight this
  * runtime cannot answer. The body arrives here as `e.postData.contents`.
  *
- * Two tabs, and which one a row lands on is decided by the payload's `sheet`
+ * Three tabs, and which ones a row lands on is decided by the payload's `sheet`
  * field rather than by a filter: the One Mentor, Many Missions panel opens its
  * own tab and reads nothing else, and general registrations are never diluted by
  * fourteen mostly-empty application columns.
+ *
+ * `sheet` may be a single name or a list of them, and a list writes the same row
+ * to each named tab. That is how the Red Fort clean-up works: every registration
+ * still lands on exactly one of the two primary tabs, and a clean-up tick adds a
+ * *copy* on the clean-up tab rather than diverting the row away from where it
+ * would otherwise have gone. The two questions are unrelated, so neither list is
+ * complete if one tick can take somebody off the other.
  */
 
 /** Payload `sheet` value → tab name. Anything unrecognised falls to GENERAL. */
 var TABS = {
   one_mentor: 'One Mentor, Many Missions',
   general: 'General registrations',
+  red_fort: 'Red Fort clean-up',
 };
 var GENERAL = TABS.general;
 
@@ -44,6 +52,7 @@ var KNOWN_COLUMNS = [
   'role',
   'registering_as',
   'one_mentor_many_missions',
+  'red_fort_clean_up',
   'message',
 ];
 
@@ -59,7 +68,7 @@ function doPost(e) {
     }
 
     var payload = JSON.parse(e.postData.contents);
-    var tab = TABS[payload.sheet] || GENERAL;
+    var tabs = resolveTabs(payload.sheet);
 
     // `sheet` is routing, not an answer — it does not belong in a column.
     delete payload.sheet;
@@ -68,7 +77,9 @@ function doPost(e) {
       payload.submitted_at = new Date().toISOString();
     }
 
-    appendRow(tab, payload);
+    for (var i = 0; i < tabs.length; i++) {
+      appendRow(tabs[i], payload);
+    }
     return json({ success: true });
   } catch (err) {
     return json({ success: false, message: String(err && err.message ? err.message : err) });
@@ -80,6 +91,24 @@ function doPost(e) {
 /** A GET is only ever a human checking the deployment is alive. */
 function doGet() {
   return json({ success: true, message: 'ICUC registrations endpoint is live.' });
+}
+
+/**
+ * `sheet` → the tabs this row belongs on. Accepts a single name or a list, and
+ * de-duplicates, so a payload can never write the same row onto one tab twice.
+ * An empty or unrecognised value falls to the general tab: a registration we
+ * cannot route is still a registration, and losing it would be worse.
+ */
+function resolveTabs(sheet) {
+  var names = Object.prototype.toString.call(sheet) === '[object Array]' ? sheet : [sheet];
+  var tabs = [];
+
+  for (var i = 0; i < names.length; i++) {
+    var tab = TABS[names[i]];
+    if (tab && tabs.indexOf(tab) === -1) tabs.push(tab);
+  }
+
+  return tabs.length > 0 ? tabs : [GENERAL];
 }
 
 function appendRow(tabName, payload) {
