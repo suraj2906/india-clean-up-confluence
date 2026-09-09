@@ -33,10 +33,19 @@ export type RecapVideo = {
 export const site = {
   name: "ICUC",
   fullName: "India Clean-Up Confluence",
+  /**
+   * The LLP exactly as it is registered, capitalisation and all. It is not the
+   * name the site calls itself — `fullName` is — and it belongs only where the
+   * legal entity has to be identified: the privacy policy's "Contact us" block
+   * and anything else a regulator or a platform reviewer reads. Don't reach for
+   * it in ordinary copy.
+   */
+  legalName: "INDIA CLEANUP CONFLUENCE (ICUC) LLP",
   tagline: "One Nation, Many Missions",
   description:
     "India's national platform uniting clean-up movements, grassroots changemakers, corporates and policymakers behind scalable environmental action.",
-  url: "https://indiacleanupconfluence.org",
+  /** The live domain. Read by `metadataBase`, every canonical, robots.txt and the sitemap. */
+  url: "https://icuc.co.in",
   /**
    * ICUC 3.0, fixed: Saturday 19th and Sunday 20th September 2026, at India
    * Habitat, New Delhi. Every place the dates or the venue are printed reads
@@ -1159,14 +1168,18 @@ export const registration = {
    * registrations sheet, so whoever runs the clean-up opens one tab and reads a
    * list of people who said yes. See `scripts/registrations.gs`.
    *
-   * TODO (2026-09-02): the date, start time and meeting point aren't settled
-   * yet, so `hint` says only what is true today. Put them in this line the
-   * moment they are — a head count nobody can plan around is worth less than
-   * one that comes with a place to be.
+   * The date and the hours are settled and print here, which is the whole
+   * point of the line — a head count nobody can plan around is worth less than
+   * one that comes with a time to be somewhere. It is the second morning of
+   * ICUC 3.0, so anyone reading this is already in Delhi for it.
+   *
+   * TODO (2026-09-09): the meeting point at the Fort is the one thing still
+   * missing, so the hint promises it by email. Put it in this line the moment
+   * it is decided and drop that promise.
    */
   redFort: {
     question: "I'd like to join the Red Fort clean-up",
-    hint: "A clean-up at the Red Fort, run alongside ICUC 3.0. Ticking this is a head count rather than a commitment — we'll email you the date, the start time and where to meet before anything is expected of you.",
+    hint: "A clean-up at the Red Fort on Sunday 20th September, 7:30–9:30am, on the second morning of ICUC 3.0. Ticking this is a head count rather than a commitment — we'll email you exactly where to meet before anything is expected of you.",
   },
   /** Shown in place of the form once a registration goes through. */
   success: {
@@ -1214,5 +1227,277 @@ export const contact = {
     "Speak at ICUC",
     "Press and media",
     "Something else",
+  ],
+};
+
+/**
+ * The privacy policy, at `/privacy`.
+ *
+ * It exists because Meta requires a public policy URL before a WhatsApp
+ * Business app is published, and because we message organisations who never
+ * gave us their number — but the page is written for the person on the
+ * receiving end of one of those messages, not for the reviewer. Someone who
+ * lands here cold should learn where we got their number and how to make it
+ * stop within thirty seconds, which is why "Where we got your number" is the
+ * second section and "How to make it stop" carries the plainest wording on the
+ * page. Don't bury either behind boilerplate.
+ *
+ * Everything here is a claim about what ICUC actually does. Two rules: never
+ * add a certification, audit or security measure we don't have, and never
+ * write that data is never shared — Meta, Google, Web3Forms and the host all
+ * process it, and each is named below. If a form field, a destination or a
+ * retention period changes elsewhere in this file, change it here too.
+ *
+ * Paragraphs may carry `[label](href)` links, which the page renders as
+ * anchors. That is the only markup the renderer understands.
+ *
+ * Nothing here is a placeholder any more: the registered name, the office
+ * address and the grievance officer are all settled and printed. If the person
+ * answering grievances ever changes, this page is what has to say so — a name
+ * on it that has left is worse than no page at all.
+ */
+
+/** A paragraph, or a bulleted list. Nothing else — this is a document, not a page. */
+export type PrivacyBlock = { p: string } | { list: string[] };
+
+export const privacy = {
+  eyebrow: "Legal",
+  title: "Privacy policy",
+  /** Update this line whenever the copy below changes. */
+  effective: "Effective 9 September 2026",
+  lead:
+    "This is what we know about you, where we got it, and how to make us stop. If you have just had a WhatsApp message from us and want the short answer, read the second section and then the one about stopping.",
+  sections: [
+    {
+      id: "who-we-are",
+      title: "Who we are",
+      blocks: [
+        {
+          p: `${site.fullName} (ICUC) is a Limited Liability Partnership registered in India as ${site.legalName}. We run an annual convening that brings clean-up movements, NGOs, corporates, students and civic bodies into one room. ICUC 3.0 is on ${site.datesLong}, at ${site.venue}.`,
+        },
+        {
+          p: "This policy covers this website and the WhatsApp messages we send. Under India's Digital Personal Data Protection Act, 2023, ICUC is the Data Fiduciary for the personal data described here — we are the ones who decide what is collected and why, and we are the ones you complain to.",
+        },
+      ] satisfies PrivacyBlock[],
+    },
+    {
+      id: "where-we-got-your-number",
+      title: "Where we got your number",
+      blocks: [
+        {
+          p: "You may have had a WhatsApp message from us without ever having given us your number. There are only two places it can have come from.",
+        },
+        {
+          list: [
+            "Publicly listed contact details — a number published on your organisation's own website, its social media profile, a public directory or a press release.",
+            "Previous engagement with ICUC or Carter Clean Up — you or your organisation registered for, attended, spoke at, partnered with or volunteered at an earlier edition or clean-up.",
+          ],
+        },
+        {
+          p: "We do not buy contact lists and we do not scrape personal phone numbers. What we hold are organisational contact points, and the message is an invitation to ICUC 3.0 — it is not advertising for anyone else, and your number is not passed on.",
+        },
+        {
+          p: "If you would rather not hear from us, one reply is enough. See “How to make it stop” below.",
+        },
+      ] satisfies PrivacyBlock[],
+    },
+    {
+      id: "what-we-collect",
+      title: "What we collect",
+      blocks: [
+        {
+          p: "Contact details we sourced ourselves, for outreach: your organisation's name, a contact person's name where it is published, a phone number, and sometimes an email address.",
+        },
+        { p: "What you type into this website, if you choose to:" },
+        {
+          list: [
+            "Registering for ICUC 3.0 — your name and email, and optionally your phone number, city, organisation, your role there, the kind of delegate you are, and anything else you want to tell us.",
+            "Applying to One Mentor, Many Missions — answers about your organisation: when it started, what it does, how it is funded, how you would turn it into a business, and how to reach whoever is pitching.",
+            "The Red Fort clean-up tick box — whether you would like to join, which is a head count and nothing more.",
+            "The contact form — your name, email, what your enquiry is about and your message.",
+          ],
+        },
+        {
+          p: "We run no analytics, no advertising pixels and no tracking on this website, and we set no cookies of our own. Our hosting provider keeps standard server logs, including the IP address a request came from, so the site can be kept running and secure.",
+        },
+      ] satisfies PrivacyBlock[],
+    },
+    {
+      id: "what-we-use-it-for",
+      title: "What we use it for",
+      blocks: [
+        {
+          list: [
+            "Sending WhatsApp invitations and information about ICUC 3.0.",
+            "Processing registrations, and writing to delegates about the schedule, the venue and the logistics.",
+            "Reading One Mentor, Many Missions applications and selecting the ten NGOs who pitch.",
+            "Counting heads for the Red Fort clean-up and telling those people where to be.",
+            "Replying to enquiries sent through the contact form.",
+          ],
+        },
+        {
+          p: "That is the entire list. We do not sell or rent personal data, and we do not give it to anyone else to market their own things to you.",
+        },
+      ] satisfies PrivacyBlock[],
+    },
+    {
+      id: "who-else-handles-it",
+      title: "Who else handles it",
+      blocks: [
+        {
+          p: "We cannot send a message or take a registration without a few service providers, so it would be untrue to tell you your data never leaves us. These are all of them.",
+        },
+        {
+          list: [
+            "Meta Platforms — every WhatsApp message we send you is delivered by WhatsApp and handled under [WhatsApp's own privacy policy](https://www.whatsapp.com/legal/privacy-policy).",
+            "Google — registrations are written to a Google Sheet in an account we control, covered by [Google's privacy policy](https://policies.google.com/privacy).",
+            "Web3Forms — the site's forms post through Web3Forms, which emails a copy of each submission to our inbox. See [Web3Forms' privacy policy](https://web3forms.com/privacy).",
+            "Vercel — this website is hosted on Vercel, which keeps the server logs described above. See [Vercel's privacy policy](https://vercel.com/legal/privacy-policy).",
+          ],
+        },
+        {
+          p: "There is no payment step anywhere on this website, so no payment processor receives anything about you. If that ever changes, the processor will be named here before it does.",
+        },
+      ] satisfies PrivacyBlock[],
+    },
+    {
+      id: "how-to-make-it-stop",
+      title: "How to make it stop",
+      blocks: [
+        {
+          p: "You can tell us to stop contacting you, or to delete what we hold, at any time. You do not need to give a reason and you do not need to fill anything in.",
+        },
+        {
+          list: [
+            "On WhatsApp — reply STOP to any message from us, or simply block the number. Either one is enough.",
+            `By email — write to [${contact.email}](mailto:${contact.email}) and say “stop contacting me” or “delete my data”.`,
+          ],
+        },
+        {
+          p: "We stop sending messages within 7 days of hearing from you, and we delete what we hold within 30 days of a deletion request. We will email you to confirm when it is done. If there is a record the law requires us to keep, we will tell you which record and why rather than quietly keeping it.",
+        },
+        {
+          p: "Deleting your data also cancels your registration, because your registration is that data. If you have registered and then ask us to delete everything, we will check that is what you meant first.",
+        },
+      ] satisfies PrivacyBlock[],
+    },
+    {
+      id: "how-long-we-keep-it",
+      title: "How long we keep it",
+      blocks: [
+        {
+          list: [
+            "Contact details we sourced for outreach — kept until you ask us to remove them. Numbers that never responded to the ICUC 3.0 invitation are deleted within six months of the event.",
+            "Registrations — kept for the event and for two years afterwards, so we can invite you to the next edition and keep a record of who came. Ask sooner and we delete sooner.",
+            "One Mentor, Many Missions applications — kept for the same two years, because the mentorship the panel awards carries on well past the event.",
+            "Contact-form enquiries — kept in the ICUC inbox for two years.",
+          ],
+        },
+      ] satisfies PrivacyBlock[],
+    },
+    {
+      id: "your-rights",
+      title: "Your rights",
+      blocks: [
+        {
+          p: "The Digital Personal Data Protection Act, 2023 gives you rights over the data we hold. The Information Technology Act, 2000 and the SPDI Rules, 2011 also apply to us.",
+        },
+        {
+          list: [
+            "Access — ask what personal data we hold about you and what we have done with it.",
+            "Correction and completion — have anything wrong or out of date corrected, and anything missing filled in.",
+            "Erasure — have your data deleted, as described above.",
+            "Withdraw consent — as easily as you gave it. We then stop processing your details for anything except what the law requires us to keep.",
+            "Nominate — name someone to exercise these rights for you if you die or become unable to exercise them yourself.",
+            "Grievance redressal — complain to us, and escalate to the Data Protection Board of India if we do not resolve it.",
+          ],
+        },
+        {
+          p: `To use any of these, email [${contact.email}](mailto:${contact.email}). We respond within 30 days.`,
+        },
+      ] satisfies PrivacyBlock[],
+    },
+    {
+      id: "grievances",
+      title: "Grievances",
+      blocks: [
+        {
+          p: `If you think we have done something wrong with your data, write to [${contact.email}](mailto:${contact.email}) and put “Grievance” in the subject line. We acknowledge within 7 days and respond within 30.`,
+        },
+        // A named person, which is what the SPDI Rules expect on the page and
+        // what a reviewer looks for. The address is the shared ICUC inbox
+        // rather than a personal one, so a grievance still lands somewhere read
+        // if the role ever changes hands. "Grievance Officer" deliberately, not
+        // "Data Protection Officer" — the DPDP Act reserves that term for
+        // Significant Data Fiduciaries, which ICUC is not.
+        {
+          p: `Grievance Officer: Suraj Shah — [${contact.email}](mailto:${contact.email})`,
+        },
+        {
+          p: "If our answer does not resolve it, you can take the complaint to the Data Protection Board of India under the DPDP Act.",
+        },
+      ] satisfies PrivacyBlock[],
+    },
+    {
+      id: "outside-india",
+      title: "If you are outside India",
+      blocks: [
+        {
+          p: "ICUC is based in India and your data is processed here. If you are in the UK or the EEA, our basis under the GDPR is legitimate interests for the outreach messages — inviting organisations that work on environmental clean-ups to a convening about their own field — and your consent for anything you submit through this website.",
+        },
+        {
+          p: `Your practical route is the same as everyone else's: reply STOP, or email [${contact.email}](mailto:${contact.email}). You can also object to the processing, or ask for a copy of what we hold, at that address.`,
+        },
+      ] satisfies PrivacyBlock[],
+    },
+    {
+      id: "keeping-it-safe",
+      title: "Keeping it safe",
+      blocks: [
+        {
+          p: "We are a small team, so here is the honest version. The website is served over HTTPS. Registrations sit in a Google Sheet and in an email inbox, protected by the passwords and two-factor authentication on the ICUC accounts. Only the organising team members who need access have it.",
+        },
+        {
+          p: "We hold no security certification and we have not been audited. WhatsApp messages are encrypted in transit by WhatsApp itself; we add no encryption of our own beyond what our providers give us. Nothing is completely secure, so please don't send us anything sensitive — identity documents, bank details — through this site. We will never ask you for them.",
+        },
+      ] satisfies PrivacyBlock[],
+    },
+    {
+      id: "children",
+      title: "Children",
+      blocks: [
+        {
+          p: `We do not knowingly collect the data of anyone under 18 without verifiable parental consent, which is what the DPDP Act requires. School and college groups should register through a teacher, a coordinator or another adult. If you believe we hold a child's data, email [${contact.email}](mailto:${contact.email}) and we will delete it.`,
+        },
+      ] satisfies PrivacyBlock[],
+    },
+    {
+      id: "changes",
+      title: "Changes to this policy",
+      blocks: [
+        {
+          p: "We may update this policy. The effective date at the top says when it last changed, and if a change materially affects how we use data we already hold, we will say so on this page.",
+        },
+      ] satisfies PrivacyBlock[],
+    },
+    {
+      id: "contact-us",
+      title: "Contact us",
+      blocks: [
+        {
+          // The registered office, set out as an address rather than run into a
+          // sentence — a reviewer checking it against the LLP filing reads it a
+          // line at a time. The newlines survive because the renderer's
+          // paragraphs are `whitespace-pre-line`; this is the only block that
+          // uses them.
+          p: `${site.legalName}
+302, 3rd Floor, Rustomjee's La Solita
+28th Road, TPS 3, Off Turner Road
+Near Gurunanak Park, Bandra (W)
+Mumbai 400050, Maharashtra, India`,
+        },
+        { p: `Email: [${contact.email}](mailto:${contact.email})` },
+      ] satisfies PrivacyBlock[],
+    },
   ],
 };

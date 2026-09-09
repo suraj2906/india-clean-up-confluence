@@ -11,5 +11,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // is re-crawled more often than either of the evergreen pages.
     { url: `${site.url}/register`, lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: `${site.url}/contact`, lastModified, changeFrequency: "yearly", priority: 0.8 },
+    { url: `${site.url}/privacy`, lastModified, changeFrequency: "yearly", priority: 0.3 },
   ];
 }

@@ -98,7 +98,16 @@ export function Footer() {
           <p>
             © {new Date().getFullYear()} {site.fullName}. All rights reserved.
           </p>
-          <p>{site.tagline}</p>
+          {/* The policy sits in the legal strip rather than in "Explore" above:
+              it is not part of the site's story, but it has to be reachable
+              from every page — Meta fetches the URL, and anyone who gets an
+              unexpected WhatsApp message from us looks for it here. */}
+          <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <Link href="/privacy" className="transition-colors hover:text-sky-300">
+              Privacy policy
+            </Link>
+            <span>{site.tagline}</span>
+          </p>
         </div>
       </div>
     </footer>
