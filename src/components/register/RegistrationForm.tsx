@@ -39,7 +39,7 @@ const field =
   "w-full rounded-2xl border border-summit bg-white px-4 py-3 text-sm text-ink " +
   "placeholder:text-muted/60 transition-colors focus:border-sky focus:outline-none";
 
-const { oneMentor, redFort } = registration;
+const { oneMentor, redFort, heardAbout } = registration;
 
 /** One per `oneMentor.steps`, in the same order. */
 const stepIcons = [Users, Trophy, Megaphone, Handshake];
@@ -113,9 +113,11 @@ export function RegistrationForm() {
     const next: Errors = {};
     const name = String(data.get("name") ?? "").trim();
     const email = String(data.get("email") ?? "").trim();
+    const heard = String(data.get("heard_about_us") ?? "").trim();
 
     if (name.length < 2) next.name = "Please tell us your name.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) next.email = "Enter a valid email address.";
+    if (heard.length === 0) next.heard_about_us = heardAbout.error;
 
     // Only the revealed track is validated — a question nobody was shown can't
     // be missing.
@@ -147,6 +149,7 @@ export function RegistrationForm() {
       role: text(data, "role"),
       city: text(data, "city"),
       registering_as: attendee,
+      heard_about_us: heard,
       one_mentor_many_missions: pitching ? "Yes — wants to pitch" : "No",
       red_fort_clean_up: joiningRedFort ? "Yes — joining" : "No",
       ...answers,
@@ -286,6 +289,23 @@ export function RegistrationForm() {
                 <option key={t}>{t}</option>
               ))}
             </select>
+          </Field>
+        </div>
+
+        <div className="sm:col-span-2">
+          <Field
+            label={heardAbout.label}
+            name="heard_about_us"
+            hint={heardAbout.hint}
+            error={errors.heard_about_us}
+            required
+          >
+            <input
+              id="heard_about_us"
+              name="heard_about_us"
+              placeholder={heardAbout.placeholder}
+              className={field}
+            />
           </Field>
         </div>
       </div>

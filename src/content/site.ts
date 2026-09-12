@@ -985,6 +985,20 @@ export const registration = {
    * means the pitch session never explains itself to the people it is for.
    */
   ngoType: "NGO or clean-up movement",
+  /**
+   * Asked of everyone and required, because it is the only read we get on which
+   * channels actually bring people in — and an optional version of this question
+   * is answered by the people who need least persuading, which is the sample
+   * that tells us the least. It is a free text box rather than a list of
+   * channels on purpose: a list can only collect answers somebody thought of in
+   * advance, and "a friend who came to 2.0" is the answer worth having.
+   */
+  heardAbout: {
+    label: "How did you hear about us?",
+    hint: "Instagram, a friend, your college, a partner NGO, an earlier edition…",
+    placeholder: "A friend who volunteered at ICUC 2.0",
+    error: "Let us know how you found us.",
+  },
   oneMentor: {
     eyebrow: "One Mentor, Many Missions",
     title: "Ten NGOs pitch. Five leave with a mentor.",
