@@ -468,7 +468,6 @@ export function RegistrationForm() {
             </>
           )}
         </Button>
-        <p className="text-xs text-muted">We&rsquo;ll confirm by email.</p>
       </div>
     </form>
   );
