@@ -1,17 +1,7 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-
 import nodemailer from "nodemailer";
 
 import { contact, registration, site } from "@/content/site";
-import {
-  confirmationEmail,
-  ICON_DIR,
-  iconCid,
-  oneMentorEmail,
-  type Registrant,
-  type Rendered,
-} from "@/lib/email/templates";
+import { confirmationEmail, oneMentorEmail, type Registrant } from "@/lib/email/templates";
 
 /**
  * Sends the registrant their confirmation — and, if they applied to pitch, the
@@ -23,14 +13,14 @@ import {
  * slow or down must never turn a captured registration into an error on screen.
  *
  * Anyone can POST here, and every POST sends mail to an address the caller
- * chose, with a large attachment. So it only ever sends our own fixed templates
+ * chose. So it only ever sends our own fixed templates
  * (the name is escaped and capped), refuses cross-origin calls, and holds a
  * best-effort in-memory rate limit per IP and per recipient. That limit lives in
  * one server instance's memory, so it slows abuse rather than preventing it.
  */
 export const runtime = "nodejs";
-/** Headroom for handing a message with the schedule attached to the SMTP server. */
-export const maxDuration = 60;
+/** Headroom for a slow SMTP handshake. */
+export const maxDuration = 30;
 
 const { SMTP_HOST = "smtp.gmail.com", SMTP_PORT = "465", SMTP_USER, SMTP_PASS } = process.env;
 
@@ -38,8 +28,6 @@ const WINDOW_MS = 10 * 60 * 1000;
 const PER_IP = 5;
 const PER_RECIPIENT = 2;
 const hits = new Map<string, number[]>();
-
-let schedule: Promise<Buffer> | null = null;
 
 export async function POST(request: Request) {
   if (!SMTP_USER || !SMTP_PASS) {
@@ -87,29 +75,11 @@ export async function POST(request: Request) {
   const replyTo = contact.email;
 
   try {
-    const { icons, ...confirmation } = confirmationEmail(registrant);
-    const sends = [
-      transport.sendMail({
-        from,
-        to: email,
-        replyTo,
-        ...confirmation,
-        attachments: [
-          {
-            filename: registration.emails.attachment.filename,
-            content: await readSchedule(),
-            contentType: "application/pdf",
-          },
-          ...inlineIcons(icons),
-        ],
-      }),
-    ];
+    // No attachments on purpose: the schedule is a link. See `registration.emails.schedule`.
+    const sends = [transport.sendMail({ from, to: email, replyTo, ...confirmationEmail(registrant) })];
 
     if (registrant.pitching) {
-      const { icons: mentorIcons, ...mentor }: Rendered = oneMentorEmail(registrant);
-      sends.push(
-        transport.sendMail({ from, to: email, replyTo, ...mentor, attachments: inlineIcons(mentorIcons) }),
-      );
+      sends.push(transport.sendMail({ from, to: email, replyTo, ...oneMentorEmail(registrant) }));
     }
 
     await Promise.all(sends);
@@ -120,31 +90,6 @@ export async function POST(request: Request) {
   } finally {
     transport.close();
   }
-}
-
-/**
- * Read once per server instance. The file is in `public/`, which the server
- * bundle does not include on its own — `outputFileTracingIncludes` in
- * `next.config.ts` is what puts it next to this route in production.
- */
-function readSchedule() {
-  schedule ??= readFile(path.join(process.cwd(), "public", registration.emails.attachment.path)).catch(
-    (error) => {
-      schedule = null;
-      throw error;
-    },
-  );
-  return schedule;
-}
-
-/** The icon PNGs a template used, attached inline under the content ids it referenced. */
-function inlineIcons(names: string[]) {
-  return names.map((name) => ({
-    filename: `${name}.png`,
-    path: path.join(process.cwd(), "public", ICON_DIR, `${name}.png`),
-    cid: iconCid(name),
-    contentDisposition: "inline" as const,
-  }));
 }
 
 function limited(key: string, max: number) {

@@ -415,8 +415,8 @@ mail service. Credentials are server-only `SMTP_*` variables; see
 `.env.local.example`, and never give them a `NEXT_PUBLIC_` prefix. Unset means
 no email, not a failed registration.
 
-Everyone gets the confirmation, with `registration.emails.attachment` (the ICUC
-3.0 schedule in `public/pdfs/`) attached. Pitch applicants also get a **separate**
+Everyone gets the confirmation, with a clear download button for
+`registration.emails.schedule` (the ICUC 3.0 schedule in `public/pdfs/`). Pitch applicants also get a **separate**
 Mentor Matchmaker email whose headline block says it is a mentorship
 with no promise of capital. That line is the reason the second email exists —
 keep it in its highlighted block near the top, never in the small print.
@@ -424,16 +424,24 @@ keep it in its highlighted block near the top, never in the small print.
 Copy lives in `registration.emails` in `site.ts`; markup lives in
 `src/lib/email/templates.ts`, the one file allowed table layouts, inline styles
 and raw hex (mirrored from `.theme-deck`, because mail clients have no CSS
-variables). Icons in mail are lucide icons pre-rendered to PNG in `public/images/email/` and attached to each message as inline `cid:` images — no emoji, no inline SVG and no `data:` URIs, none of which Gmail shows, and not linked from the site either, which breaks until deployed. The PDF reaches the server bundle only because of
-`outputFileTracingIncludes` in `next.config.ts` — rename or move the folder and
-update both. Keep the schedule small: attachments grow by a third once
-base64-encoded, and many receiving servers bounce mail over ~20 MB. The original
-export was 18 MB, almost all of it lossless RGB images; it was re-encoded to
-4.75 MB by turning those images into JPEG q92 with 4:4:4 chroma at their native
-resolution, transparency masks left lossless (every page renders at 48–50 dB
-PSNR against the original). A new export should get the same treatment. The route only sends its own
-fixed templates, rejects cross-origin posts and rate-limits in memory, which
-slows abuse on serverless rather than preventing it.
+variables).
+
+**The first sends went to spam, and the mail is shaped by that.** Nothing is
+attached: the schedule is a download button linking to the PDF on the site,
+because a multi-megabyte attachment from a sender Gmail doesn't yet trust is one
+of the strongest spam signals. There are no icons or emoji (images-to-text ratio
+counts against you, and emoji rendered badly anyway), and links are written out
+in full rather than through shorteners like maps.app.goo.gl, which filters
+distrust. Keep it that way. The real fix for deliverability is sending from an
+address on icuc.co.in with SPF, DKIM and DMARC set up in DNS; a free @gmail.com
+account sending automated mail will always be treated with some suspicion.
+
+The schedule was re-encoded from 18 MB to 4.75 MB (JPEG q92, 4:4:4 chroma, native
+resolution, transparency masks left lossless; every page renders at 48-50 dB PSNR
+against the original) and a new export should get the same treatment, since
+registrants now download it. The route only sends its own fixed templates,
+rejects cross-origin posts and rate-limits in memory, which slows abuse on
+serverless rather than preventing it.
 
 ## Before you call it done
 

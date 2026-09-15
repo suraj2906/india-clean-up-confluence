@@ -1200,45 +1200,50 @@ export const registration = {
    * `src/app/api/register/confirm/route.ts` once the registration itself has
    * been captured. `{name}` is replaced with the registrant's first name.
    *
-   * Everyone gets `confirmation`, with `attachment` on it. Pitch applicants get
+   * Everyone gets `confirmation`, which links `schedule`. Pitch applicants get
    * `oneMentor` *as well*, as its own message rather than a paragraph inside the
    * first: it is the mail they will search for later, and its one job is to set
    * expectations before anybody writes a pitch around money.
    */
   emails: {
-    /** A file under `public/`. It is read from disk by the route, and also linked in the mail as a fallback. */
-    attachment: { path: "pdfs/ICUC 3.0 Schedule.pdf", filename: "ICUC 3.0 Schedule.pdf" },
+    /**
+     * A file under `public/`, linked from the confirmation rather than attached.
+     * A multi-megabyte attachment from a sender Gmail does not know yet is one of
+     * the strongest spam signals there is, and the first test sends went to spam.
+     */
+    schedule: { path: "pdfs/ICUC 3.0 Schedule.pdf" },
     confirmation: {
       subject: `You're registered for ${site.name} 3.0`,
-      preheader: `${site.dates} at ${site.venue}. The schedule is attached.`,
+      preheader: `${site.dates} at ${site.venue}. Download the full schedule inside.`,
       eyebrow: "Registration confirmed",
       title: "You're in, {name}.",
       body: [
         `Thank you for registering for ${site.name} 3.0, the ${site.fullName}. Your registration has reached our team, and there is nothing more you need to do right now.`,
-        "The full schedule is attached, so you can plan your two days. Until then, keep the dates free.",
+        "The full two-day schedule is ready to download below. Until then, keep the dates free.",
       ],
       whenLabel: "When",
       whereLabel: "Where",
       registeredAsLabel: "Registered as",
-      attachmentNote: "The ICUC 3.0 schedule is attached to this email. Share it with anyone who should be in the room.",
-      attachmentLink: "Can't open the attachment? View the schedule online",
+      scheduleTitle: "The ICUC 3.0 schedule",
+      scheduleNote: "Both days, session by session. Download it, and share it with anyone who should be in the room.",
+      scheduleButton: "Download the schedule (PDF)",
       /**
        * Only in the mail of someone who ticked the Red Fort box. Each detail is
-       * one row of the block; `href` makes the value a link. `icon` names a PNG in
-       * `public/images/email/` — mail clients will not render SVG, so the lucide
-       * icons are pre-rendered there rather than drawn inline.
+       * one row of the block; `href` makes the value a link. The link is the full
+       * Google Maps address rather than a maps.app.goo.gl short link, because spam
+       * filters distrust link shorteners.
        */
       redFort: {
         title: "Red Fort clean-up",
         intro: "You also said you'd like to join the Red Fort clean-up. Here is everything you need to get there.",
         details: [
-          { icon: "map-pin", label: "Location", value: "Open in Google Maps", href: "https://maps.app.goo.gl/wKVcPLpYiEJeujFD6" },
-          { icon: "calendar", label: "Date", value: "Sunday, 20th September" },
-          { icon: "clock", label: "Time", value: "7:15am sharp" },
-          { icon: "train", label: "Nearest metro", value: "Lal Quila (Violet Line)" },
-          { icon: "flag", label: "Meeting point", value: "Lal Quila metro station, Gate 4" },
-          { icon: "hand", label: "Provided", value: "Gloves and masks" },
-        ] as Array<{ icon: string; label: string; value: string; href?: string }>,
+          { label: "Location", value: "Open in Google Maps", href: "https://www.google.com/maps/place/Lal+Quila/@28.6568551,77.2368125,17z" },
+          { label: "Date", value: "Sunday, 20th September" },
+          { label: "Time", value: "7:15am sharp" },
+          { label: "Nearest metro", value: "Lal Quila (Violet Line)" },
+          { label: "Meeting point", value: "Lal Quila metro station, Gate 4" },
+          { label: "Provided", value: "Gloves and masks" },
+        ] as Array<{ label: string; value: string; href?: string }>,
       },
       oneMentorNote: "You also applied to pitch at Mentor Matchmaker. A separate email about your application is on its way.",
       questions: "Questions? Just reply to this email.",

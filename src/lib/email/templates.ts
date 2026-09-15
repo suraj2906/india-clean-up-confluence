@@ -39,18 +39,12 @@ export type Registrant = {
   pitching: boolean;
 };
 
-/**
- * `icons` lists the PNGs the HTML references as `cid:` images. The sender has to
- * attach each one inline under that content id, or it shows as a broken image.
- */
-export type Rendered = { subject: string; html: string; text: string; icons: string[] };
-
-export const ICON_DIR = "images/email";
+export type Rendered = { subject: string; html: string; text: string };
 
 export function confirmationEmail(r: Registrant): Rendered {
   const e = emails.confirmation;
   const title = fill(e.title, firstName(r.name));
-  const scheduleUrl = `${site.url}/${encodeURI(emails.attachment.path)}`;
+  const scheduleUrl = `${site.url}/${encodeURI(emails.schedule.path)}`;
 
   const details = [
     [e.whenLabel, site.datesLong],
@@ -73,18 +67,25 @@ export function confirmationEmail(r: Registrant): Rendered {
     .join("");
 
   const content = `
-    ${unique()}${paragraphs(e.body)}
+    ${paragraphs(e.body)}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-collapse:separate;background:${C.shell};border:1px solid ${C.summit};border-radius:16px;">
       ${rows}
     </table>
     ${redFort ? redFortBlock(redFort) : ""}
     ${r.pitching ? callout(e.oneMentorNote) : ""}
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:10px 0 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:10px 0 0;border-collapse:separate;">
       <tr>
-        <td style="padding:18px 22px;background:${C.sky50};border-radius:16px;font-family:${FONT};font-size:14px;line-height:1.6;color:${C.ink};">${unique()}
-          ${icon("paperclip")}<strong style="color:${C.sky700};vertical-align:middle;">${escape(emails.attachment.filename)}</strong><br />
-          ${escape(e.attachmentNote)}<br />
-          <a href="${scheduleUrl}" style="color:${C.sky700};font-weight:600;">${escape(e.attachmentLink)} &rarr;</a>
+        <td style="padding:22px 24px;background:${C.sky50};border:1px solid ${C.sky300};border-radius:16px;font-family:${FONT};">
+          <p style="margin:0 0 6px;font-size:16px;font-weight:700;color:${C.sky700};">${escape(e.scheduleTitle)}</p>
+          <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:${C.ink};">${escape(e.scheduleNote)}</p>
+          <table role="presentation" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="background:${C.sky700};border-radius:999px;">
+                <a href="${scheduleUrl}" style="display:inline-block;padding:12px 24px;font-family:${FONT};font-size:15px;font-weight:700;color:${C.white};text-decoration:none;border-radius:999px;">${escape(e.scheduleButton)}</a>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:14px 0 0;font-size:12px;line-height:1.5;color:${C.muted};">Or copy this link: <a href="${scheduleUrl}" style="color:${C.sky700};word-break:break-all;">${scheduleUrl}</a></p>
         </td>
       </tr>
     </table>
@@ -101,15 +102,19 @@ export function confirmationEmail(r: Registrant): Rendered {
       ? [redFort.title.toUpperCase(), redFort.intro, ...redFort.details.map((d) => `${d.label}: ${d.href ?? d.value}`), ""]
       : []),
     ...(r.pitching ? [e.oneMentorNote, ""] : []),
-    e.attachmentNote,
-    `${e.attachmentLink}: ${scheduleUrl}`,
+    e.scheduleTitle.toUpperCase(),
+    e.scheduleNote,
+    `${e.scheduleButton}: ${scheduleUrl}`,
     "",
     e.questions,
     ...signOff(),
   ].join("\n");
 
-  const html = layout({ preheader: e.preheader, eyebrow: e.eyebrow, title, content });
-  return { subject: e.subject, html, text, icons: usedIcons(html) };
+  return {
+    subject: e.subject,
+    html: layout({ preheader: e.preheader, eyebrow: e.eyebrow, title, content }),
+    text,
+  };
 }
 
 export function oneMentorEmail(r: Registrant): Rendered {
@@ -132,10 +137,10 @@ export function oneMentorEmail(r: Registrant): Rendered {
     .join("");
 
   const content = `
-    ${unique()}${paragraphs(e.body)}
+    ${paragraphs(e.body)}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0 30px;border-collapse:separate;">
       <tr>
-        <td style="padding:22px 24px;background:${C.sky50};border:2px solid ${C.sky700};border-radius:16px;">${unique()}
+        <td style="padding:22px 24px;background:${C.sky50};border:2px solid ${C.sky700};border-radius:16px;">
           <p style="margin:0 0 8px;font-family:${FONT};font-size:17px;font-weight:700;line-height:1.35;color:${C.sky700};">${escape(e.notice.title)}</p>
           <p style="margin:0;font-family:${FONT};font-size:15px;line-height:1.6;color:${C.ink};">${escape(e.notice.body)}</p>
         </td>
@@ -162,8 +167,11 @@ export function oneMentorEmail(r: Registrant): Rendered {
     ...signOff(),
   ].join("\n");
 
-  const html = layout({ preheader: e.preheader, eyebrow: e.eyebrow, title, content });
-  return { subject: e.subject, html, text, icons: usedIcons(html) };
+  return {
+    subject: e.subject,
+    html: layout({ preheader: e.preheader, eyebrow: e.eyebrow, title, content }),
+    text,
+  };
 }
 
 /** The shared frame: a navy header band on the pale wash, a green rule, a white card, the footer. */
@@ -247,7 +255,7 @@ function callout(body: string) {
   return `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 12px;">
       <tr>
-        <td style="padding:14px 18px;background:${C.shell};border-left:4px solid ${C.leaf};font-family:${FONT};font-size:14px;line-height:1.6;color:${C.ink};">${unique()}${escape(body)}</td>
+        <td style="padding:14px 18px;background:${C.shell};border-left:4px solid ${C.leaf};font-family:${FONT};font-size:14px;line-height:1.6;color:${C.ink};">${escape(body)}</td>
       </tr>
     </table>`;
 }
@@ -262,7 +270,7 @@ function redFortBlock(block: typeof emails.confirmation.redFort) {
         : escape(d.value);
       return `
           <tr>
-            <td width="150" style="padding:${top}px 12px 6px 0;font-family:${FONT};font-size:13px;color:${C.muted};vertical-align:top;">${icon(d.icon)}<span style="vertical-align:middle;">${escape(d.label)}</span></td>
+            <td width="130" style="padding:${top}px 12px 6px 0;font-family:${FONT};font-size:13px;color:${C.muted};vertical-align:top;">${escape(d.label)}</td>
             <td style="padding:${top}px 0 6px;font-family:${FONT};font-size:14px;font-weight:600;color:${C.ink};vertical-align:top;">${value}</td>
           </tr>`;
     })
@@ -271,7 +279,7 @@ function redFortBlock(block: typeof emails.confirmation.redFort) {
   return `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px;">
       <tr>
-        <td style="padding:18px 20px;background:${C.shell};border-left:4px solid ${C.leaf};font-family:${FONT};">${unique()}
+        <td style="padding:18px 20px;background:${C.shell};border-left:4px solid ${C.leaf};font-family:${FONT};">
           <p style="margin:0 0 4px;font-size:15px;font-weight:700;color:${C.leaf};">${escape(block.title)}</p>
           <p style="margin:0 0 10px;font-size:14px;line-height:1.6;color:${C.ink};">${escape(block.intro)}</p>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}
@@ -279,37 +287,6 @@ function redFortBlock(block: typeof emails.confirmation.redFort) {
         </td>
       </tr>
     </table>`;
-}
-
-/**
- * A 16px icon from `public/images/email/`, lucide rendered to PNG at 3x.
- *
- * Referenced by content id and attached to the message itself rather than
- * linked from the site: a linked image is a broken image until it is deployed,
- * and some clients block remote images outright. Gmail strips `data:` URIs, so
- * inline attachments are the one form that reliably shows.
- */
-function icon(name: string) {
-  return `<img src="cid:${iconCid(name)}" width="16" height="16" alt="" style="display:inline-block;vertical-align:middle;border:0;margin-right:8px;" />`;
-}
-
-export function iconCid(name: string) {
-  return `${name}@icuc`;
-}
-
-function usedIcons(html: string) {
-  return [...new Set([...html.matchAll(/cid:([a-z-]+)@icuc/g)].map((m) => m[1]))];
-}
-
-/**
- * An invisible token that differs in every message. Gmail threads mail with the
- * same subject and sender, then collapses any block it has already shown in that
- * thread behind a "…" button, so a second registration from one address (or any
- * test run) would arrive with its Red Fort details hidden. A token inside each
- * block means no block ever repeats exactly.
- */
-function unique() {
-  return `<span style="display:none !important;mso-hide:all;font-size:0;line-height:0;max-height:0;overflow:hidden;opacity:0;">${Math.random().toString(36).slice(2)}</span>`;
 }
 
 function signOff() {
