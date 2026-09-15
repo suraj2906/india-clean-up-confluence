@@ -6,14 +6,14 @@ import { Reveal } from "@/components/ui/Reveal";
 
 export const metadata: Metadata = {
   title: "Register",
-  description: `Register for ${site.fullName} 3.0 — open to volunteers, clean-up movements, corporates, students and press. NGOs can also apply to pitch at One Mentor, Many Missions.`,
+  description: `Register for ${site.fullName} 3.0 — open to volunteers, clean-up movements, corporates, students and press. NGOs can also apply to pitch at Mentor Matchmaker.`,
   alternates: { canonical: "/register" },
 };
 
 /**
  * Registration is one form for everyone, and the page is nothing but that form.
  *
- * The One Mentor, Many Missions explanation used to be a section under it. It is
+ * The Mentor Matchmaker explanation used to be a section under it. It is
  * now inside the form, unfolding when the dropdown says NGO — nobody scrolls
  * past a form they came to fill in, so an explainer below it was an explainer
  * nobody read. Don't put it back down here: two copies of the same pitch is how

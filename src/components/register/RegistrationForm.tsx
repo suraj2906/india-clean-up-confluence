@@ -45,8 +45,9 @@ const { oneMentor, redFort, heardAbout } = registration;
 const stepIcons = [Users, Trophy, Megaphone, Handshake];
 
 /**
- * The one registration form, for everyone. No server handler: it posts straight
- * from the browser to two destinations at once.
+ * The one registration form, for everyone. Capturing it needs no server handler:
+ * it posts straight from the browser to two destinations at once. The only
+ * server call is the confirmation email afterwards (see `sendConfirmation`).
  *
  * The Google Sheet is the record — every registration becomes a row, and which
  * of its three tabs the row lands on is decided by the two tick boxes (see
@@ -58,9 +59,9 @@ const stepIcons = [Users, Trophy, Megaphone, Handshake];
  * an error the registrant is told about.
  *
  * It carries a second form inside it, and the reveal happens in two stages.
- * Choosing "NGO or clean-up movement" in the dropdown opens the One Mentor, Many
- * Missions explanation — what the session is, how the ten are picked and that
- * five of them leave with a mentor — right above the tick box, because that is
+ * Choosing "NGO or clean-up movement" in the dropdown opens the Mentor Matchmaker
+ * explanation — what the session is, how the five are picked and that
+ * each of them leaves with a mentor — right above the tick box, because that is
  * the only moment we know the reader is one of the people it is for. Ticking the
  * box then opens the application questions, which are rendered straight out of
  * `registration.oneMentor.questions` in `site.ts`; the component knows nothing
@@ -131,7 +132,10 @@ export function RegistrationForm() {
     }
 
     setErrors(next);
-    if (Object.keys(next).length > 0) return;
+    if (Object.keys(next).length > 0) {
+      focusFirstError(next, reduced);
+      return;
+    }
 
     if (!ACCESS_KEY && !SHEETS_ENDPOINT) {
       setStatus("error");
@@ -168,6 +172,10 @@ export function RegistrationForm() {
     if (mail.status === "rejected") console.warn("Web3Forms failed:", mail.reason);
 
     if ([sheet, mail].some((r) => r.status === "fulfilled" && r.value === "ok")) {
+      // Only once the registration is safely somewhere, and not awaited: the
+      // confirmation email is a courtesy, and a slow mail server must not hold
+      // the success screen or turn it into an error.
+      sendConfirmation({ name, email, attendee, pitching, joiningRedFort });
       setStatus("sent");
       form.reset();
       // `form.reset()` returns the uncontrolled fields to their defaults but not
@@ -310,7 +318,7 @@ export function RegistrationForm() {
         </div>
       </div>
 
-      {/* The One Mentor, Many Missions track. Closed by default: most people
+      {/* The Mentor Matchmaker track. Closed by default: most people
           registering are not applying to pitch, and a form that opens with
           somebody else's application looks like it is not for them. */}
       <div className="mt-7 rounded-3xl border border-sky-700/20 bg-sky-50 p-5 sm:p-6">
@@ -413,7 +421,7 @@ export function RegistrationForm() {
 
       {/* The Red Fort clean-up: a head count, not an application. Deliberately
           a flat tick box with no unfolding panel — everything it needs to say
-          fits in the hint, and a second expanding block beside One Mentor would
+          fits in the hint, and a second expanding block beside Mentor Matchmaker would
           make the form read as two applications stacked on each other. It sits
           below the pitch track because it is open to every registrant, and the
           last thing before the free-text field. */}
@@ -473,6 +481,29 @@ export function RegistrationForm() {
   );
 }
 
+/**
+ * Take the reader to the first thing they have to fix.
+ *
+ * The form is long, most of it can be folded open, and the submit button sits
+ * at the bottom of all of it — so a required field left blank near the top
+ * fails silently as far as anyone pressing Register can see. The message is on
+ * screen; the screen just isn't there.
+ *
+ * `errors` is written in the same order the fields are rendered, so its first
+ * key is the topmost one. Every field's `id` is its `name`, which is what makes
+ * this a lookup rather than a map of refs. Focus goes with the scroll so the
+ * next keystroke lands in the field being complained about, and `preventScroll`
+ * keeps the browser from jumping there before the smooth scroll can run.
+ */
+function focusFirstError(errors: Errors, reduced: boolean | null) {
+  const first = Object.keys(errors)[0];
+  const el = first ? document.getElementById(first) : null;
+  if (!el) return;
+
+  el.focus({ preventScroll: true });
+  el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+}
+
 /** Every field on this form is a text field, so `File` never comes back. */
 function text(data: FormData, name: string) {
   return String(data.get(name) ?? "").trim();
@@ -483,7 +514,7 @@ function text(data: FormData, name: string) {
  *
  * `sheet` is what decides which tab (or tabs) the row lands on. Every
  * registration lands on exactly one of the two *primary* tabs — pitch applicants
- * on One Mentor, Many Missions along with their answers, everyone else on the
+ * on Mentor Matchmaker along with their answers, everyone else on the
  * general one — and a Red Fort clean-up tick adds a second copy on the clean-up
  * tab. Splitting at write time rather than with a filter is the point of the
  * arrangement: each panel opens one tab and reads nothing else.
@@ -545,7 +576,7 @@ async function postToMail(
       // The pitch applicants are the ones that have to be findable in a full
       // inbox, so they say so in the subject line rather than only in a field.
       subject: pitching
-        ? `${site.name} 3.0 registration — ${attendee} — One Mentor, Many Missions`
+        ? `${site.name} 3.0 registration — ${attendee} — Mentor Matchmaker`
         : `${site.name} 3.0 registration — ${attendee}`,
       from_name: `${site.name} website`,
       // Replying in the inbox goes to the registrant, not to us.
@@ -557,6 +588,31 @@ async function postToMail(
   const json = await res.json();
   if (!res.ok || !json.success) throw new Error(json.message ?? "Something went wrong.");
   return "ok";
+}
+
+/**
+ * Asks `/api/register/confirm` to email the registrant their confirmation and
+ * the schedule, plus the Mentor Matchmaker email if they applied to pitch.
+ * Fire and forget: by the time this runs the registration is already captured,
+ * so a failure here is logged for us and never shown to them.
+ */
+function sendConfirmation(registrant: {
+  name: string;
+  email: string;
+  attendee: string;
+  pitching: boolean;
+  joiningRedFort: boolean;
+}) {
+  fetch("/api/register/confirm", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(registrant),
+    keepalive: true,
+  })
+    .then((res) => {
+      if (!res.ok) console.warn("Confirmation email not sent:", res.status);
+    })
+    .catch((error) => console.warn("Confirmation email not sent:", error));
 }
 
 function Field({

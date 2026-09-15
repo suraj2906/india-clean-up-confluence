@@ -7,7 +7,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 # ICUC website
 
 Marketing site for the India Clean-Up Confluence. Everything is statically
-prerendered — there is no database, no API route and no auth.
+prerendered — there is no database and no auth, and exactly one API route:
+`/api/register/confirm`, which emails registrants their confirmation.
 
 Six routes plus a 404. `/` is the long landing page, `/carter-clean-up` is the
 movement's own page, `/register` takes sign-ups for ICUC 3.0 and `/contact` is
@@ -324,7 +325,7 @@ before `doPost` runs and cannot answer a preflight. Don't 'fix' that content typ
 **The sheet has three tabs and the split happens at write time.** The payload's
 `sheet` field is a *list*, and every name in it gets the same row. `one_mentor`
 and `general` are the primary pair — a registration lands on exactly one of them:
-pitch applicants and their answers on the One Mentor, Many Missions tab, everyone
+pitch applicants and their answers on the One Mentor, Many Missions tab (the programme is now called Mentor Matchmaker on the site, but the tab and `TABS` in `registrations.gs` keep the old name on purpose so the live sheet keeps writing to the same tab), everyone
 else on the general one. `red_fort` is added *alongside* whichever of those two
 applies, so a Red Fort clean-up tick writes a copy rather than diverting the row.
 The two questions are unrelated — an NGO can apply to pitch and also turn up to
@@ -337,12 +338,13 @@ nothing else — but never reorder or rename a header by hand once rows exist.
 Adding a *tab* is the exception: tab names live in `TABS` in `registrations.gs`,
 so that one needs a script edit and a redeploy.
 
-It carries a second form inside it. **One Mentor, Many Missions** is a pitch
-session: NGOs that want to scale into a business apply through this same form, ten
-are selected from everyone who applies, those ten give an elevator pitch to a panel
-of mentors at the event, and **five of the ten are chosen by that panel and carry
-on with them as mentors afterwards**. The five are the outcome the whole track is
-for, so they get their own beat in `oneMentor.steps` rather than a clause inside
+It carries a second form inside it. **Mentor Matchmaker** is a pitch
+session: NGOs that want to scale into a business apply through this same form, five
+are selected from everyone who applies, those five give an elevator pitch to a panel
+of seven mentors at the event, and **each of the five NGOs is paired one-on-one with
+a mentor who keeps working with them afterwards**, while the other two, both design
+mentors, work with all five. The pairing is the outcome
+the whole track is for, so it gets its own beat in `oneMentor.steps` rather than a clause inside
 the pitch step — buried, it is the thing applicants miss. There is deliberately no
 second application form and no separate page — a shortlist people can apply to
 twice is a shortlist somebody has to de-duplicate by hand.
@@ -366,10 +368,10 @@ runs an NGO but registers as an individual still has to be able to find it.
 else — the form renders whatever is in that list, in order, and validates every
 non-`optional` one. They are grouped in four movements: who you are (verification
 only), where you are now (the honesty check), the pitch itself, and logistics.
-Only the third group is what the ten are chosen on, so if the application ever
+Only the third group is what the five are chosen on, so if the application ever
 has to get shorter, cut from the bottom, never from the pitch block. The pitch
 block now closes on `pitch_expectations` — what the applicant wants from the
-mentorship — because five of the ten leave with a mentor, which makes that part
+mentorship — because every one of the five leaves with a mentor, which makes that part
 of what the panel is picking on rather than an afterthought.
 
 **A question's `name` is frozen the moment the first application arrives.** It is
@@ -383,10 +385,11 @@ than an application.** `registration.redFort` is two lines of copy — a questio
 and a hint — and that is the whole feature: nobody is selected, nothing further
 opens, and the answer rides along as the `red_fort_clean_up` column on whichever
 primary tab the row lands on as well as on its own tab. It is deliberately flat
-where One Mentor unfolds; a second expanding panel beside it would make the form
-read as two applications stacked on each other. Its `hint` is also where the
-date, start time and meeting point go once they are settled — it currently
-promises those by email, which is the honest version until they exist.
+where Mentor Matchmaker unfolds; a second expanding panel beside it would make the form
+read as two applications stacked on each other. Its `hint` carries the date
+and the 7:15am start; the location, nearest metro and meeting point go out in the
+confirmation email instead, from `registration.emails.confirmation.redFort`, and
+only to people who ticked the box.
 
 If the list is ever emptied, the revealed block falls back to `oneMentor.pending`
 and the registration still submits, flagged in the subject line, in the
@@ -395,13 +398,42 @@ in place: it is the fallback for an empty list, not a temporary notice.
 
 TODO: the current questions are a draft written to make the form usable. The
 wording is Freishia's call — she is the one who knows what the mentor panel needs
-in order to pick ten out of the pile, and then five out of the ten. Review with
+in order to pick five out of the pile, and to pair each with a mentor. Review with
 her before this is shared.
 
 `CtaBand` at the foot of the landing page now leads with `/register` and keeps
 `/contact` as the quieter second button, and `Register` is an entry in `nav`, so
 it appears in the desktop bar, the mobile drawer and the footer. That is a nav
 *link*, not a button — the header still has no call-to-action button in it.
+
+## Confirmation emails
+
+After a registration is captured, `RegistrationForm` fires (and does not await)
+a POST to `src/app/api/register/confirm/route.ts`, which sends mail over plain
+SMTP with a Gmail app password via `nodemailer` — deliberately no third-party
+mail service. Credentials are server-only `SMTP_*` variables; see
+`.env.local.example`, and never give them a `NEXT_PUBLIC_` prefix. Unset means
+no email, not a failed registration.
+
+Everyone gets the confirmation, with `registration.emails.attachment` (the ICUC
+3.0 schedule in `public/pdfs/`) attached. Pitch applicants also get a **separate**
+Mentor Matchmaker email whose headline block says it is a mentorship
+with no promise of capital. That line is the reason the second email exists —
+keep it in its highlighted block near the top, never in the small print.
+
+Copy lives in `registration.emails` in `site.ts`; markup lives in
+`src/lib/email/templates.ts`, the one file allowed table layouts, inline styles
+and raw hex (mirrored from `.theme-deck`, because mail clients have no CSS
+variables). Icons in mail are lucide icons pre-rendered to PNG in `public/images/email/` and attached to each message as inline `cid:` images — no emoji, no inline SVG and no `data:` URIs, none of which Gmail shows, and not linked from the site either, which breaks until deployed. The PDF reaches the server bundle only because of
+`outputFileTracingIncludes` in `next.config.ts` — rename or move the folder and
+update both. Keep the schedule small: attachments grow by a third once
+base64-encoded, and many receiving servers bounce mail over ~20 MB. The original
+export was 18 MB, almost all of it lossless RGB images; it was re-encoded to
+4.75 MB by turning those images into JPEG q92 with 4:4:4 chroma at their native
+resolution, transparency masks left lossless (every page renders at 48–50 dB
+PSNR against the original). A new export should get the same treatment. The route only sends its own
+fixed templates, rejects cross-origin posts and rate-limits in memory, which
+slows abuse on serverless rather than preventing it.
 
 ## Before you call it done
 

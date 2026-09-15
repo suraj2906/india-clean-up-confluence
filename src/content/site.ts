@@ -954,10 +954,11 @@ export type RegistrationQuestion = {
  * The registration page (`/register`), which is open to everyone: volunteers,
  * NGOs, corporates, students, press. One form, one inbox.
  *
- * It carries a second track inside it. `oneMentor` is the "One Mentor, Many
- * Missions" pitch session — NGOs that want to scale into a business apply here,
- * ten are selected to pitch to a panel of mentors at ICUC 3.0, and five of those
- * ten come away with mentorship from the panel.
+ * It carries a second track inside it. `oneMentor` is the "Mentor Matchmaker"
+ * pitch session — NGOs that want to scale into a business apply here,
+ * five are selected to pitch to a panel of seven mentors at ICUC 3.0. Afterwards
+ * each of the five NGOs is paired one-on-one with a mentor, and two design mentors
+ * work with all five.
  *
  * All of that copy is read *inside the form*: choosing `ngoType` in the "I'm
  * registering as" dropdown opens the explanation right there, next to the tick
@@ -981,7 +982,7 @@ export const registration = {
   ],
   /**
    * Must match one of `attendeeTypes` exactly. Selecting it is what opens the
-   * One Mentor, Many Missions explanation inside the form, so a typo here silently
+   * Mentor Matchmaker explanation inside the form, so a typo here silently
    * means the pitch session never explains itself to the people it is for.
    */
   ngoType: "NGO or clean-up movement",
@@ -1000,11 +1001,11 @@ export const registration = {
     error: "Let us know how you found us.",
   },
   oneMentor: {
-    eyebrow: "One Mentor, Many Missions",
-    title: "Ten NGOs pitch. Five leave with a mentor.",
+    eyebrow: "Mentor Matchmaker",
+    title: "Five NGOs. Seven mentors.",
     body: [
       "A clean-up movement that wants to outlast its founders has to work like a business — revenue, a model, people who are paid to stay. Most never get in a room with anyone who has built one.",
-      "One Mentor, Many Missions puts ten of them in that room. Apply through this form; ten are selected from everyone who applies; those ten give an elevator pitch to a panel of mentors on how they would scale their NGO into a business. Five of the ten are then chosen by that panel and carry on with them as mentors afterwards.",
+      "Mentor Matchmaker puts five of them in that room. Apply through this form; five are selected from everyone who applies; those five give an elevator pitch to a panel of seven mentors on how they would scale their NGO into a business. Each of the five is then paired one-on-one with a mentor who keeps working with them afterwards, and two design mentors work with all five.",
     ],
     /**
      * How it runs, in three beats. Rendered as a numbered row inside the form —
@@ -1017,16 +1018,16 @@ export const registration = {
         body: "Tick the box below. NGOs of any size are welcome to — this is not a shortlist you have to already be on.",
       },
       {
-        title: "Ten are selected",
-        body: "The applications are read and ten NGOs are picked to take the stage at ICUC 3.0.",
+        title: "Five are selected",
+        body: "The applications are read and five NGOs are picked to take the stage at ICUC 3.0.",
       },
       {
-        title: "Ten pitches, one panel",
-        body: "Each of the ten gives an elevator pitch to a panel of mentors: how they would scale their NGO into a business.",
+        title: "Five pitches, seven mentors",
+        body: "Each of the five gives an elevator pitch to a panel of seven mentors: how they would scale their NGO into a business.",
       },
       {
-        title: "Five win a mentor",
-        body: "Five of the ten are chosen by the panel and keep working with them afterwards — mentorship on turning the pitch into a business.",
+        title: "Each NGO gets a mentor",
+        body: "Each of the five NGOs is paired one-on-one with a mentor who keeps working with them afterwards, plus two design mentors shared by all five — mentorship on turning the pitch into a business.",
       },
     ],
     /**
@@ -1034,16 +1035,16 @@ export const registration = {
      * application below. The hint has to carry that, because a bare tick box is
      * a decision asked before the information that would inform it — anyone who
      * has not chosen NGO in the dropdown is reading this line with no idea what
-     * One Mentor, Many Missions is, and won't tick a box to find out unless told
+     * Mentor Matchmaker is, and won't tick a box to find out unless told
      * that ticking is how they find out.
      */
-    question: "I run an NGO and would like to pitch at One Mentor, Many Missions",
-    hint: "Ten NGOs will be selected to pitch to a panel of mentors on how they would scale their NGO into a business, and five of the ten win mentorship from that panel. Tick this to read how it works and to open the application — nothing is submitted until you press Register, and you can untick it if it turns out not to be for you.",
+    question: "I run an NGO and would like to pitch at Mentor Matchmaker",
+    hint: "Five NGOs will be selected to pitch to a panel of seven mentors on how they would scale their NGO into a business, and each of the five is paired one-on-one with a mentor from that panel. Tick this to read how it works and to open the application — nothing is submitted until you press Register, and you can untick it if it turns out not to be for you.",
     /**
      * The application, in four movements: who you are, where you are now, the
      * pitch, and the logistics.
      *
-     * Only the third block is what the ten are *chosen* on. The first two are
+     * Only the third block is what the five are *chosen* on. The first two are
      * there to keep it honest — a strong `pitch_model` from an organisation with
      * no work behind it should not outrank a real one — and the fourth is
      * housekeeping. If this ever has to get shorter, cut from the bottom and
@@ -1055,7 +1056,7 @@ export const registration = {
      *
      * TODO (2026-08-28): drafted here so the form is usable, but the wording is
      * Freishia's call — she is the one who knows what the mentor panel needs in
-     * order to pick ten out of the pile. Review with her before this goes out
+     * order to pick five out of the pile. Review with her before this goes out
      * anywhere, and settle it *before* applications start coming in, for the
      * renaming reason above.
      */
@@ -1115,7 +1116,7 @@ export const registration = {
         type: "textarea",
       },
 
-      // C. The pitch. This is what the ten are picked on. `pitch_blocker` is the
+      // C. The pitch. This is what the five are picked on. `pitch_blocker` is the
       // tiebreaker — an applicant who names a real constraint ("we can't
       // invoice, so corporates can't pay us") is a better bet than one who
       // writes "funding".
@@ -1139,18 +1140,17 @@ export const registration = {
       {
         name: "pitch_ask",
         label: "What do you want out of this room?",
-        hint: "Be specific — capital, a customer, a distribution partner, an operator to hire",
         type: "textarea",
       },
       {
         name: "pitch_expectations",
         label: "What are your expectations from the mentorship?",
-        hint: "Five of the ten carry on with the panel afterwards — what would you want a mentor to actually do with you?",
+        hint: "Each of the five NGOs is paired one-on-one with a mentor afterwards — what would you want your mentor to actually do with you?",
         type: "textarea",
       },
 
       // D. Logistics, and only what cannot wait. Attendance is deliberately not
-      // asked here — the ten who are selected will be asked directly, and making
+      // asked here — the five who are selected will be asked directly, and making
       // every applicant commit to a date before they know whether they are
       // pitching only costs applications. The deck is optional for the same kind
       // of reason: requiring one filters for NGOs that already have polish,
@@ -1193,12 +1193,88 @@ export const registration = {
    */
   redFort: {
     question: "I'd like to join the Red Fort clean-up",
-    hint: "A clean-up at the Red Fort on Sunday 20th September, 7:30–9:30am, on the second morning of ICUC 3.0. Ticking this is a head count rather than a commitment — we'll email you exactly where to meet before anything is expected of you.",
+    hint: "A clean-up at the Red Fort on Sunday 20th September, meeting at 7:15am sharp, on the second morning of ICUC 3.0. Ticking this is a head count rather than a commitment — the meeting point and directions come in your confirmation email.",
+  },
+  /**
+   * The two emails a registrant gets back, sent over SMTP by
+   * `src/app/api/register/confirm/route.ts` once the registration itself has
+   * been captured. `{name}` is replaced with the registrant's first name.
+   *
+   * Everyone gets `confirmation`, with `attachment` on it. Pitch applicants get
+   * `oneMentor` *as well*, as its own message rather than a paragraph inside the
+   * first: it is the mail they will search for later, and its one job is to set
+   * expectations before anybody writes a pitch around money.
+   */
+  emails: {
+    /** A file under `public/`. It is read from disk by the route, and also linked in the mail as a fallback. */
+    attachment: { path: "pdfs/ICUC 3.0 Schedule.pdf", filename: "ICUC 3.0 Schedule.pdf" },
+    confirmation: {
+      subject: `You're registered for ${site.name} 3.0`,
+      preheader: `${site.dates} at ${site.venue}. The schedule is attached.`,
+      eyebrow: "Registration confirmed",
+      title: "You're in, {name}.",
+      body: [
+        `Thank you for registering for ${site.name} 3.0, the ${site.fullName}. Your registration has reached our team, and there is nothing more you need to do right now.`,
+        "The full schedule is attached, so you can plan your two days. Until then, keep the dates free.",
+      ],
+      whenLabel: "When",
+      whereLabel: "Where",
+      registeredAsLabel: "Registered as",
+      attachmentNote: "The ICUC 3.0 schedule is attached to this email. Share it with anyone who should be in the room.",
+      attachmentLink: "Can't open the attachment? View the schedule online",
+      /**
+       * Only in the mail of someone who ticked the Red Fort box. Each detail is
+       * one row of the block; `href` makes the value a link. `icon` names a PNG in
+       * `public/images/email/` — mail clients will not render SVG, so the lucide
+       * icons are pre-rendered there rather than drawn inline.
+       */
+      redFort: {
+        title: "Red Fort clean-up",
+        intro: "You also said you'd like to join the Red Fort clean-up. Here is everything you need to get there.",
+        details: [
+          { icon: "map-pin", label: "Location", value: "Open in Google Maps", href: "https://maps.app.goo.gl/wKVcPLpYiEJeujFD6" },
+          { icon: "calendar", label: "Date", value: "Sunday, 20th September" },
+          { icon: "clock", label: "Time", value: "7:15am sharp" },
+          { icon: "train", label: "Nearest metro", value: "Lal Quila (Violet Line)" },
+          { icon: "flag", label: "Meeting point", value: "Lal Quila metro station, Gate 4" },
+          { icon: "hand", label: "Provided", value: "Gloves and masks" },
+        ] as Array<{ icon: string; label: string; value: string; href?: string }>,
+      },
+      oneMentorNote: "You also applied to pitch at Mentor Matchmaker. A separate email about your application is on its way.",
+      questions: "Questions? Just reply to this email.",
+    },
+    oneMentor: {
+      subject: "Your Mentor Matchmaker application",
+      preheader: "We've received your application. Please read how the session works.",
+      eyebrow: "Mentor Matchmaker",
+      title: "Your application is in, {name}.",
+      body: [
+        `Thank you for applying to pitch at Mentor Matchmaker at ${site.name} 3.0. Your answers have reached the team and will be read alongside every other application.`,
+      ],
+      /**
+       * The most important line in either email. It sits in its own highlighted
+       * block near the top, not in the small print: an applicant who walks in
+       * expecting a cheque is an applicant we have misled.
+       */
+      notice: {
+        title: "This is a mentorship, not an investment",
+        body: "Mentor Matchmaker offers mentorship only. Applying, being selected to pitch or being paired with a mentor carries no promise of capital, funding or investment of any kind.",
+      },
+      stepsTitle: "What happens next",
+      /** Written for someone who has already applied, so it starts after the form. */
+      steps: [
+        { title: "Five are selected", body: "Every application is read and five NGOs are picked to pitch at ICUC 3.0. If yours is one of them, we will contact you directly." },
+        { title: "Five pitches, seven mentors", body: "Each of the five gives an elevator pitch to a panel of seven mentors on how they would scale their NGO into a business." },
+        { title: "Each NGO gets a mentor", body: "Each of the five NGOs is paired one-on-one with a mentor who keeps working with them afterwards on turning the pitch into a business. Two design mentors also work with all five." },
+      ],
+      questions: "Questions about your application? Just reply to this email.",
+    },
+    footer: `You are receiving this because this address was used to register for ${site.name} 3.0 at ${site.url.replace("https://", "")}.`,
   },
   /** Shown in place of the form once a registration goes through. */
   success: {
     title: "You're registered",
-    body: `Thank you — your registration has reached the ICUC team. Keep ${site.dates} free — we are at ${site.venue} — and we will be in touch with the schedule as it is confirmed.`,
+    body: `Thank you — your registration has reached the ICUC team. Keep ${site.dates} free — we are at ${site.venue} — and look out for a confirmation email with the full schedule attached.`,
     again: "Register someone else",
   },
 };
@@ -1326,7 +1402,7 @@ export const privacy = {
         {
           list: [
             "Registering for ICUC 3.0 — your name and email, and optionally your phone number, city, organisation, your role there, the kind of delegate you are, and anything else you want to tell us.",
-            "Applying to One Mentor, Many Missions — answers about your organisation: when it started, what it does, how it is funded, how you would turn it into a business, and how to reach whoever is pitching.",
+            "Applying to Mentor Matchmaker — answers about your organisation: when it started, what it does, how it is funded, how you would turn it into a business, and how to reach whoever is pitching.",
             "The Red Fort clean-up tick box — whether you would like to join, which is a head count and nothing more.",
             "The contact form — your name, email, what your enquiry is about and your message.",
           ],
@@ -1344,7 +1420,7 @@ export const privacy = {
           list: [
             "Sending WhatsApp invitations and information about ICUC 3.0.",
             "Processing registrations, and writing to delegates about the schedule, the venue and the logistics.",
-            "Reading One Mentor, Many Missions applications and selecting the ten NGOs who pitch.",
+            "Reading Mentor Matchmaker applications and selecting the five NGOs who pitch.",
             "Counting heads for the Red Fort clean-up and telling those people where to be.",
             "Replying to enquiries sent through the contact form.",
           ],
@@ -1364,7 +1440,7 @@ export const privacy = {
         {
           list: [
             "Meta Platforms — every WhatsApp message we send you is delivered by WhatsApp and handled under [WhatsApp's own privacy policy](https://www.whatsapp.com/legal/privacy-policy).",
-            "Google — registrations are written to a Google Sheet in an account we control, covered by [Google's privacy policy](https://policies.google.com/privacy).",
+            "Google — registrations are written to a Google Sheet in an account we control, and the confirmation emails you receive are sent from our Gmail account, both covered by [Google's privacy policy](https://policies.google.com/privacy).",
             "Web3Forms — the site's forms post through Web3Forms, which emails a copy of each submission to our inbox. See [Web3Forms' privacy policy](https://web3forms.com/privacy).",
             "Vercel — this website is hosted on Vercel, which keeps the server logs described above. See [Vercel's privacy policy](https://vercel.com/legal/privacy-policy).",
           ],
@@ -1403,7 +1479,7 @@ export const privacy = {
           list: [
             "Contact details we sourced for outreach — kept until you ask us to remove them. Numbers that never responded to the ICUC 3.0 invitation are deleted within six months of the event.",
             "Registrations — kept for the event and for two years afterwards, so we can invite you to the next edition and keep a record of who came. Ask sooner and we delete sooner.",
-            "One Mentor, Many Missions applications — kept for the same two years, because the mentorship the panel awards carries on well past the event.",
+            "Mentor Matchmaker applications — kept for the same two years, because the mentorship the panel awards carries on well past the event.",
             "Contact-form enquiries — kept in the ICUC inbox for two years.",
           ],
         },
