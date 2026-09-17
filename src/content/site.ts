@@ -1231,13 +1231,13 @@ export const registration = {
       title: "You're in, {name}.",
       body: [
         `Thank you for registering for ${site.name} 3.0, the ${site.fullName}. Your registration has reached our team, and there is nothing more you need to do right now.`,
-        "The full two-day schedule is ready to download below. Until then, keep the dates free.",
+        "All the sessions are on Saturday 19th September, and the full schedule is ready to download below. Until then, keep the date free.",
       ],
       whenLabel: "When",
       whereLabel: "Where",
       registeredAsLabel: "Registered as",
       scheduleTitle: "The ICUC 3.0 schedule",
-      scheduleNote: "Both days, session by session. Download it, and share it with anyone who should be in the room.",
+      scheduleNote: "Every session, all on Saturday 19th September. Download it, and share it with anyone who should be in the room.",
       scheduleButton: "Download the schedule (PDF)",
       /**
        * Only in the mail of someone who ticked the Red Fort box. Each detail is
@@ -1249,7 +1249,7 @@ export const registration = {
         title: "Red Fort clean-up",
         intro: "You also said you'd like to join the Red Fort clean-up. Here is everything you need to get there.",
         details: [
-          { label: "Location", value: "Open in Google Maps", href: "https://www.google.com/maps/place/Lal+Quila/@28.6568551,77.2368125,17z" },
+          { label: "Location", value: "Open in Google Maps", href: "https://www.google.com/maps/place/Lal+Quila/@28.6568598,77.2342376,17z/data=!3m1!4b1!4m6!3m5!1s0x390cfd1ceee9c7e1:0x641302a14e35e765!8m2!3d28.6568551!4d77.2368125!16s%2Fm%2F012vxmwq" },
           { label: "Date", value: "Sunday, 20th September" },
           { label: "Time", value: "7:15am sharp" },
           { label: "Nearest metro", value: "Lal Quila (Violet Line)" },
