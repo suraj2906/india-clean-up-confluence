@@ -1001,6 +1001,18 @@ export const registration = {
     error: "Let us know how you found us.",
   },
   oneMentor: {
+    /**
+     * Whether applications are being taken. `false` takes the tick box, the
+     * explainer and the questions off the form: an NGO registrant sees `closed`
+     * instead, nobody can land on the pitch tab, and the route will not send the
+     * Mentor Matchmaker email even if asked to. Everything below is kept, so
+     * reopening is this one line.
+     */
+    open: false,
+    closed: {
+      title: "Applications have closed",
+      body: "Mentor Matchmaker is no longer taking applications. The five selected NGOs have been contacted and pitch to the mentors on Saturday 19th September. You can still register for ICUC 3.0 with this form.",
+    },
     eyebrow: "Mentor Matchmaker",
     title: "Five NGOs. Seven mentors.",
     body: [

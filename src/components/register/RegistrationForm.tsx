@@ -318,9 +318,36 @@ export function RegistrationForm() {
         </div>
       </div>
 
-      {/* The Mentor Matchmaker track. Closed by default: most people
-          registering are not applying to pitch, and a form that opens with
-          somebody else's application looks like it is not for them. */}
+      {/* Applications closed: an NGO registrant is told so, in the place the
+          application used to open, and nobody else sees anything. */}
+      {!oneMentor.open && (
+        <AnimatePresence initial={false}>
+          {attendee === registration.ngoType && (
+            <motion.div
+              key="one-mentor-closed"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: reduced ? 0 : 0.45, ease: EASE }}
+              className="overflow-hidden"
+            >
+              <div className="mt-7 rounded-3xl border border-sky-700/20 bg-sky-50 p-5 sm:p-6">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">
+                  {oneMentor.eyebrow}
+                </p>
+                <h3 className="mt-2 text-lg font-semibold">{oneMentor.closed.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{oneMentor.closed.body}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
+
+      {/* The Mentor Matchmaker track, while applications are open. Closed by
+          default: most people registering are not applying to pitch, and a form
+          that opens with somebody else's application looks like it is not for
+          them. */}
+      {oneMentor.open && (
       <div className="mt-7 rounded-3xl border border-sky-700/20 bg-sky-50 p-5 sm:p-6">
         {/* Unfolds the moment the dropdown says NGO, or the moment the box is
             ticked from any other kind of registration — either way, before they
@@ -418,6 +445,7 @@ export function RegistrationForm() {
           </div>
         )}
       </div>
+      )}
 
       {/* The Red Fort clean-up: a head count, not an application. Deliberately
           a flat tick box with no unfolding panel — everything it needs to say

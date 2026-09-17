@@ -6,7 +6,9 @@ import { Reveal } from "@/components/ui/Reveal";
 
 export const metadata: Metadata = {
   title: "Register",
-  description: `Register for ${site.fullName} 3.0 — open to volunteers, clean-up movements, corporates, students and press. NGOs can also apply to pitch at Mentor Matchmaker.`,
+  description: `Register for ${site.fullName} 3.0 — open to volunteers, clean-up movements, corporates, students and press.${
+    registration.oneMentor.open ? " NGOs can also apply to pitch at Mentor Matchmaker." : ""
+  }`,
   alternates: { canonical: "/register" },
 };
 

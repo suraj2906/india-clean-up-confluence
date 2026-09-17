@@ -60,7 +60,8 @@ export async function POST(request: Request) {
     name,
     // Only a value the dropdown can actually produce gets printed back.
     attendee: registration.attendeeTypes.includes(attendee) ? attendee : registration.attendeeTypes[0],
-    pitching: body.pitching === true,
+    // No Mentor Matchmaker email once applications are closed, whatever is posted.
+    pitching: registration.oneMentor.open && body.pitching === true,
     joiningRedFort: body.joiningRedFort === true,
   };
 

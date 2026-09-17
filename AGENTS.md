@@ -338,6 +338,12 @@ nothing else — but never reorder or rename a header by hand once rows exist.
 Adding a *tab* is the exception: tab names live in `TABS` in `registrations.gs`,
 so that one needs a script edit and a redeploy.
 
+**Applications to Mentor Matchmaker are closed** (`oneMentor.open: false`). The
+tick box, explainer and questions are gone from the form; choosing the NGO type
+shows `oneMentor.closed` in their place, and the route refuses to send the pitch
+email. Everything described below is still in the code and the copy, so flipping
+that one flag reopens it exactly as it was.
+
 It carries a second form inside it. **Mentor Matchmaker** is a pitch
 session: NGOs that want to scale into a business apply through this same form, five
 are selected from everyone who applies, those five give an elevator pitch to a panel
