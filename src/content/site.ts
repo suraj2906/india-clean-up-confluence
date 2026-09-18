@@ -60,6 +60,11 @@ export const site = {
    * read this rather than repeating it.
    */
   venue: "India Habitat, New Delhi",
+  /**
+   * The venue on Google Maps, written out in full: spam filters distrust short
+   * links like maps.app.goo.gl, so mail never uses them (see AGENTS.md).
+   */
+  venueMap: "https://www.google.com/maps/search/?api=1&query=India+Habitat+Centre%2C+Lodhi+Road%2C+New+Delhi",
 } as const;
 
 /**
@@ -1285,6 +1290,38 @@ export const registration = {
         { title: "Each NGO gets a mentor", body: "Each of the five NGOs is paired one-on-one with a mentor who keeps working with them afterwards on turning the pitch into a business. Two design mentors also work with all five." },
       ],
       questions: "Questions about your application? Just reply to this email.",
+    },
+    /**
+     * The "two days to go" send to everyone registered, run by hand with
+     * `scripts/send-countdown.ts` rather than by the site. `{name}` is the
+     * registrant's first name, or "there" when the list has none.
+     *
+     * This one carries the agenda as an attachment, where the confirmation links
+     * it: it goes to people who have already heard from us, so it is less of a
+     * cold send, but it is still the riskiest thing in it for spam filters.
+     */
+    countdown: {
+      subject: `2 days to go: ${site.name} 3.0 is almost here!`,
+      preheader: `We can't wait to see you at ${site.venue} this weekend. The final agenda is attached.`,
+      eyebrow: "2 days to go",
+      /** The big badge at the top of the card: `number` huge, `label` under it. */
+      badge: { number: "2", label: "Days to go", date: `${site.dates} · ${site.venue}` },
+      title: "See you this weekend, {name}!",
+      body: [
+        `The countdown is nearly over. In just two days, ${site.name} 3.0 brings clean-up movements, changemakers, corporates and policymakers from across India together under one roof, and you're going to be part of it.`,
+        "A full day of sessions on Saturday, packed with conversations, ideas and people who are already out there doing the work, followed by the Red Fort clean-up on Sunday morning. We've been building up to this all year, and we're so glad you'll be in the room.",
+      ],
+      /** Sessions run on Saturday only; Sunday is just the Red Fort clean-up, covered below. */
+      whenLabel: "Sessions",
+      when: "Saturday 19th September 2026",
+      whereLabel: "Where",
+      agendaTitle: "The final agenda is attached",
+      agendaBody: "All the sessions are on Saturday 19th September, and the full running order is in the PDF attached to this email. Have a look, mark the ones you can't miss, and plan your day around them.",
+      mapLabel: "Open in Google Maps",
+      redFort: "Joining the Red Fort clean-up on Sunday? Meet at Lal Quila metro station, Gate 4, at 7:15am sharp. Gloves and masks will be provided.",
+      redFortMap: "https://www.google.com/maps/place/Lal+Quila/@28.6568598,77.2342376,17z/data=!3m1!4b1!4m6!3m5!1s0x390cfd1ceee9c7e1:0x641302a14e35e765!8m2!3d28.6568551!4d77.2368125!16s%2Fm%2F012vxmwq",
+      closing: "Bring your energy, bring a friend who should be there, and come ready to meet the people changing how India cleans up. Questions? Just reply to this email.",
+      signOff: "See you there!",
     },
     footer: `You are receiving this because this address was used to register for ${site.name} 3.0 at ${site.url.replace("https://", "")}.`,
   },

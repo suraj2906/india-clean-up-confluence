@@ -47,7 +47,8 @@ const stepIcons = [Users, Trophy, Megaphone, Handshake];
 /**
  * The one registration form, for everyone. Capturing it needs no server handler:
  * it posts straight from the browser to two destinations at once. The only
- * server call is the confirmation email afterwards (see `sendConfirmation`).
+ * server call is the confirmation email afterwards (see `sendConfirmation`),
+ * and that call is currently commented out.
  *
  * The Google Sheet is the record — every registration becomes a row, and which
  * of its three tabs the row lands on is decided by the two tick boxes (see
@@ -172,10 +173,16 @@ export function RegistrationForm() {
     if (mail.status === "rejected") console.warn("Web3Forms failed:", mail.reason);
 
     if ([sheet, mail].some((r) => r.status === "fulfilled" && r.value === "ok")) {
+      // Automatic confirmation emails are switched off: ICUC 3.0 is happening,
+      // the schedule has gone out to everyone already registered, and a late
+      // registrant does not need a "see you there" mail about an event running
+      // today. Uncomment this one line to turn them back on; the route, the
+      // templates and the copy are all still in place.
+      //
       // Only once the registration is safely somewhere, and not awaited: the
       // confirmation email is a courtesy, and a slow mail server must not hold
       // the success screen or turn it into an error.
-      sendConfirmation({ name, email, attendee, pitching, joiningRedFort });
+      // sendConfirmation({ name, email, attendee, pitching, joiningRedFort });
       setStatus("sent");
       form.reset();
       // `form.reset()` returns the uncontrolled fields to their defaults but not
@@ -619,11 +626,15 @@ async function postToMail(
 }
 
 /**
+ * Currently unused: the call site above is commented out, so no automatic mail
+ * goes out. Kept whole so turning it back on is one line.
+ *
  * Asks `/api/register/confirm` to email the registrant their confirmation and
  * the schedule, plus the Mentor Matchmaker email if they applied to pitch.
  * Fire and forget: by the time this runs the registration is already captured,
  * so a failure here is logged for us and never shown to them.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for the day automatic emails go back on
 function sendConfirmation(registrant: {
   name: string;
   email: string;

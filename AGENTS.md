@@ -8,7 +8,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 Marketing site for the India Clean-Up Confluence. Everything is statically
 prerendered — there is no database and no auth, and exactly one API route:
-`/api/register/confirm`, which emails registrants their confirmation.
+`/api/register/confirm`, which emails registrants their confirmation. That route
+is currently dormant: the form's call to it is commented out (see Confirmation
+emails below).
 
 Six routes plus a 404. `/` is the long landing page, `/carter-clean-up` is the
 movement's own page, `/register` takes sign-ups for ICUC 3.0 and `/contact` is
@@ -414,6 +416,14 @@ it appears in the desktop bar, the mobile drawer and the footer. That is a nav
 
 ## Confirmation emails
 
+**Automatic emails are switched off.** The `sendConfirmation` call in
+`RegistrationForm` is commented out, so a registration now reaches the sheet and
+Web3Forms and nothing else: ICUC 3.0 is under way, everyone registered has the
+schedule, and a late registrant does not need a "see you there" mail about an
+event running today. The route, the templates and the copy are all still here,
+so uncommenting that one line turns them back on. Everything below describes how
+it works when it is on.
+
 After a registration is captured, `RegistrationForm` fires (and does not await)
 a POST to `src/app/api/register/confirm/route.ts`, which sends mail over plain
 SMTP with a Gmail app password via `nodemailer` — deliberately no third-party
@@ -448,6 +458,13 @@ against the original) and a new export should get the same treatment, since
 registrants now download it. The route only sends its own fixed templates,
 rejects cross-origin posts and rate-limits in memory, which slows abuse on
 serverless rather than preventing it.
+
+`scripts/send-countdown.ts` is the one-off "2 days to go" send, run by hand from
+a machine with `.env.local`: `--test <email>` for a single copy, or `--list
+people.csv --log sent.txt` to walk a list one message at a time. It appends every
+address it sends to, and skips anything already in that log, so a run stopped by
+a dropped connection resumes without double-sending. The list and the log are
+registrants' data: keep both out of the repo.
 
 ## Before you call it done
 

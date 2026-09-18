@@ -174,6 +174,93 @@ export function oneMentorEmail(r: Registrant): Rendered {
   };
 }
 
+/**
+ * The "two days to go" email, sent by hand to the whole registration list.
+ * No registrant data beyond a name, since the list comes from a spreadsheet.
+ */
+export function countdownEmail(name: string): Rendered {
+  const e = emails.countdown;
+  const title = fill(e.title, firstName(name));
+  const details = [
+    [e.whenLabel, e.when],
+    [e.whereLabel, site.venue],
+  ];
+  const mapLink = (href: string) =>
+    `<a href="${escape(href)}" style="color:${C.sky700};font-weight:600;">${escape(e.mapLabel)} &rarr;</a>`;
+
+  const rows = details
+    .map(([label, value], i) => {
+      const top = i === 0 ? 18 : 8;
+      const bottom = i === details.length - 1 ? 18 : 8;
+      // The venue row carries its map link on a second line.
+      const map = label === e.whereLabel ? `<br /><span style="font-size:14px;font-weight:400;">${mapLink(site.venueMap)}</span>` : "";
+      return `
+        <tr>
+          <td width="90" style="padding:${top}px 12px ${bottom}px 22px;font-family:${FONT};font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:${C.muted};vertical-align:top;">${escape(label)}</td>
+          <td style="padding:${top}px 22px ${bottom}px 0;font-family:${FONT};font-size:15px;font-weight:600;color:${C.ink};vertical-align:top;">${escape(value)}${map}</td>
+        </tr>`;
+    })
+    .join("");
+
+  const content = `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 28px;border-collapse:separate;">
+      <tr>
+        <td align="center" style="padding:30px 20px 28px;background:${C.deep};border-radius:20px;font-family:${FONT};">
+          <div style="font-size:96px;line-height:1;font-weight:800;color:${C.sky300};">${escape(e.badge.number)}</div>
+          <div style="margin-top:6px;font-size:22px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:${C.white};">${escape(e.badge.label)}</div>
+          <div style="margin-top:12px;font-size:14px;color:${C.sky300};">${escape(e.badge.date)}</div>
+        </td>
+      </tr>
+    </table>
+    ${paragraphs(e.body)}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;border-collapse:separate;background:${C.shell};border:1px solid ${C.summit};border-radius:16px;">
+      ${rows}
+    </table>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;border-collapse:separate;">
+      <tr>
+        <td style="padding:22px 24px;background:${C.sky50};border:2px solid ${C.sky700};border-radius:16px;font-family:${FONT};">
+          <p style="margin:0 0 6px;font-size:17px;font-weight:700;color:${C.sky700};">${escape(e.agendaTitle)}</p>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:${C.ink};">${escape(e.agendaBody)}</p>
+        </td>
+      </tr>
+    </table>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 12px;">
+      <tr>
+        <td style="padding:14px 18px;background:${C.shell};border-left:4px solid ${C.leaf};font-family:${FONT};font-size:14px;line-height:1.6;color:${C.ink};">${escape(e.redFort)}<br />${mapLink(e.redFortMap)}</td>
+      </tr>
+    </table>
+    <p style="margin:24px 0 0;font-family:${FONT};font-size:16px;line-height:1.65;color:${C.ink};">${escape(e.closing)}</p>
+    <p style="margin:20px 0 0;font-family:${FONT};font-size:18px;font-weight:700;color:${C.sky700};">${escape(e.signOff)}</p>
+  `;
+
+  const text = [
+    `${e.badge.number} ${e.badge.label.toUpperCase()}`,
+    "",
+    title,
+    "",
+    ...e.body.flatMap((p) => [p, ""]),
+    ...details.map(([l, v]) => `${l}: ${v}`),
+    `${e.mapLabel}: ${site.venueMap}`,
+    "",
+    e.agendaTitle.toUpperCase(),
+    e.agendaBody,
+    "",
+    e.redFort,
+    `${e.mapLabel}: ${e.redFortMap}`,
+    "",
+    e.closing,
+    "",
+    e.signOff,
+    ...signOff(),
+  ].join("\n");
+
+  return {
+    subject: e.subject,
+    html: layout({ preheader: e.preheader, eyebrow: e.eyebrow, title, content }),
+    text,
+  };
+}
+
 /** The shared frame: a navy header band on the pale wash, a green rule, a white card, the footer. */
 function layout({
   preheader,
