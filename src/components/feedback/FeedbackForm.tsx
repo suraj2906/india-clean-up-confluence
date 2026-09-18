@@ -1,28 +1,23 @@
 "use client";
 
 import { useReducedMotion } from "motion/react";
-import { AlertCircle, CheckCircle2, Loader2, Send } from "lucide-react";
+import { AlertCircle, Angry, CheckCircle2, Frown, Laugh, Loader2, Meh, Send, Smile } from "lucide-react";
 import { useState } from "react";
 
-import { contact, feedback, site, type FeedbackQuestion } from "@/content/site";
+import { contact, feedback, type FeedbackQuestion } from "@/content/site";
 import { Button } from "@/components/ui/Button";
 
-const ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
-const ENDPOINT = "https://api.web3forms.com/submit";
-
 /**
- * The Apps Script Web App that writes each response into the feedback sheet.
- * It is a separate deployment from the registrations one, so it has its own
- * variable. Unset simply means no sheet: the mail still goes.
+ * The Apps Script Web App that writes each response into the feedback sheet,
+ * the one and only destination. It is a separate deployment from the
+ * registrations one, so it has its own variable.
  */
 const FEEDBACK_ENDPOINT = process.env.NEXT_PUBLIC_FEEDBACK_ENDPOINT;
 
 type Status = "idle" | "sending" | "sent" | "error";
 type Errors = Record<string, string>;
-/** Flat string map, because that is what both a spreadsheet row and Web3Forms want. */
+/** Flat string map, because that is what a spreadsheet row wants. */
 type Payload = Record<string, string>;
-/** `skipped` means the destination is not configured, which is not a failure. */
-type Delivery = "ok" | "skipped";
 
 const field =
   "w-full rounded-2xl border border-summit bg-white px-4 py-3 text-base text-ink sm:text-sm " +
@@ -34,6 +29,9 @@ const field =
  * readers all behave exactly as they do for a plain input; this is only the
  * part people see and tap. `min-h-11` keeps every target at least 44px.
  */
+/** One face per point on the rating scale, 1 to 5. Their names come from `faces` in `site.ts`. */
+const faceIcons = [Angry, Frown, Meh, Smile, Laugh];
+
 const option =
   "flex min-h-11 cursor-pointer items-center justify-center rounded-2xl border border-summit " +
   "bg-white px-4 py-2.5 text-center text-sm font-medium text-ink transition-colors " +
@@ -45,11 +43,12 @@ const withEmail = (text: string) => text.replace("{email}", contact.email);
 
 /**
  * The ICUC 3.0 feedback form, reached from a QR code at the venue. It is
- * modelled on `RegistrationForm` and posts the same way, straight from the
- * browser to two destinations at once: the feedback Google Sheet is the record,
- * Web3Forms is the copy that survives a broken deployment. A response counts as
- * captured if *either* accepted it, so only losing both is an error the reader
- * is told about.
+ * modelled on `RegistrationForm` and posts straight from the browser to one
+ * place: the feedback Google Sheet. Unlike registration there is no Web3Forms
+ * copy. Its free plan's monthly cap is shared with the contact form and
+ * registration, it ran out on the event day, and a lost feedback row costs far
+ * less than a lost registration, so that quota is left for the forms that need
+ * it.
  *
  * The questions are rendered straight out of `feedback.questions` in `site.ts`;
  * this component knows nothing about what is being asked, only how to draw
@@ -101,14 +100,12 @@ export function FeedbackForm() {
       return;
     }
 
-    if (!ACCESS_KEY && !FEEDBACK_ENDPOINT) {
+    if (!FEEDBACK_ENDPOINT) {
       setStatus("error");
       setMessage(withEmail(feedback.error.notConnected));
       return;
     }
 
-    // One payload, both destinations, so the row and the mail can never
-    // disagree about what somebody said.
     const payload: Payload = {
       submitted_at: new Date().toISOString(),
       name,
@@ -117,23 +114,15 @@ export function FeedbackForm() {
     };
 
     setStatus("sending");
-    const [sheet, mail] = await Promise.allSettled([
-      postToSheet(payload),
-      postToMail(payload, email),
-    ]);
-
-    // A half failure is ours to notice, not the reader's to act on.
-    if (sheet.status === "rejected") console.warn("Sheet write failed:", sheet.reason);
-    if (mail.status === "rejected") console.warn("Web3Forms failed:", mail.reason);
-
-    if ([sheet, mail].some((r) => r.status === "fulfilled" && r.value === "ok")) {
+    try {
+      await postToSheet(payload);
       setStatus("sent");
       form.reset();
-      return;
+    } catch (error) {
+      console.warn("Sheet write failed:", error);
+      setStatus("error");
+      setMessage(withEmail(feedback.error.failed));
     }
-
-    setStatus("error");
-    setMessage(withEmail(feedback.error.failed));
   }
 
   if (status === "sent") {
@@ -249,32 +238,26 @@ function Question({ q, error }: { q: FeedbackQuestion; error?: string }) {
   if (q.type === "rating") {
     return (
       <Group label={q.label} name={q.name} hint={hint} error={error} required={!q.optional}>
-        <div className="grid grid-cols-5 gap-2 sm:max-w-md">
-          {[1, 2, 3, 4, 5].map((n) => (
-            <label key={n} className="relative">
+        <div className="grid grid-cols-5 gap-2 sm:max-w-lg">
+          {faceIcons.map((Icon, i) => (
+            <label key={i} className="relative">
               <input
                 type="radio"
                 // The first input carries the question's name as its id, so
                 // `focusFirstError` can find the group the same way it finds a
                 // text field.
-                id={n === 1 ? q.name : undefined}
+                id={i === 0 ? q.name : undefined}
                 name={q.name}
-                value={String(n)}
+                value={String(i + 1)}
                 className="peer sr-only"
               />
-              <span className={`${option} h-12 px-0 text-base`}>{n}</span>
+              <span className={`${option} h-auto flex-col gap-1.5 px-1 py-3`}>
+                <Icon className="size-8 sm:size-9" strokeWidth={1.75} aria-hidden />
+                <span className="text-[11px] leading-tight sm:text-xs">{q.faces[i]}</span>
+              </span>
             </label>
           ))}
         </div>
-        {(q.lowLabel || q.highLabel) && (
-          <div
-            aria-hidden
-            className="mt-2 flex justify-between gap-4 text-xs text-muted sm:max-w-md"
-          >
-            <span>{q.lowLabel ? `1 = ${q.lowLabel}` : ""}</span>
-            <span className="text-right">{q.highLabel ? `5 = ${q.highLabel}` : ""}</span>
-          </div>
-        )}
       </Group>
     );
   }
@@ -328,44 +311,27 @@ function text(data: FormData, name: string) {
  * redirects to a second origin before `doPost` runs. The script parses
  * `e.postData.contents` itself. Don't 'fix' it to application/json.
  */
-async function postToSheet(payload: Payload): Promise<Delivery> {
-  if (!FEEDBACK_ENDPOINT) return "skipped";
-
-  const res = await fetch(FEEDBACK_ENDPOINT, {
+async function postToSheet(payload: Payload) {
+  const res = await fetch(FEEDBACK_ENDPOINT!, {
     method: "POST",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
     body: JSON.stringify(payload),
   });
 
-  const json = await res.json();
+  // A wrong or private deployment URL answers with a Google HTML page (a
+  // sign-in screen or an error), not JSON. Say so plainly rather than letting
+  // `res.json()` throw an unreadable parse error.
+  const body = await res.text();
+  let json: { success?: boolean; message?: string };
+  try {
+    json = JSON.parse(body);
+  } catch {
+    throw new Error(
+      "The feedback endpoint answered with a web page, not JSON. Check the deployment is a " +
+        "Web app with access set to Anyone, and that the URL ends in /exec.",
+    );
+  }
   if (!res.ok || !json.success) throw new Error(json.message ?? "Couldn't record the feedback.");
-  return "ok";
-}
-
-/**
- * Web3Forms, on the same key and therefore the same inbox as `ContactForm`
- * and registration. The backup copy: if the Apps Script deployment is broken or
- * revoked, the feedback still arrives somewhere a person will see it.
- */
-async function postToMail(payload: Payload, email: string): Promise<Delivery> {
-  if (!ACCESS_KEY) return "skipped";
-
-  const res = await fetch(ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({
-      access_key: ACCESS_KEY,
-      subject: `${site.name} 3.0 feedback`,
-      from_name: `${site.name} website`,
-      // Replying in the inbox goes to the attendee, when they left an address.
-      ...(email ? { replyto: email } : {}),
-      ...payload,
-    }),
-  });
-
-  const json = await res.json();
-  if (!res.ok || !json.success) throw new Error(json.message ?? "Something went wrong.");
-  return "ok";
 }
 
 function Field({

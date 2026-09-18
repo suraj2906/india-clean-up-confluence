@@ -424,30 +424,36 @@ optional: feedback can be anonymous.
 
 **The questions live in `feedback.questions` in `site.ts`** and nowhere else.
 `FeedbackForm` renders the list in order and validates every non-`optional`
-entry; `FeedbackQuestion` supports `text`, `textarea`, `rating` (five buttons, 1
-to 5, with optional `lowLabel`/`highLabel`), `choice` (one of `options`) and
-`multi` (any of `options`). The three questions there now are placeholders
-marked `TODO`: replace them before the QR code goes anywhere.
+entry; `FeedbackQuestion` supports `text`, `textarea`, `rating` (five smiley
+faces, from `Angry` to `Laugh` in lucide, captioned by its `faces` list and
+stored as 1 to 5), `choice` (one of `options`) and `multi` (any of `options`).
+The form is deliberately two questions after the optional name and email: the
+overall rating (`overall_rating`), then an optional open question on what we
+missed (`what_we_missed`). The rating goes first so someone with ten seconds
+still leaves a score.
 
 **A question's `name` is frozen once the first answer arrives**, for the same
-reason as registration: it is the sheet's column header and the inbox label.
+reason as registration: it is the sheet's column header.
 Settle the names before sharing; afterwards, add a question rather than rename
 one. Rewording a `choice`/`multi` option splits its answers in the sheet too.
 
-It posts to **two destinations, like registration**, and counts as captured if
-either accepts: an Apps Script Web App writing the feedback sheet (URL in
-`NEXT_PUBLIC_FEEDBACK_ENDPOINT`, a separate deployment from registrations,
-posted as `text/plain` for the same CORS reason), and Web3Forms on the shared
-key with the subject `ICUC 3.0 feedback`. Unset endpoint means skipped, not
-failed. A honeypot hit shows success and posts nowhere.
+It posts to **one destination, unlike registration**: an Apps Script Web App
+writing the feedback sheet (URL in `NEXT_PUBLIC_FEEDBACK_ENDPOINT`, a separate
+deployment from registrations, posted as `text/plain` for the same CORS reason).
+There is deliberately no Web3Forms copy. The free plan's monthly submission cap
+is shared with the contact form and registration and ran out on the event day,
+and losing a feedback row costs far less than losing a registration, so that
+quota is kept for the forms that need it. With the endpoint unset the form says
+it isn't connected. A reply that is HTML rather than JSON means the deployment
+URL is wrong or not public (see `scripts/README.md`). A honeypot hit shows
+success and posts nowhere.
 
 **The payload is a contract with the Apps Script** and must not drift: a flat
 JSON object of strings, `submitted_at` (ISO timestamp), `name`, `email` (empty
 string if not given), then one key per question, keyed by its `name`. `rating`
 is `"1"` to `"5"`, `choice` the chosen option's text, `multi` the chosen options
 joined with `", "`, and an unanswered optional question `""`. No nesting, no
-arrays, no other keys (`botcheck` is never sent). Web3Forms gets the same
-fields plus its own `access_key`, `subject`, `from_name` and `replyto`.
+arrays, no other keys (`botcheck` is never sent).
 
 ## Confirmation emails
 

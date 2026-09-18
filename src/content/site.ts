@@ -1406,10 +1406,13 @@ export type FeedbackQuestion = {
   | { type: "text" }
   | { type: "textarea" }
   | {
-      /** Five buttons, 1 to 5. The labels caption the two ends of the scale. */
+      /**
+       * Five faces, from very unhappy to delighted, still stored as 1 to 5.
+       * `faces` names each one, in order: it is the caption under the face and
+       * what a screen reader announces.
+       */
       type: "rating";
-      lowLabel?: string;
-      highLabel?: string;
+      faces: [string, string, string, string, string];
     }
   | {
       /** One answer from `options`. Changing an option's wording splits its answers in the sheet. */
@@ -1464,31 +1467,26 @@ export const feedback = {
     failed: "Something went wrong. Please email your feedback to {email} instead.",
   },
   /**
-   * TODO: these three are placeholders so the form can be built and tested.
-   * Replace them with the real questions before the QR code is printed or
-   * shared, and settle every `name` first: the first answer to arrive freezes
-   * them as column headers in the feedback sheet.
+   * The form is deliberately short: name and email (both optional, above),
+   * then these two. The rating comes before the open question so that someone
+   * who only has ten seconds still leaves a score.
+   *
+   * These `name`s are now the sheet's column headers. Don't rename them once
+   * answers exist; add a new question instead.
    */
   questions: [
     {
       name: "overall_rating",
       label: "Overall, how was ICUC 3.0?",
       type: "rating",
-      lowLabel: "Poor",
-      highLabel: "Excellent",
+      faces: ["Very poor", "Poor", "Okay", "Good", "Loved it"],
     },
     {
-      name: "enjoyed_most",
-      label: "What did you enjoy most?",
+      name: "what_we_missed",
+      label: "What did we miss? Is there anything you'd love to see at the next ICUC?",
       type: "textarea",
-      placeholder: "A session, a conversation, a person you met…",
+      placeholder: "A topic, a speaker, a kind of session, something that would have made the day better…",
       optional: true,
-    },
-    {
-      name: "attend_icuc_4",
-      label: "Would you come to ICUC 4.0?",
-      type: "choice",
-      options: ["Yes", "Maybe", "No"],
     },
   ] satisfies FeedbackQuestion[] as FeedbackQuestion[],
 };
