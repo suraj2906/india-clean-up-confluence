@@ -1375,6 +1375,125 @@ export const contact = {
 };
 
 /**
+ * One question on the feedback form (`/feedback`). The form renders
+ * `feedback.questions` in order and validates every question that isn't
+ * `optional`, so adding, removing or rewording a question is a `site.ts` edit
+ * and nothing else.
+ *
+ * `name` is frozen the moment the first answer arrives. It is the column header
+ * in the feedback sheet and the label on the answer in the Web3Forms inbox, so
+ * renaming one later leaves two batches of answers that no longer line up and
+ * an orphaned column beside a new one. Add a new question instead. Use
+ * snake_case, and never `name`, `email` or `submitted_at`, which the form
+ * already sends.
+ *
+ * How each type reaches the sheet (every value is a string):
+ * - `text`, `textarea`: the answer as typed, trimmed.
+ * - `rating`: "1" to "5".
+ * - `choice`: the chosen option's text, exactly as written in `options`.
+ * - `multi`: the chosen options joined with ", ".
+ * - an unanswered optional question: "".
+ */
+export type FeedbackQuestion = {
+  name: string;
+  label: string;
+  hint?: string;
+  /** Only used by `text` and `textarea`. */
+  placeholder?: string;
+  /** Defaults to required. */
+  optional?: boolean;
+} & (
+  | { type: "text" }
+  | { type: "textarea" }
+  | {
+      /** Five buttons, 1 to 5. The labels caption the two ends of the scale. */
+      type: "rating";
+      lowLabel?: string;
+      highLabel?: string;
+    }
+  | {
+      /** One answer from `options`. Changing an option's wording splits its answers in the sheet. */
+      type: "choice";
+      options: string[];
+    }
+  | {
+      /** Any number of `options`. Required means at least one. */
+      type: "multi";
+      options: string[];
+    }
+);
+
+/**
+ * The feedback page (`/feedback`), for people who were at ICUC 3.0. It is not
+ * in the nav or the sitemap and is `noindex`: attendees reach it by scanning a
+ * QR code at the venue, so nearly everyone reading it is on a phone.
+ *
+ * Name and email are optional on purpose. Feedback people can give anonymously
+ * is more honest than feedback they have to sign.
+ */
+export const feedback = {
+  eyebrow: `ICUC 3.0 feedback, ${site.dates}`,
+  title: "Tell us how it went",
+  body: "Thank you for being at ICUC 3.0. A few quick questions, all on this page, and every answer is read by the team planning the next confluence.",
+  name: {
+    label: "Your name",
+    placeholder: "Priya Sharma",
+  },
+  email: {
+    label: "Email",
+    placeholder: "you@example.com",
+    error: "That email doesn't look right. Fix it or leave it blank.",
+  },
+  /** Beside the name and email labels. */
+  optionalHint: "Optional. Feedback can be anonymous.",
+  /** Beside every other optional question's label. */
+  optional: "Optional",
+  /** Under a required question left blank. */
+  required: "Please answer this one.",
+  submit: "Send feedback",
+  sending: "Sending…",
+  /** Shown in place of the form once the feedback goes through. */
+  success: {
+    title: "Thank you",
+    body: "Your feedback has reached the ICUC team. It goes straight into planning the next confluence.",
+    again: "Send another response",
+  },
+  /** `{email}` is replaced with `contact.email`. */
+  error: {
+    notConnected: "This form isn't connected yet. Please email your feedback to {email} instead.",
+    failed: "Something went wrong. Please email your feedback to {email} instead.",
+  },
+  /**
+   * TODO: these three are placeholders so the form can be built and tested.
+   * Replace them with the real questions before the QR code is printed or
+   * shared, and settle every `name` first: the first answer to arrive freezes
+   * them as column headers in the feedback sheet.
+   */
+  questions: [
+    {
+      name: "overall_rating",
+      label: "Overall, how was ICUC 3.0?",
+      type: "rating",
+      lowLabel: "Poor",
+      highLabel: "Excellent",
+    },
+    {
+      name: "enjoyed_most",
+      label: "What did you enjoy most?",
+      type: "textarea",
+      placeholder: "A session, a conversation, a person you met…",
+      optional: true,
+    },
+    {
+      name: "attend_icuc_4",
+      label: "Would you come to ICUC 4.0?",
+      type: "choice",
+      options: ["Yes", "Maybe", "No"],
+    },
+  ] satisfies FeedbackQuestion[] as FeedbackQuestion[],
+};
+
+/**
  * The privacy policy, at `/privacy`.
  *
  * It exists because Meta requires a public policy URL before a WhatsApp

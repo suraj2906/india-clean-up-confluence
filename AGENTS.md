@@ -414,6 +414,41 @@ her before this is shared.
 it appears in the desktop bar, the mobile drawer and the footer. That is a nav
 *link*, not a button — the header still has no call-to-action button in it.
 
+## Feedback
+
+`/feedback` is the ICUC 3.0 feedback form for people who were there. Attendees
+reach it by scanning a QR code for `https://www.icuc.co.in/feedback`, so it is
+built phone-first (every tap target is at least 44px), it is `noindex, nofollow`,
+and it is deliberately in neither `nav` nor the sitemap. Name and email are both
+optional: feedback can be anonymous.
+
+**The questions live in `feedback.questions` in `site.ts`** and nowhere else.
+`FeedbackForm` renders the list in order and validates every non-`optional`
+entry; `FeedbackQuestion` supports `text`, `textarea`, `rating` (five buttons, 1
+to 5, with optional `lowLabel`/`highLabel`), `choice` (one of `options`) and
+`multi` (any of `options`). The three questions there now are placeholders
+marked `TODO`: replace them before the QR code goes anywhere.
+
+**A question's `name` is frozen once the first answer arrives**, for the same
+reason as registration: it is the sheet's column header and the inbox label.
+Settle the names before sharing; afterwards, add a question rather than rename
+one. Rewording a `choice`/`multi` option splits its answers in the sheet too.
+
+It posts to **two destinations, like registration**, and counts as captured if
+either accepts: an Apps Script Web App writing the feedback sheet (URL in
+`NEXT_PUBLIC_FEEDBACK_ENDPOINT`, a separate deployment from registrations,
+posted as `text/plain` for the same CORS reason), and Web3Forms on the shared
+key with the subject `ICUC 3.0 feedback`. Unset endpoint means skipped, not
+failed. A honeypot hit shows success and posts nowhere.
+
+**The payload is a contract with the Apps Script** and must not drift: a flat
+JSON object of strings, `submitted_at` (ISO timestamp), `name`, `email` (empty
+string if not given), then one key per question, keyed by its `name`. `rating`
+is `"1"` to `"5"`, `choice` the chosen option's text, `multi` the chosen options
+joined with `", "`, and an unanswered optional question `""`. No nesting, no
+arrays, no other keys (`botcheck` is never sent). Web3Forms gets the same
+fields plus its own `access_key`, `subject`, `from_name` and `replyto`.
+
 ## Confirmation emails
 
 **Automatic emails are switched off.** The `sendConfirmation` call in
