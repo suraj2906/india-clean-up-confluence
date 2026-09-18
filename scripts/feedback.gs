@@ -17,8 +17,8 @@
  * runtime cannot answer. The body arrives here as `e.postData.contents`.
  *
  * Everything lands on one tab. There is no routing to do: every submission is
- * the same kind of thing, and name and email are allowed to be blank because
- * feedback is allowed to be anonymous.
+ * the same kind of thing. The form requires a name and a phone number, but
+ * this script does not insist on them: whatever arrives is written as sent.
  *
  * Unlike the registration form, this one is reached by a QR code on a screen in
  * a full room, and its URL ends up in a public client bundle. So it assumes the
@@ -39,7 +39,7 @@ var TAB = 'Feedback';
  * aligned to whatever the header row says, so an edit up there silently shifts
  * every future row relative to the ones already written.
  */
-var KNOWN_COLUMNS = ['submitted_at', 'received_at', 'name', 'email'];
+var KNOWN_COLUMNS = ['submitted_at', 'received_at', 'name', 'phone'];
 
 /**
  * Limits. Each one is far above anything the real form sends, and each one is

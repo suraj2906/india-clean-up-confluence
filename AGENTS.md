@@ -419,16 +419,17 @@ it appears in the desktop bar, the mobile drawer and the footer. That is a nav
 `/feedback` is the ICUC 3.0 feedback form for people who were there. Attendees
 reach it by scanning a QR code for `https://www.icuc.co.in/feedback`, so it is
 built phone-first (every tap target is at least 44px), it is `noindex, nofollow`,
-and it is deliberately in neither `nav` nor the sitemap. Name and email are both
-optional: feedback can be anonymous.
+and it is deliberately in neither `nav` nor the sitemap. Every field is required:
+name, phone number (10 digits, or 12 with India's 91), the rating and the open
+question.
 
 **The questions live in `feedback.questions` in `site.ts`** and nowhere else.
 `FeedbackForm` renders the list in order and validates every non-`optional`
 entry; `FeedbackQuestion` supports `text`, `textarea`, `rating` (five smiley
 faces, from `Angry` to `Laugh` in lucide, captioned by its `faces` list and
 stored as 1 to 5), `choice` (one of `options`) and `multi` (any of `options`).
-The form is deliberately two questions after the optional name and email: the
-overall rating (`overall_rating`), then an optional open question on what we
+The form is deliberately two questions after the name and phone number: the
+overall rating (`overall_rating`), then an open question on what we
 missed (`what_we_missed`). The rating goes first so someone with ten seconds
 still leaves a score.
 
@@ -449,8 +450,8 @@ URL is wrong or not public (see `scripts/README.md`). A honeypot hit shows
 success and posts nowhere.
 
 **The payload is a contract with the Apps Script** and must not drift: a flat
-JSON object of strings, `submitted_at` (ISO timestamp), `name`, `email` (empty
-string if not given), then one key per question, keyed by its `name`. `rating`
+JSON object of strings, `submitted_at` (ISO timestamp), `name`, `phone`, then
+one key per question, keyed by its `name`. `rating`
 is `"1"` to `"5"`, `choice` the chosen option's text, `multi` the chosen options
 joined with `", "`, and an unanswered optional question `""`. No nesting, no
 arrays, no other keys (`botcheck` is never sent).

@@ -108,8 +108,8 @@ header row) on the first write. The leading columns are fixed:
 | -------------- | --------------------------------------------------------------- |
 | `submitted_at` | When the person pressed Submit, by their clock                  |
 | `received_at`  | When the script wrote the row, by Google's clock — always ours  |
-| `name`         | Blank if they chose to stay anonymous                           |
-| `email`        | Blank if they chose to stay anonymous                           |
+| `name`         | Required by the form                                            |
+| `phone`        | Required by the form                                            |
 
 Every other key in the payload becomes a column after those, appended the first
 time it appears and never reordered — one column per feedback question.
@@ -143,8 +143,7 @@ time it appears and never reordered — one column per feedback question.
 6. Check it: open the Web app URL in a browser. A live deployment answers
    `{"success":true,"message":"ICUC feedback endpoint is live."}`.
 7. Then submit the real `/feedback` form in a browser — not with `curl` — and
-   confirm a row lands on the `Feedback` tab. Submit a second one with name and
-   email left blank and confirm it lands too.
+   confirm a row lands on the `Feedback` tab.
 
 ## What it refuses
 

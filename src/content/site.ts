@@ -1384,7 +1384,7 @@ export const contact = {
  * in the feedback sheet and the label on the answer in the Web3Forms inbox, so
  * renaming one later leaves two batches of answers that no longer line up and
  * an orphaned column beside a new one. Add a new question instead. Use
- * snake_case, and never `name`, `email` or `submitted_at`, which the form
+ * snake_case, and never `name`, `phone` or `submitted_at`, which the form
  * already sends.
  *
  * How each type reaches the sheet (every value is a string):
@@ -1441,14 +1441,13 @@ export const feedback = {
   name: {
     label: "Your name",
     placeholder: "Priya Sharma",
+    error: "Please tell us your name.",
   },
-  email: {
-    label: "Email",
-    placeholder: "you@example.com",
-    error: "That email doesn't look right. Fix it or leave it blank.",
+  phone: {
+    label: "Phone number",
+    placeholder: "+91 98200 00000",
+    error: "Enter a valid phone number, with 10 digits.",
   },
-  /** Beside the name and email labels. */
-  optionalHint: "Optional. Feedback can be anonymous.",
   /** Beside every other optional question's label. */
   optional: "Optional",
   /** Under a required question left blank. */
@@ -1467,8 +1466,8 @@ export const feedback = {
     failed: "Something went wrong. Please email your feedback to {email} instead.",
   },
   /**
-   * The form is deliberately short: name and email (both optional, above),
-   * then these two. The rating comes before the open question so that someone
+   * The form is deliberately short: name and phone number (both required,
+   * above), then these two, and every one of them is required. The rating comes before the open question so that someone
    * who only has ten seconds still leaves a score.
    *
    * These `name`s are now the sheet's column headers. Don't rename them once
@@ -1486,7 +1485,6 @@ export const feedback = {
       label: "What did we miss? Is there anything you'd love to see at the next ICUC?",
       type: "textarea",
       placeholder: "A topic, a speaker, a kind of session, something that would have made the day better…",
-      optional: true,
     },
   ] satisfies FeedbackQuestion[] as FeedbackQuestion[],
 };

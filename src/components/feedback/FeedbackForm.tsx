@@ -55,7 +55,7 @@ const withEmail = (text: string) => text.replace("{email}", contact.email);
  * each `type`. Every control is uncontrolled, so `form.reset()` clears it all.
  *
  * The payload is a contract with the Apps Script that writes the sheet, so it
- * is kept deliberately plain: `submitted_at`, `name`, `email`, then one string
+ * is kept deliberately plain: `submitted_at`, `name`, `phone`, then one string
  * per question keyed by its `name`, and nothing else.
  */
 export function FeedbackForm() {
@@ -77,8 +77,12 @@ export function FeedbackForm() {
 
     const next: Errors = {};
     const name = text(data, "name");
-    const email = text(data, "email");
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) next.email = feedback.email.error;
+    const phone = text(data, "phone");
+    if (name.length < 2) next.name = feedback.name.error;
+    // Spaces, dashes and a leading + are fine; what matters is 10 digits, or
+    // 12 with India's 91 in front.
+    const digits = phone.replace(/[\s-]/g, "").replace(/^\+/, "");
+    if (!/^(\d{10}|91\d{10})$/.test(digits)) next.phone = feedback.phone.error;
 
     const answers: Payload = {};
     for (const q of feedback.questions) {
@@ -109,7 +113,7 @@ export function FeedbackForm() {
     const payload: Payload = {
       submitted_at: new Date().toISOString(),
       name,
-      email,
+      phone,
       ...answers,
     };
 
@@ -155,7 +159,7 @@ export function FeedbackForm() {
       />
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label={feedback.name.label} name="name" hint={feedback.optionalHint}>
+        <Field label={feedback.name.label} name="name" error={errors.name} required>
           <input
             id="name"
             name="name"
@@ -165,14 +169,14 @@ export function FeedbackForm() {
           />
         </Field>
 
-        <Field label={feedback.email.label} name="email" hint={feedback.optionalHint} error={errors.email}>
+        <Field label={feedback.phone.label} name="phone" error={errors.phone} required>
           <input
-            id="email"
-            name="email"
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            placeholder={feedback.email.placeholder}
+            id="phone"
+            name="phone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder={feedback.phone.placeholder}
             className={field}
           />
         </Field>
