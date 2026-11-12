@@ -56,15 +56,10 @@ export const site = {
   datesLong: "Saturday 19th – Sunday 20th September 2026",
   /**
    * Confirmed, and printed straight after the dates wherever they appear — the
-   * registration page, the success message and the ICUC 3.0 edition entry all
-   * read this rather than repeating it.
+   * ICUC 3.0 edition entry and the privacy policy read this rather than
+   * repeating it.
    */
   venue: "India Habitat, New Delhi",
-  /**
-   * The venue on Google Maps, written out in full: spam filters distrust short
-   * links like maps.app.goo.gl, so mail never uses them (see AGENTS.md).
-   */
-  venueMap: "https://www.google.com/maps/search/?api=1&query=India+Habitat+Centre%2C+Lodhi+Road%2C+New+Delhi",
 } as const;
 
 /**
@@ -80,7 +75,6 @@ export const nav = [
   { label: "Impact", href: "/#impact" },
   // { label: "Changemakers", href: "/#changemakers" },
   { label: "Gallery", href: "/#gallery" },
-  { label: "Register", href: "/register" },
 ] as const;
 
 /**
@@ -119,9 +113,9 @@ export const hero = {
   title: "One nation,\nmany missions",
   subtitle:
     "It started with one beach. It became a national confluence of everyone cleaning up India — coastlines, lakes, hills, streets. Bringing Cleanup Movements Under One roof.",
-  /** The page's main action. Registration is the thing with a date on it, so
-      "Get involved" means "register" — not "write to us". */
-  primaryCta: { label: "Get involved", href: "/register" },
+  /** The page's main action. ICUC 3.0 has happened and registration is closed,
+      so "Get involved" means "write to us". */
+  primaryCta: { label: "Get involved", href: "/contact" },
   secondaryCta: { label: "How it started", href: "/#movement" },
   /** The key art cropped to the illustration. Deliberately text-free: the H1 and
       the eyebrow are laid over it, and the full title card already ran above. */
@@ -366,7 +360,7 @@ export const editionsSection = {
   title: "Three confluences, in order",
   intro:
     "Each edition picks up where the last one stopped. Read them top to bottom — that is how they happened.",
-  statusLabels: { past: "Past edition", upcoming: "Next up" } as const,
+  statusLabels: { past: "Past edition", latest: "Latest edition", upcoming: "Next up" } as const,
   recap: {
     label: "Recap",
     photosLabel: "Photos from the day",
@@ -410,7 +404,8 @@ export const editions: Array<{
   blurb: string;
   date: string;
   venue: string;
-  status: "past" | "upcoming";
+  /** `latest` is the most recent edition that has happened; it renders like `past`, labelled differently. */
+  status: "past" | "latest" | "upcoming";
   body: string;
   highlights: string[];
   recap: {
@@ -516,22 +511,295 @@ export const editions: Array<{
     blurb: "Every mission, mapped — and pointed in the same direction.",
     date: site.datesLong,
     venue: site.venue,
-    status: "upcoming",
-    body: "The next edition takes the confluence past the coastline. Mangroves, lakes, rivers, hills, wards and streets are different missions with different tools — but one nation's waste problem. 3.0 is about making those missions legible to each other, to funders and to policy.",
+    status: "latest",
+    body: "The third edition took the confluence past the coastline, to New Delhi. Mangroves, lakes, rivers, hills, wards and streets are different missions with different tools — but one nation's waste problem. 3.0 was about making those missions legible to each other, to funders and to policy.",
     highlights: [
       "Missions beyond the shoreline — inland, urban and upland",
       "A national map of who is cleaning what, and where",
-      "Registration is open to everyone — volunteers, NGOs, corporates and press",
     ],
-    recap: null,
+    // The photos live in their own section, `icuc3`, rather than in a strip
+    // here. Add a film to `videos` once there is an after-movie.
+    recap: { videos: [], photos: [] },
   },
 ];
 
+/**
+ * ICUC 3.0's own section, straight after the editions: the edition the site
+ * was built for, now that it has happened. `photos` renders as the same uniform
+ * grid as the gallery, and opens the same lightbox.
+ *
+ * Drop the files into `public/images/editions/3-0/` and list them in `photos`
+ * with their real `width`/`height` and an `alt` that describes only what is
+ * plainly visible — no captions until someone who was there writes them (see
+ * AGENTS.md). Until the list has anything in it, `pending` shows instead.
+ *
+ * TODO: `intro` is a draft written from what the site already knew. Have the
+ * team confirm or replace it, and add real numbers to it once they exist.
+ */
+export const icuc3 = {
+  eyebrow: `ICUC 3.0 — ${site.dates} — ${site.venue}`,
+  title: "One nation, many missions",
+  intro:
+    "Two days in New Delhi, and the first confluence held away from the coast. Clean-up movements, NGOs, mentors, corporates and civic bodies came together under one roof.",
+  pending: "Photos from the weekend are being sorted.",
+  // The group photo leads; the rest are in camera order. Alt text describes
+  // only what is plainly visible; no captions until someone who was there
+  // writes them.
+  photos: [
+    {
+      src: "/images/editions/3-0/icuc3-28.jpg",
+      alt: "A large group photo of delegates in front of the stage backdrop",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-01.jpg",
+      alt: "Two men in conversation in the front row of the audience seating",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-02.jpg",
+      alt: "A man in a white jacket shaking hands with a woman in a blue-and-white sari, with others looking on",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-03.jpg",
+      alt: "The stage screen showing a word cloud of names under the heading \"Welcome to the Lamp Lighting ceremony\"",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-04.jpg",
+      alt: "Two women with microphones opening proceedings on stage in front of the ICUC 3.0 backdrop",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-05.jpg",
+      alt: "A speaker in a beige shirt talking with a microphone in front of the stage screen",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-06.jpg",
+      alt: "Four people standing together on stage in front of the sponsor backdrop",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-07.jpg",
+      alt: "Six panellists seated on stage under the screen title \"Session 1: Volunteer to Vocation\"",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-08.jpg",
+      alt: "A panellist in a beige shirt speaking into a microphone",
+      width: 1333,
+      height: 2000,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-09.jpg",
+      alt: "The audience watching six panellists on stage under the screen title \"Session 2: Mentor Matchmaker\"",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-10.jpg",
+      alt: "A smiling panellist in a grey suit holding a microphone",
+      width: 1333,
+      height: 2000,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-11.jpg",
+      alt: "A presenter on stage beside a slide titled \"Background: Waste Generation in Rural India\"",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-12.jpg",
+      alt: "A presenter on stage beside a slide titled \"24 x 7 Free Library\"",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-13.jpg",
+      alt: "A presenter on stage beside a slide titled \"Project Mathura\"",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-14.jpg",
+      alt: "A presenter on stage beside a slide headed \"Our Story\" for Harit Yuva Foundation",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-15.jpg",
+      alt: "A row of thirteen people standing together on stage in front of the sponsor backdrop",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-16.jpg",
+      alt: "Delegates helping themselves at a lunch buffet on an outdoor terrace",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-17.jpg",
+      alt: "Visitors at the My Clean City stall, by HCL Foundation",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-18.jpg",
+      alt: "Handmade crafts and a number game laid out on a table at an exhibition stall",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-19.jpg",
+      alt: "A small group seated in a circle of white chairs, in discussion",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-20.jpg",
+      alt: "A performer singing on stage under a screen reading \"Presenting Mahi G\"",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-21.jpg",
+      alt: "A host speaking on stage under a screen reading \"Mentor Matchmaker\"",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-22.jpg",
+      alt: "The host speaking into a microphone in front of the screen",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-23.jpg",
+      alt: "Two men receiving plants and tote bags on stage, with others beside them, under a screen reading \"Safai Yodha felicitation\"",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-24.jpg",
+      alt: "Eight people standing on stage under the screen title \"Session 3: Critical Infrastructure — When Development Meets Sustainability\"",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-25.jpg",
+      alt: "Five panellists seated on stage under the screen title \"Session 4: The Green Pay-Cheque\"",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-26.jpg",
+      alt: "Two men holding up an ICUC 3.0 laptop bag in front of the sponsor backdrop",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-27.jpg",
+      alt: "Three women posing together, two holding ICUC 3.0 laptop bags",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-29.jpg",
+      alt: "A group of eleven people seated together in front of the stage",
+      width: 2000,
+      height: 1334,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-30.jpg",
+      alt: "Close-up of a mural made from hundreds of bottle caps in greens and purples",
+      width: 2000,
+      height: 1333,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-31.jpg",
+      alt: "A speaker on stage beneath a screen reading \"Keynote speaker\", seen over the heads of the audience",
+      width: 2000,
+      height: 1333,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-32.jpg",
+      alt: "A smiling man in sunglasses seated in the audience with his arms folded",
+      width: 1333,
+      height: 2000,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-33.jpg",
+      alt: "Delegates in the front row laughing during a session",
+      width: 2000,
+      height: 1333,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-34.jpg",
+      alt: "A young man in the audience standing to speak into a microphone",
+      width: 2000,
+      height: 1333,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-35.jpg",
+      alt: "A speaker in a blue waistcoat addressing the room from the stage",
+      width: 1333,
+      height: 2000,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-36.jpg",
+      alt: "A selfie of a woman and a man in a blue waistcoat, with the full audience behind them",
+      width: 2000,
+      height: 1333,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-37.jpg",
+      alt: "A man in a blue waistcoat greeting delegates on the floor of the hall",
+      width: 2000,
+      height: 1333,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-38.jpg",
+      alt: "A man in a blue waistcoat speaking with a group of women beside the sponsor wall",
+      width: 2000,
+      height: 1333,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-39.jpg",
+      alt: "A crowd of delegates gathered around a man in a blue waistcoat near the ICUC banner",
+      width: 2000,
+      height: 1333,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-40.jpg",
+      alt: "Products made from recycled waste on a stall table: a pen stand, coasters and a QR code",
+      width: 2000,
+      height: 1333,
+    },
+    {
+      src: "/images/editions/3-0/icuc3-41.jpg",
+      alt: "Green, red and blue waste-segregation buckets and bamboo products on the My Clean City stall",
+      width: 2000,
+      height: 1333,
+    },
+  ] as Array<Img & { caption?: string }>,
+};
+
 export const statsSection = {
   eyebrow: "Impact",
-  title: "What the last confluence added up to",
+  title: "What ICUC 2.0 added up to",
   intro:
-    "ICUC 2.0, Mumbai, September 2025 — the most recent edition, and the baseline 3.0 builds on.",
+    "ICUC 2.0, Mumbai, September 2025 — the baseline ICUC 3.0 built on.",
 };
 
 export const stats = [
@@ -798,7 +1066,7 @@ export const partners = {
   eyebrow: "Who backs the confluence",
   title: "Built with people who showed up",
   intro:
-    "Two editions have been put together with the organisations below — the sponsors who funded them and the foundations that backed them.",
+    "Three editions have been put together with the organisations below — the sponsors who funded them, the foundations that backed them and the partners who helped run them.",
   /**
    * One flat list, because the section renders as a single scrolling row and a
    * row cannot carry two headings. Whether an organisation sponsored or supported
@@ -808,12 +1076,22 @@ export const partners = {
   items: [
     {
       name: "Listenlights",
-      note: "Sponsor · ICUC 1.0 & 2.0",
+      note: "Sponsor · ICUC 1.0, 2.0 & 3.0",
       image: {
         src: "/images/partners/listenlights.png",
         alt: "Listenlights logo",
         width: 900,
         height: 262,
+      } satisfies Img,
+    },
+    {
+      name: "Irasva",
+      note: "Sponsor · ICUC 3.0",
+      image: {
+        src: "/images/partners/irasva.png",
+        alt: "Irasva Fine Jewellery logo",
+        width: 220,
+        height: 104,
       } satisfies Img,
     },
     {
@@ -880,6 +1158,26 @@ export const partners = {
       } satisfies Img,
     },
     {
+      name: "Greener Earth",
+      note: "Supported by · ICUC 3.0",
+      image: {
+        src: "/images/partners/greener-earth.png",
+        alt: "Greener Earth logo",
+        width: 891,
+        height: 286,
+      } satisfies Img,
+    },
+    {
+      name: "Chintan",
+      note: "Supported by · ICUC 3.0",
+      image: {
+        src: "/images/partners/chintan.png",
+        alt: "Chintan logo — collaborating for climate and circularity",
+        width: 250,
+        height: 110,
+      } satisfies Img,
+    },
+    {
       name: "One India Stories",
       note: "Supported by · ICUC 1.0 & 2.0",
       image: {
@@ -912,19 +1210,51 @@ export const partners = {
         height: 103,
       } satisfies Img,
     },
+    {
+      name: "Vrikshit Foundation",
+      note: "Community partner · ICUC 3.0",
+      image: {
+        src: "/images/partners/vrikshit-foundation.png",
+        alt: "Vrikshit Foundation logo",
+        width: 900,
+        height: 277,
+      } satisfies Img,
+    },
+    {
+      name: "Fortis Escorts, Okhla",
+      note: "Associate partner · ICUC 3.0",
+      // Fortis Healthcare's own mark, from fortishealthcare.com. The 3.0 banner
+      // printed the "Fortis Escorts — Okhla, New Delhi" lockup; swap it in if
+      // the hospital sends that file.
+      image: {
+        src: "/images/partners/fortis-escorts.png",
+        alt: "Fortis logo",
+        width: 254,
+        height: 94,
+      } satisfies Img,
+    },
+    {
+      name: "Hemped India",
+      note: "Gifting partner · ICUC 3.0",
+      image: {
+        src: "/images/partners/hemped-india.png",
+        alt: "Hemped India logo",
+        width: 844,
+        height: 320,
+      } satisfies Img,
+    },
   ],
 };
 
 export const cta = {
   title: "One nation. Many missions. Room for yours.",
-  body: "Whether you run a collective, lead a CSR programme, or simply want to show up on a Sunday morning — there is a place for you at the confluence. Registration for ICUC 3.0 is open to everyone.",
+  body: "Whether you run a collective, lead a CSR programme, or simply want to show up on a Sunday morning — there is a place for you at the confluence.",
   /**
-   * Two asks, and the order is the point: registering is the thing with a date
-   * on it, so it leads. Writing to us is the fallback for anyone whose question
-   * a form can't take, which is why it stays and why it is the quieter button.
+   * Two asks: writing to us leads, now that ICUC 3.0 is over and there is no
+   * registration to send people to; the movement's own page is the quieter one.
    */
-  button: { label: "Register for ICUC 3.0", href: "/register" },
-  secondaryButton: { label: "Contact us", href: "/contact" },
+  button: { label: "Contact us", href: "/contact" },
+  secondaryButton: { label: "Join Carter Clean Up", href: "/carter-clean-up" },
 };
 
 /** The 404 page. Leans on the clean-up rather than apologising for the URL. */
@@ -934,403 +1264,6 @@ export const notFound = {
   body: "The page you're looking for isn't on this shore. It may have moved, or it may have been picked up and cleared away. Either way, there's plenty left to do.",
   primaryCta: { label: "Back to home", href: "/" },
   secondaryCta: { label: "Get in touch", href: "/contact" },
-};
-
-/**
- * One question on the registration form's NGO track. The form renders this list
- * in order, so adding a question is a `site.ts` edit and nothing else.
- *
- * `name` is what the answer is labelled as in the inbox — it goes straight into
- * the Web3Forms payload. Pick it once and don't rename it later, or two months
- * of submissions stop lining up with each other.
- */
-export type RegistrationQuestion = {
-  name: string;
-  label: string;
-  hint?: string;
-  placeholder?: string;
-  /** Defaults to a single-line text input. */
-  type?: "text" | "textarea" | "url" | "number";
-  /** Defaults to required — an application form with optional questions isn't one. */
-  optional?: boolean;
-};
-
-/**
- * The registration page (`/register`), which is open to everyone: volunteers,
- * NGOs, corporates, students, press. One form, one inbox.
- *
- * It carries a second track inside it. `oneMentor` is the "Mentor Matchmaker"
- * pitch session — NGOs that want to scale into a business apply here,
- * five are selected to pitch to a panel of seven mentors at ICUC 3.0. Afterwards
- * each of the five NGOs is paired one-on-one with a mentor, and two design mentors
- * work with all five.
- *
- * All of that copy is read *inside the form*: choosing `ngoType` in the "I'm
- * registering as" dropdown opens the explanation right there, next to the tick
- * box it is explaining. It used to sit in a section under the form, where nobody
- * reaching it would ever have scrolled past the thing they came to fill in.
- */
-export const registration = {
-  eyebrow: `ICUC 3.0 — ${site.dates} — ${site.venue}`,
-  title: "Register for the confluence",
-  body: `ICUC 3.0 is on ${site.datesLong}, at ${site.venue}. It's time to come together for a better tomorrow — register for the confluence here.`,
-  /** The first dropdown. Order is roughly most to least common. */
-  attendeeTypes: [
-    "Individual volunteer",
-    "NGO or clean-up movement",
-    "Corporate or CSR team",
-    "Student or college group",
-    "Government or civic body",
-    "Speaker or panellist",
-    "Press and media",
-    "Something else",
-  ],
-  /**
-   * Must match one of `attendeeTypes` exactly. Selecting it is what opens the
-   * Mentor Matchmaker explanation inside the form, so a typo here silently
-   * means the pitch session never explains itself to the people it is for.
-   */
-  ngoType: "NGO or clean-up movement",
-  /**
-   * Asked of everyone and required, because it is the only read we get on which
-   * channels actually bring people in — and an optional version of this question
-   * is answered by the people who need least persuading, which is the sample
-   * that tells us the least. It is a free text box rather than a list of
-   * channels on purpose: a list can only collect answers somebody thought of in
-   * advance, and "a friend who came to 2.0" is the answer worth having.
-   */
-  heardAbout: {
-    label: "How did you hear about us?",
-    hint: "Instagram, a friend, your college, a partner NGO, an earlier edition…",
-    placeholder: "A friend who volunteered at ICUC 2.0",
-    error: "Let us know how you found us.",
-  },
-  oneMentor: {
-    /**
-     * Whether applications are being taken. `false` takes the tick box, the
-     * explainer and the questions off the form: an NGO registrant sees `closed`
-     * instead, nobody can land on the pitch tab, and the route will not send the
-     * Mentor Matchmaker email even if asked to. Everything below is kept, so
-     * reopening is this one line.
-     */
-    open: false,
-    closed: {
-      title: "Applications have closed",
-      body: "Mentor Matchmaker is no longer taking applications. The five selected NGOs have been contacted and pitch to the mentors on Saturday 19th September. You can still register for ICUC 3.0 with this form.",
-    },
-    eyebrow: "Mentor Matchmaker",
-    title: "Five NGOs. Seven mentors.",
-    body: [
-      "A clean-up movement that wants to outlast its founders has to work like a business — revenue, a model, people who are paid to stay. Most never get in a room with anyone who has built one.",
-      "Mentor Matchmaker puts five of them in that room. Apply through this form; five are selected from everyone who applies; those five give an elevator pitch to a panel of seven mentors on how they would scale their NGO into a business. Each of the five is then paired one-on-one with a mentor who keeps working with them afterwards, and two design mentors work with all five.",
-    ],
-    /**
-     * How it runs, in three beats. Rendered as a numbered row inside the form —
-     * the component supplies one icon per step in this order, so adding a fourth
-     * means adding a fourth icon too.
-     */
-    steps: [
-      {
-        title: "Everyone applies here",
-        body: "Tick the box below. NGOs of any size are welcome to — this is not a shortlist you have to already be on.",
-      },
-      {
-        title: "Five are selected",
-        body: "The applications are read and five NGOs are picked to take the stage at ICUC 3.0.",
-      },
-      {
-        title: "Five pitches, seven mentors",
-        body: "Each of the five gives an elevator pitch to a panel of seven mentors: how they would scale their NGO into a business.",
-      },
-      {
-        title: "Each NGO gets a mentor",
-        body: "Each of the five NGOs is paired one-on-one with a mentor who keeps working with them afterwards, plus two design mentors shared by all five — mentorship on turning the pitch into a business.",
-      },
-    ],
-    /**
-     * The gate on the form: ticking it opens the explanation above and the
-     * application below. The hint has to carry that, because a bare tick box is
-     * a decision asked before the information that would inform it — anyone who
-     * has not chosen NGO in the dropdown is reading this line with no idea what
-     * Mentor Matchmaker is, and won't tick a box to find out unless told
-     * that ticking is how they find out.
-     */
-    question: "I run an NGO and would like to pitch at Mentor Matchmaker",
-    hint: "Five NGOs will be selected to pitch to a panel of seven mentors on how they would scale their NGO into a business, and each of the five is paired one-on-one with a mentor from that panel. Tick this to read how it works and to open the application — nothing is submitted until you press Register, and you can untick it if it turns out not to be for you.",
-    /**
-     * The application, in four movements: who you are, where you are now, the
-     * pitch, and the logistics.
-     *
-     * Only the third block is what the five are *chosen* on. The first two are
-     * there to keep it honest — a strong `pitch_model` from an organisation with
-     * no work behind it should not outrank a real one — and the fourth is
-     * housekeeping. If this ever has to get shorter, cut from the bottom and
-     * from `ngo_founded`/`ngo_registered`, never from the pitch block.
-     *
-     * A `name` is what labels the answer in the inbox, so it is fixed the moment
-     * the first application arrives. Renaming one later means two months of
-     * submissions that no longer line up — add a new question instead.
-     *
-     * TODO (2026-08-28): drafted here so the form is usable, but the wording is
-     * Freishia's call — she is the one who knows what the mentor panel needs in
-     * order to pick five out of the pile. Review with her before this goes out
-     * anywhere, and settle it *before* applications start coming in, for the
-     * renaming reason above.
-     */
-    questions: [
-      // A. Who you are. Verification rather than scoring — "not registered yet"
-      // must not disqualify anyone, since a two-year-old unregistered movement
-      // scaling into a business is exactly who this session is for.
-      {
-        name: "ngo_name",
-        label: "Name of your NGO or movement",
-        placeholder: "Carter Clean Up",
-      },
-      {
-        name: "ngo_link",
-        label: "Website or Instagram",
-        hint: "Wherever your work is visible",
-        type: "url",
-        placeholder: "https://instagram.com/…",
-      },
-      { name: "ngo_founded", label: "What year did you start?", placeholder: "2021" },
-      {
-        name: "ngo_city",
-        label: "Which city or region do you work in?",
-        placeholder: "Mumbai, Maharashtra",
-      },
-      {
-        name: "ngo_registered",
-        label: "Are you formally registered?",
-        hint: "Section 8, Trust, Society, 12A, 80G — or not yet, which is fine",
-        placeholder: "Section 8 company, 12A and 80G",
-      },
-
-      // B. Where you are now. `ngo_team` is the sharpest question here: "twelve
-      // people, none paid" and "twelve people, four paid" are different
-      // organisations, and it is the fastest read on whether scaling is a real
-      // prospect or an aspiration.
-      {
-        name: "ngo_work",
-        label: "In one or two sentences, what does your NGO actually do?",
-        type: "textarea",
-      },
-      {
-        name: "ngo_scale",
-        label: "Your work in numbers",
-        hint: "Volunteers, drives, waste collected, people reached — whatever you count",
-        type: "textarea",
-      },
-      {
-        name: "ngo_team",
-        label: "How many people work on this, and how many are paid?",
-        placeholder: "12 core volunteers, 2 paid full-time",
-      },
-      {
-        name: "ngo_funding",
-        label: "How is it funded today?",
-        hint: "Grants, CSR, donations, your own pocket",
-        type: "textarea",
-      },
-
-      // C. The pitch. This is what the five are picked on. `pitch_blocker` is the
-      // tiebreaker — an applicant who names a real constraint ("we can't
-      // invoice, so corporates can't pay us") is a better bet than one who
-      // writes "funding".
-      {
-        name: "pitch_model",
-        label: "How would your NGO make money?",
-        hint: "What would you sell, to whom, and why would they pay? About 150 words",
-        type: "textarea",
-      },
-      {
-        name: "pitch_five_year",
-        label: "What is your 5 year plan?",
-        hint: "Where you want the organisation to be by 2031, and what has to happen to get there",
-        type: "textarea",
-      },
-      {
-        name: "pitch_blocker",
-        label: "What is the single biggest thing stopping you from scaling right now?",
-        type: "textarea",
-      },
-      {
-        name: "pitch_ask",
-        label: "What do you want out of this room?",
-        type: "textarea",
-      },
-      {
-        name: "pitch_expectations",
-        label: "What are your expectations from the mentorship?",
-        hint: "Each of the five NGOs is paired one-on-one with a mentor afterwards — what would you want your mentor to actually do with you?",
-        type: "textarea",
-      },
-
-      // D. Logistics, and only what cannot wait. Attendance is deliberately not
-      // asked here — the five who are selected will be asked directly, and making
-      // every applicant commit to a date before they know whether they are
-      // pitching only costs applications. The deck is optional for the same kind
-      // of reason: requiring one filters for NGOs that already have polish,
-      // which is the opposite of who this is for.
-      {
-        name: "pitch_who",
-        label: "Who will give the pitch from your organization?",
-        optional: true,
-      },
-      {
-        name: "pitch_deck",
-        label: "Link to a deck or one-pager, if you have one",
-        type: "url",
-        optional: true,
-      },
-    ] satisfies RegistrationQuestion[],
-    /** Stands in for the questions until they exist. Delete nothing when they do — this stays as the fallback. */
-    pending: "The application questions are being finalised. Tick the box and submit, and we will email you the full application as soon as it opens — your place in the queue is already recorded.",
-  },
-  /**
-   * The second tick box on the form, and a much smaller thing than the one
-   * above it: a head count for the Red Fort clean-up, not an application.
-   * Nobody is selected and nothing is asked beyond yes or no, so it gets one
-   * question and a line of context rather than an explainer block — a second
-   * unfolding panel next to `oneMentor` would make the form read as two
-   * applications stacked on top of each other.
-   *
-   * Ticking it also routes a copy of the row onto its own tab of the
-   * registrations sheet, so whoever runs the clean-up opens one tab and reads a
-   * list of people who said yes. See `scripts/registrations.gs`.
-   *
-   * The date and the hours are settled and print here, which is the whole
-   * point of the line — a head count nobody can plan around is worth less than
-   * one that comes with a time to be somewhere. It is the second morning of
-   * ICUC 3.0, so anyone reading this is already in Delhi for it.
-   *
-   * TODO (2026-09-09): the meeting point at the Fort is the one thing still
-   * missing, so the hint promises it by email. Put it in this line the moment
-   * it is decided and drop that promise.
-   */
-  redFort: {
-    question: "I'd like to join the Red Fort clean-up",
-    hint: "A clean-up at the Red Fort on Sunday 20th September, meeting at 7:15am sharp, on the second morning of ICUC 3.0. Ticking this is a head count rather than a commitment — the meeting point and directions come in your confirmation email.",
-  },
-  /**
-   * The two emails a registrant gets back, sent over SMTP by
-   * `src/app/api/register/confirm/route.ts` once the registration itself has
-   * been captured. `{name}` is replaced with the registrant's first name.
-   *
-   * Everyone gets `confirmation`, which links `schedule`. Pitch applicants get
-   * `oneMentor` *as well*, as its own message rather than a paragraph inside the
-   * first: it is the mail they will search for later, and its one job is to set
-   * expectations before anybody writes a pitch around money.
-   */
-  emails: {
-    /**
-     * A file under `public/`, linked from the confirmation rather than attached.
-     * A multi-megabyte attachment from a sender Gmail does not know yet is one of
-     * the strongest spam signals there is, and the first test sends went to spam.
-     */
-    schedule: { path: "pdfs/ICUC 3.0 Schedule.pdf" },
-    confirmation: {
-      subject: `You're registered for ${site.name} 3.0`,
-      preheader: `${site.dates} at ${site.venue}. Download the full schedule inside.`,
-      eyebrow: "Registration confirmed",
-      title: "You're in, {name}.",
-      body: [
-        `Thank you for registering for ${site.name} 3.0, the ${site.fullName}. Your registration has reached our team, and there is nothing more you need to do right now.`,
-        "All the sessions are on Saturday 19th September, and the full schedule is ready to download below. Until then, keep the date free.",
-      ],
-      whenLabel: "When",
-      whereLabel: "Where",
-      registeredAsLabel: "Registered as",
-      scheduleTitle: "The ICUC 3.0 schedule",
-      scheduleNote: "Every session, all on Saturday 19th September. Download it, and share it with anyone who should be in the room.",
-      scheduleButton: "Download the schedule (PDF)",
-      /**
-       * Only in the mail of someone who ticked the Red Fort box. Each detail is
-       * one row of the block; `href` makes the value a link. The link is the full
-       * Google Maps address rather than a maps.app.goo.gl short link, because spam
-       * filters distrust link shorteners.
-       */
-      redFort: {
-        title: "Red Fort clean-up",
-        intro: "You also said you'd like to join the Red Fort clean-up. Here is everything you need to get there.",
-        details: [
-          { label: "Location", value: "Open in Google Maps", href: "https://www.google.com/maps/place/Lal+Quila/@28.6568598,77.2342376,17z/data=!3m1!4b1!4m6!3m5!1s0x390cfd1ceee9c7e1:0x641302a14e35e765!8m2!3d28.6568551!4d77.2368125!16s%2Fm%2F012vxmwq" },
-          { label: "Date", value: "Sunday, 20th September" },
-          { label: "Time", value: "7:15am sharp" },
-          { label: "Nearest metro", value: "Lal Quila (Violet Line)" },
-          { label: "Meeting point", value: "Lal Quila metro station, Gate 4" },
-          { label: "Provided", value: "Gloves and masks" },
-        ] as Array<{ label: string; value: string; href?: string }>,
-      },
-      oneMentorNote: "You also applied to pitch at Mentor Matchmaker. A separate email about your application is on its way.",
-      questions: "Questions? Just reply to this email.",
-    },
-    oneMentor: {
-      subject: "Your Mentor Matchmaker application",
-      preheader: "We've received your application. Please read how the session works.",
-      eyebrow: "Mentor Matchmaker",
-      title: "Your application is in, {name}.",
-      body: [
-        `Thank you for applying to pitch at Mentor Matchmaker at ${site.name} 3.0. Your answers have reached the team and will be read alongside every other application.`,
-      ],
-      /**
-       * The most important line in either email. It sits in its own highlighted
-       * block near the top, not in the small print: an applicant who walks in
-       * expecting a cheque is an applicant we have misled.
-       */
-      notice: {
-        title: "This is a mentorship, not an investment",
-        body: "Mentor Matchmaker offers mentorship only. Applying, being selected to pitch or being paired with a mentor carries no promise of capital, funding or investment of any kind.",
-      },
-      stepsTitle: "What happens next",
-      /** Written for someone who has already applied, so it starts after the form. */
-      steps: [
-        { title: "Five are selected", body: "Every application is read and five NGOs are picked to pitch at ICUC 3.0. If yours is one of them, we will contact you directly." },
-        { title: "Five pitches, seven mentors", body: "Each of the five gives an elevator pitch to a panel of seven mentors on how they would scale their NGO into a business." },
-        { title: "Each NGO gets a mentor", body: "Each of the five NGOs is paired one-on-one with a mentor who keeps working with them afterwards on turning the pitch into a business. Two design mentors also work with all five." },
-      ],
-      questions: "Questions about your application? Just reply to this email.",
-    },
-    /**
-     * The "two days to go" send to everyone registered, run by hand with
-     * `scripts/send-countdown.ts` rather than by the site. `{name}` is the
-     * registrant's first name, or "there" when the list has none.
-     *
-     * This one carries the agenda as an attachment, where the confirmation links
-     * it: it goes to people who have already heard from us, so it is less of a
-     * cold send, but it is still the riskiest thing in it for spam filters.
-     */
-    countdown: {
-      subject: `2 days to go: ${site.name} 3.0 is almost here!`,
-      preheader: `We can't wait to see you at ${site.venue} this weekend. The final agenda is attached.`,
-      eyebrow: "2 days to go",
-      /** The big badge at the top of the card: `number` huge, `label` under it. */
-      badge: { number: "2", label: "Days to go", date: `${site.dates} · ${site.venue}` },
-      title: "See you this weekend, {name}!",
-      body: [
-        `The countdown is nearly over. In just two days, ${site.name} 3.0 brings clean-up movements, changemakers, corporates and policymakers from across India together under one roof, and you're going to be part of it.`,
-        "A full day of sessions on Saturday, packed with conversations, ideas and people who are already out there doing the work, followed by the Red Fort clean-up on Sunday morning. We've been building up to this all year, and we're so glad you'll be in the room.",
-      ],
-      /** Sessions run on Saturday only; Sunday is just the Red Fort clean-up, covered below. */
-      whenLabel: "Sessions",
-      when: "Saturday 19th September 2026",
-      whereLabel: "Where",
-      agendaTitle: "The final agenda is attached",
-      agendaBody: "All the sessions are on Saturday 19th September, and the full running order is in the PDF attached to this email. Have a look, mark the ones you can't miss, and plan your day around them.",
-      mapLabel: "Open in Google Maps",
-      redFort: "Joining the Red Fort clean-up on Sunday? Meet at Lal Quila metro station, Gate 4, at 7:15am sharp. Gloves and masks will be provided.",
-      redFortMap: "https://www.google.com/maps/place/Lal+Quila/@28.6568598,77.2342376,17z/data=!3m1!4b1!4m6!3m5!1s0x390cfd1ceee9c7e1:0x641302a14e35e765!8m2!3d28.6568551!4d77.2368125!16s%2Fm%2F012vxmwq",
-      closing: "Bring your energy, bring a friend who should be there, and come ready to meet the people changing how India cleans up. Questions? Just reply to this email.",
-      signOff: "See you there!",
-    },
-    footer: `You are receiving this because this address was used to register for ${site.name} 3.0 at ${site.url.replace("https://", "")}.`,
-  },
-  /** Shown in place of the form once a registration goes through. */
-  success: {
-    title: "You're registered",
-    body: `Thank you — your registration has reached the ICUC team. Keep ${site.dates} free — we are at ${site.venue} — and look out for a confirmation email with the full schedule attached.`,
-    again: "Register someone else",
-  },
 };
 
 export const contact = {
@@ -1532,7 +1465,7 @@ export const privacy = {
       title: "Who we are",
       blocks: [
         {
-          p: `${site.fullName} (ICUC) is a Limited Liability Partnership registered in India as ${site.legalName}. We run an annual convening that brings clean-up movements, NGOs, corporates, students and civic bodies into one room. ICUC 3.0 is on ${site.datesLong}, at ${site.venue}.`,
+          p: `${site.fullName} (ICUC) is a Limited Liability Partnership registered in India as ${site.legalName}. We run an annual convening that brings clean-up movements, NGOs, corporates, students and civic bodies into one room. ICUC 3.0 was held on ${site.datesLong}, at ${site.venue}.`,
         },
         {
           p: "This policy covers this website and the WhatsApp messages we send. Under India's Digital Personal Data Protection Act, 2023, ICUC is the Data Fiduciary for the personal data described here — we are the ones who decide what is collected and why, and we are the ones you complain to.",
@@ -1553,7 +1486,7 @@ export const privacy = {
           ],
         },
         {
-          p: "We do not buy contact lists and we do not scrape personal phone numbers. What we hold are organisational contact points, and the message is an invitation to ICUC 3.0 — it is not advertising for anyone else, and your number is not passed on.",
+          p: "We do not buy contact lists and we do not scrape personal phone numbers. What we hold are organisational contact points, and the message was an invitation to ICUC 3.0 — it is not advertising for anyone else, and your number is not passed on.",
         },
         {
           p: "If you would rather not hear from us, one reply is enough. See “How to make it stop” below.",
@@ -1570,9 +1503,9 @@ export const privacy = {
         { p: "What you type into this website, if you choose to:" },
         {
           list: [
-            "Registering for ICUC 3.0 — your name and email, and optionally your phone number, city, organisation, your role there, the kind of delegate you are, and anything else you want to tell us.",
-            "Applying to Mentor Matchmaker — answers about your organisation: when it started, what it does, how it is funded, how you would turn it into a business, and how to reach whoever is pitching.",
-            "The Red Fort clean-up tick box — whether you would like to join, which is a head count and nothing more.",
+            "Registering for ICUC 3.0, while registration was open — your name and email, and optionally your phone number, city, organisation, your role there, the kind of delegate you are, and anything else you want to tell us.",
+            "Applying to Mentor Matchmaker, while applications were open — answers about your organisation: when it started, what it does, how it is funded, how you would turn it into a business, and how to reach whoever is pitching.",
+            "The Red Fort clean-up tick box on the registration form — whether you wanted to join, which is a head count and nothing more.",
             "The contact form — your name, email, what your enquiry is about and your message.",
           ],
         },
@@ -1589,7 +1522,7 @@ export const privacy = {
           list: [
             "Sending WhatsApp invitations and information about ICUC 3.0.",
             "Processing registrations, and writing to delegates about the schedule, the venue and the logistics.",
-            "Reading Mentor Matchmaker applications and selecting the five NGOs who pitch.",
+            "Reading Mentor Matchmaker applications and selecting the five NGOs who pitched.",
             "Counting heads for the Red Fort clean-up and telling those people where to be.",
             "Replying to enquiries sent through the contact form.",
           ],

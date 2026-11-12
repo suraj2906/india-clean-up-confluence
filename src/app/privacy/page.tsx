@@ -22,7 +22,7 @@ export const metadata: Metadata = {
  * site. This file is layout only.
  *
  * There is no `#cover-wordmark` on this route, so the header keeps its logo —
- * same as `/contact` and `/register`.
+ * same as `/contact` and `/feedback`.
  */
 export default function PrivacyPage() {
   return (

@@ -1,5 +1,10 @@
 # The registrations spreadsheet
 
+> **Retired.** ICUC 3.0 is over and `/register` has been removed from the site,
+> so nothing posts to this script any more. The sheet keeps the registrations it
+> collected; the notes below describe how the form worked while it ran, and the
+> form itself is in git history.
+
 `/register` writes every submission into a Google Sheet, and posts the same
 payload to Web3Forms as a second copy. The sheet is the record; the mail is what
 survives a broken or revoked deployment. A registration is shown as successful if

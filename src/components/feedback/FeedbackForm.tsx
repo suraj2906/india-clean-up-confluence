@@ -43,7 +43,7 @@ const withEmail = (text: string) => text.replace("{email}", contact.email);
 
 /**
  * The ICUC 3.0 feedback form, reached from a QR code at the venue. It is
- * modelled on `RegistrationForm` and posts straight from the browser to one
+ * modelled on the old ICUC 3.0 registration form and posts straight from the browser to one
  * place: the feedback Google Sheet. Unlike registration there is no Web3Forms
  * copy. Its free plan's monthly cap is shared with the contact form and
  * registration, it ran out on the event day, and a lost feedback row costs far

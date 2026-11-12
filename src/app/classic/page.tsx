@@ -6,6 +6,7 @@ import { CtaBand } from "@/components/sections/CtaBand";
 import { Editions } from "@/components/sections/Editions";
 import { Gallery } from "@/components/sections/Gallery";
 import { HeroSplit } from "@/components/sections/HeroSplit";
+import { Icuc3 } from "@/components/sections/Icuc3";
 import { Movement } from "@/components/sections/Movement";
 import { Stats } from "@/components/sections/Stats";
 import { site } from "@/content/site";
@@ -29,6 +30,7 @@ export default function ClassicPage() {
       <Movement />
       <Confluence />
       <Editions />
+      <Icuc3 />
       <Stats />
       {/* <Changemakers /> */}
       <Gallery />

@@ -7,14 +7,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 # ICUC website
 
 Marketing site for the India Clean-Up Confluence. Everything is statically
-prerendered — there is no database and no auth, and exactly one API route:
-`/api/register/confirm`, which emails registrants their confirmation. That route
-is currently dormant: the form's call to it is commented out (see Confirmation
-emails below).
+prerendered — there is no database, no auth and no API routes.
 
-Six routes plus a 404. `/` is the long landing page, `/carter-clean-up` is the
-movement's own page, `/register` takes sign-ups for ICUC 3.0 and `/contact` is
-the general enquiry form. The last two are `noindex` previews
+`/` is the long landing page, `/carter-clean-up` is the movement's own page,
+`/contact` is the general enquiry form,
+`/privacy` is the privacy policy, and `/feedback` is a `noindex` page kept out of
+the nav and sitemap. Two more are `noindex` previews
 kept alive on purpose: `/proposal` (the homepage at the URL already shared with
 sponsors) and `/classic` (the homepage with `HeroSplit` in place of `Hero`).
 Those three homepage-shaped routes render the *same* section list in the same
@@ -28,8 +26,9 @@ Motion (`motion/react`), `lucide-react` for icons.
 
 **The landing page is a chronology.** `src/app/page.tsx` runs `Cover` → `Hero` →
 `Movement` (the Carter Clean Up beach clean-up we started) → `Confluence` (how that
-became ICUC) → `Editions` (1.0 → 2.0 → 3.0) → everything else. That order is the
-point of the page; the editions render straight out of the `editions` array in
+became ICUC) → `Editions` (1.0 → 2.0 → 3.0) → `Icuc3` (the latest edition at
+length, with its photographs) → everything else. That order is the point of the
+page; the editions render straight out of the `editions` array in
 source order, so reordering the array reorders history. Don't insert a section
 between `Movement` and `Editions` that breaks the sequence.
 
@@ -99,8 +98,9 @@ touching the scroll handling.
 **The ICUC 3.0 dates and venue are fixed and live in one place.** `site.dates`
 ("19th & 20th September 2026"), `site.datesLong` ("Saturday 19th – Sunday 20th
 September 2026") and `site.venue` ("India Habitat, New Delhi") are read by the
-edition entry and by the registration page's copy, so neither can drift between
-two screens. The venue is confirmed and prints straight after the dates wherever
+edition entry, the `Icuc3` section's eyebrow and the privacy policy, so neither
+can drift between two screens. ICUC 3.0 has happened: its edition is `past` and
+the site's copy about it is in the past tense — keep it that way. The venue is confirmed and prints straight after the dates wherever
 they appear — it is no longer "to be announced" anywhere, including on the ICUC
 3.0 edition entry. The key art's `alt` text still says only "September 2026"
 because it transcribes what the artwork itself prints; re-cut the artwork before
@@ -161,7 +161,7 @@ curve — so moving a wave moves the litter with it.
 
 **Images may not exist on disk.** The photo set arrives in batches, so at any
 moment some paths in `site.ts` point at nothing. As of the last pass the gallery
-(nineteen photos plus a video poster), the partner wall (fifteen logos),
+(nineteen photos plus a video poster), the ICUC 3.0 section (forty-one photos), the partner wall (twenty-one logos),
 `movement/carousel` (six), the edition recap posters, the key art and two founder
 portraits are all real files on disk; `changemakers/{one,two,four}.jpg` and the
 OG image (`/images/og.jpg`, referenced from `layout.tsx`) are still missing. That
@@ -211,6 +211,11 @@ item 1 and the reading order stops matching `site.ts`. It is now
 are what make a large set read as curated: the ragged rhythm of masonry is what
 looks like clutter, not the number of photos. Tiles crop, and that is the trade —
 every tile opens `Lightbox`, which shows the photo whole.
+
+The grid itself is `PhotoGrid`, a client leaf shared by `Gallery` and `Icuc3`,
+so both photo sets on the landing page behave identically. `Icuc3` reads
+`icuc3.photos` (files in `public/images/editions/3-0/`) and shows
+`icuc3.pending` while that list is empty.
 
 Twelve tiles show, the rest sit behind a "Show more" button, and the batch is
 keyed so newly revealed tiles run their own stagger. Two things to keep true if
@@ -272,11 +277,11 @@ leaf. Copy that arrangement.
 **Client components are the exception.** Only things that genuinely need state or
 effects carry `"use client"`: `SmartImage`, `Lightbox`, `PhotoStrip`, `Carousel`,
 `VideoEmbed`, `HoverVideo`, `CountUp`, `Reveal`, `ScrollProgress`, `TimelineRail`,
-`DriftingLitter`, `ContactForm`, `Header` (mobile nav), and the interactive
-sections `Cover`, `Hero`, `HeroSplit` and `Gallery`. Every other section —
-`Movement`, `Confluence`, `Editions`, `Stats`, `Changemakers`, `Partners`,
-`CtaBand` and all six `carter/*` sections — is a server component that composes
-client leaves.
+`DriftingLitter`, `PhotoGrid`, `ContactForm`, `Header` (mobile nav), and the
+interactive sections `Cover`, `Hero` and `HeroSplit`. Every other section —
+`Movement`, `Confluence`, `Editions`, `Icuc3`, `Stats`, `Changemakers`,
+`Gallery`, `Partners`, `CtaBand` and all six `carter/*` sections — is a server
+component that composes client leaves.
 
 Note what is *not* a client component even though it moves: `Partners`' marquee,
 `WaveField` and `ShoreField` are markup plus a CSS animation and nothing else.
@@ -304,115 +309,35 @@ free plan (`"This method is not allowed. Use our API in client side"`), so a fai
 Web3Forms dashboard proves the key and the client path are fine; if no mail arrives
 after that, the fault is in the Web3Forms account, not in this repo.
 
-## Registration
+## Registration (retired)
 
-`/register` is the sign-up form for ICUC 3.0 and it is **one form for everyone** —
-volunteers, NGOs, corporates, students, civic bodies, press.
+ICUC 3.0 is over, so `/register`, `RegistrationForm`, the
+`/api/register/confirm` email route, its templates in `src/lib/email/`,
+`scripts/send-countdown.ts`, the `registration` block in `site.ts` and the
+`nodemailer` dependency were all removed. `/register` now redirects to `/`
+(temporarily, in `next.config.ts`) because the URL is on flyers and in old posts.
+The hero's "Get involved" and `CtaBand` lead to `/contact` instead, and
+`Register` is gone from `nav` and the sitemap.
 
-**It posts to two destinations at once, and that is on purpose.** The Google
-Sheet is the record: an Apps Script Web App (`scripts/registrations.gs`, deployed
-per `scripts/README.md`, URL in `NEXT_PUBLIC_SHEETS_ENDPOINT`) appends one row per
-registration. Web3Forms is kept alongside it on the same key and therefore the
-same inbox as `ContactForm`, as the copy that survives a revoked or broken
-deployment. A registration counts as captured if **either** accepted it — that is
-the whole reason both are there — so a half failure is a `console.warn` and only
-losing both is an error the registrant sees. Don't collapse this to one
-destination without deciding which failure you are willing to lose people to.
-Everything in the contact-form section above still applies, including testing in
-a browser rather than with `curl` — and the Apps Script leg has the same property
-for its own reason: it is posted as `text/plain` so the browser treats it as a
-CORS simple request, because an Apps Script Web App redirects to a second origin
-before `doPost` runs and cannot answer a preflight. Don't 'fix' that content type.
+Everything is in git history; restore it rather than rebuilding it if a future
+edition needs sign-ups. What it taught is worth keeping:
 
-**The sheet has three tabs and the split happens at write time.** The payload's
-`sheet` field is a *list*, and every name in it gets the same row. `one_mentor`
-and `general` are the primary pair — a registration lands on exactly one of them:
-pitch applicants and their answers on the One Mentor, Many Missions tab (the programme is now called Mentor Matchmaker on the site, but the tab and `TABS` in `registrations.gs` keep the old name on purpose so the live sheet keeps writing to the same tab), everyone
-else on the general one. `red_fort` is added *alongside* whichever of those two
-applies, so a Red Fort clean-up tick writes a copy rather than diverting the row.
-The two questions are unrelated — an NGO can apply to pitch and also turn up to
-the clean-up — and neither list is complete if one tick can take somebody off the
-other. Each panel then opens one tab and reads nothing else, and general
-registrations are not diluted by a column per application question. The script
-aligns each row to the header row and appends a column the first time it meets a
-key it has no header for, so adding a question is still a `site.ts` edit and
-nothing else — but never reorder or rename a header by hand once rows exist.
-Adding a *tab* is the exception: tab names live in `TABS` in `registrations.gs`,
-so that one needs a script edit and a redeploy.
+- It posted to **two destinations at once** — a Google Sheet via
+  `scripts/registrations.gs` and Web3Forms — and counted a registration as
+  captured if either accepted it. Don't collapse that to one destination without
+  deciding which failure you are willing to lose people to.
+- The Apps Script leg is posted as `text/plain` so the browser treats it as a CORS
+  simple request; an Apps Script Web App redirects before `doPost` runs and
+  cannot answer a preflight.
+- A question's `name` is a sheet column header, so it is frozen once the first
+  answer arrives.
+- Confirmation mail from a free @gmail.com account went to spam: no attachments
+  (link the PDF instead), no images or emoji, no link shorteners. The real fix is
+  an icuc.co.in sender with SPF, DKIM and DMARC.
 
-**Applications to Mentor Matchmaker are closed** (`oneMentor.open: false`). The
-tick box, explainer and questions are gone from the form; choosing the NGO type
-shows `oneMentor.closed` in their place, and the route refuses to send the pitch
-email. Everything described below is still in the code and the copy, so flipping
-that one flag reopens it exactly as it was.
-
-It carries a second form inside it. **Mentor Matchmaker** is a pitch
-session: NGOs that want to scale into a business apply through this same form, five
-are selected from everyone who applies, those five give an elevator pitch to a panel
-of seven mentors at the event, and **each of the five NGOs is paired one-on-one with
-a mentor who keeps working with them afterwards**, while the other two, both design
-mentors, work with all five. The pairing is the outcome
-the whole track is for, so it gets its own beat in `oneMentor.steps` rather than a clause inside
-the pitch step — buried, it is the thing applicants miss. There is deliberately no
-second application form and no separate page — a shortlist people can apply to
-twice is a shortlist somebody has to de-duplicate by hand.
-
-**That track reveals itself in two stages, and both are inside the form.**
-Choosing `registration.ngoType` ("NGO or clean-up movement") in the "I'm
-registering as" dropdown unfolds the explanation — what the session is, and the
-four steps from applying to being mentored — directly above the tick box it
-explains. Ticking the box opens the application questions, and also unfolds that
-same explanation if the dropdown never said NGO: someone who ticks first and
-reads later is precisely the person who needs telling what they just applied to.
-The explainer was originally a section *under* the form and was moved for a plain reason: nobody
-scrolls past a form they came to fill in, so an explainer below it is an
-explainer nobody reads. Don't put a second copy back on the page. Two things to
-keep true: `ngoType` has to match one of `attendeeTypes` character for character
-or the pitch session silently stops explaining itself to the people it is for,
-and the tick box stays visible for every other kind of registrant — someone who
-runs an NGO but registers as an individual still has to be able to find it.
-
-**The pitch questions live in `registration.oneMentor.questions`** and nowhere
-else — the form renders whatever is in that list, in order, and validates every
-non-`optional` one. They are grouped in four movements: who you are (verification
-only), where you are now (the honesty check), the pitch itself, and logistics.
-Only the third group is what the five are chosen on, so if the application ever
-has to get shorter, cut from the bottom, never from the pitch block. The pitch
-block now closes on `pitch_expectations` — what the applicant wants from the
-mentorship — because every one of the five leaves with a mentor, which makes that part
-of what the panel is picking on rather than an afterthought.
-
-**A question's `name` is frozen the moment the first application arrives.** It is
-what labels the answer in the inbox *and* the column heading in the sheet, so
-renaming one later leaves two batches of submissions that no longer line up, and
-an orphaned column beside a new one — add a new question instead. Settle the
-wording before the form is shared anywhere.
-
-**The second tick box is the Red Fort clean-up, and it is a head count rather
-than an application.** `registration.redFort` is two lines of copy — a question
-and a hint — and that is the whole feature: nobody is selected, nothing further
-opens, and the answer rides along as the `red_fort_clean_up` column on whichever
-primary tab the row lands on as well as on its own tab. It is deliberately flat
-where Mentor Matchmaker unfolds; a second expanding panel beside it would make the form
-read as two applications stacked on each other. Its `hint` carries the date
-and the 7:15am start; the location, nearest metro and meeting point go out in the
-confirmation email instead, from `registration.emails.confirmation.redFort`, and
-only to people who ticked the box.
-
-If the list is ever emptied, the revealed block falls back to `oneMentor.pending`
-and the registration still submits, flagged in the subject line, in the
-`one_mentor_many_missions` field and by landing on the pitch tab. Leave `pending`
-in place: it is the fallback for an empty list, not a temporary notice.
-
-TODO: the current questions are a draft written to make the form usable. The
-wording is Freishia's call — she is the one who knows what the mentor panel needs
-in order to pick five out of the pile, and to pair each with a mentor. Review with
-her before this is shared.
-
-`CtaBand` at the foot of the landing page now leads with `/register` and keeps
-`/contact` as the quieter second button, and `Register` is an entry in `nav`, so
-it appears in the desktop bar, the mobile drawer and the footer. That is a nav
-*link*, not a button — the header still has no call-to-action button in it.
+`scripts/registrations.gs` stays as the source of the still-deployed script
+behind the registrations sheet, which keeps what it collected. The ICUC 3.0
+schedule stays in `public/pdfs/` because mails already sent link to it.
 
 ## Feedback
 
@@ -438,7 +363,7 @@ reason as registration: it is the sheet's column header.
 Settle the names before sharing; afterwards, add a question rather than rename
 one. Rewording a `choice`/`multi` option splits its answers in the sheet too.
 
-It posts to **one destination, unlike registration**: an Apps Script Web App
+It posts to **one destination, unlike the old registration form**: an Apps Script Web App
 writing the feedback sheet (URL in `NEXT_PUBLIC_FEEDBACK_ENDPOINT`, a separate
 deployment from registrations, posted as `text/plain` for the same CORS reason).
 There is deliberately no Web3Forms copy. The free plan's monthly submission cap
@@ -455,58 +380,6 @@ one key per question, keyed by its `name`. `rating`
 is `"1"` to `"5"`, `choice` the chosen option's text, `multi` the chosen options
 joined with `", "`, and an unanswered optional question `""`. No nesting, no
 arrays, no other keys (`botcheck` is never sent).
-
-## Confirmation emails
-
-**Automatic emails are switched off.** The `sendConfirmation` call in
-`RegistrationForm` is commented out, so a registration now reaches the sheet and
-Web3Forms and nothing else: ICUC 3.0 is under way, everyone registered has the
-schedule, and a late registrant does not need a "see you there" mail about an
-event running today. The route, the templates and the copy are all still here,
-so uncommenting that one line turns them back on. Everything below describes how
-it works when it is on.
-
-After a registration is captured, `RegistrationForm` fires (and does not await)
-a POST to `src/app/api/register/confirm/route.ts`, which sends mail over plain
-SMTP with a Gmail app password via `nodemailer` — deliberately no third-party
-mail service. Credentials are server-only `SMTP_*` variables; see
-`.env.local.example`, and never give them a `NEXT_PUBLIC_` prefix. Unset means
-no email, not a failed registration.
-
-Everyone gets the confirmation, with a clear download button for
-`registration.emails.schedule` (the ICUC 3.0 schedule in `public/pdfs/`). Pitch applicants also get a **separate**
-Mentor Matchmaker email whose headline block says it is a mentorship
-with no promise of capital. That line is the reason the second email exists —
-keep it in its highlighted block near the top, never in the small print.
-
-Copy lives in `registration.emails` in `site.ts`; markup lives in
-`src/lib/email/templates.ts`, the one file allowed table layouts, inline styles
-and raw hex (mirrored from `.theme-deck`, because mail clients have no CSS
-variables).
-
-**The first sends went to spam, and the mail is shaped by that.** Nothing is
-attached: the schedule is a download button linking to the PDF on the site,
-because a multi-megabyte attachment from a sender Gmail doesn't yet trust is one
-of the strongest spam signals. There are no icons or emoji (images-to-text ratio
-counts against you, and emoji rendered badly anyway), and links are written out
-in full rather than through shorteners like maps.app.goo.gl, which filters
-distrust. Keep it that way. The real fix for deliverability is sending from an
-address on icuc.co.in with SPF, DKIM and DMARC set up in DNS; a free @gmail.com
-account sending automated mail will always be treated with some suspicion.
-
-The schedule was re-encoded from 18 MB to 4.75 MB (JPEG q92, 4:4:4 chroma, native
-resolution, transparency masks left lossless; every page renders at 48-50 dB PSNR
-against the original) and a new export should get the same treatment, since
-registrants now download it. The route only sends its own fixed templates,
-rejects cross-origin posts and rate-limits in memory, which slows abuse on
-serverless rather than preventing it.
-
-`scripts/send-countdown.ts` is the one-off "2 days to go" send, run by hand from
-a machine with `.env.local`: `--test <email>` for a single copy, or `--list
-people.csv --log sent.txt` to walk a list one message at a time. It appends every
-address it sends to, and skips anything already in that log, so a run stopped by
-a dropped connection resumes without double-sending. The list and the log are
-registrants' data: keep both out of the repo.
 
 ## Before you call it done
 

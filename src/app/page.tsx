@@ -5,6 +5,7 @@ import { CtaBand } from "@/components/sections/CtaBand";
 import { Editions } from "@/components/sections/Editions";
 import { Gallery } from "@/components/sections/Gallery";
 import { Hero } from "@/components/sections/Hero";
+import { Icuc3 } from "@/components/sections/Icuc3";
 import { Movement } from "@/components/sections/Movement";
 import { Partners } from "@/components/sections/Partners";
 import { Stats } from "@/components/sections/Stats";
@@ -23,6 +24,7 @@ export default function HomePage() {
       <Movement />
       <Confluence />
       <Editions />
+      <Icuc3 />
       <Stats />
       {/* <Changemakers /> */}
       <Gallery />

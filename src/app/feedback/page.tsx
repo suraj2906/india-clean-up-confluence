@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * The ICUC 3.0 feedback form, the same shell as `/register`: a page that is
+ * The ICUC 3.0 feedback form, the same shell as `/contact`: a page that is
  * nothing but its form. There is no `#cover-wordmark` here, so the header keeps
  * its logo throughout.
  */
