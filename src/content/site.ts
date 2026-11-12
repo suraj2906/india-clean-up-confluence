@@ -879,7 +879,7 @@ export type GalleryVideo = {
  */
 export const gallerySection = {
   eyebrow: "Gallery",
-  title: "Moments from the confluence",
+  title: "Moments from ICUC 1.0 and 2.0",
   intro: "Sessions, awards and the people who showed up.",
   /** `{n}` is replaced with the number of items still hidden. */
   showMore: "Show {n} more",
