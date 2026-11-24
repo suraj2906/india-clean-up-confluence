@@ -75,6 +75,7 @@ export const nav = [
   { label: "Impact", href: "/#impact" },
   // { label: "Changemakers", href: "/#changemakers" },
   { label: "Gallery", href: "/#gallery" },
+  { label: "Support", href: "/support" },
 ] as const;
 
 /**
@@ -1423,6 +1424,144 @@ export const feedback = {
 };
 
 /**
+ * The support page (`/support`), paid by UPI straight to the LLP's bank account.
+ * It says "contribute", never "donate": ICUC is an LLP, not a charity. See the Donations section
+ * of AGENTS.md for how the money moves.
+ *
+ * TODO: `body` and `where` are a first draft written to make the page usable.
+ * They say what a contribution is for, which is a promise to the person giving,
+ * so the team should confirm every line before the page is shared.
+ *
+ * `tax` is not a draft. ICUC is an LLP, and only a registered trust, society or
+ * Section 8 company can issue 80G certificates — so the page must not suggest a
+ * contribution is tax-deductible, and there is deliberately no PAN field. If
+ * donations are ever routed through an 80G-registered body instead, rewrite
+ * `tax`, add the PAN field, and update the privacy policy to match.
+ *
+ * `min` and `max` are read by the order route as well as the form, so the
+ * limit printed on the page is the one that is enforced.
+ */
+export const donate = {
+  eyebrow: "Support ICUC",
+  title: "Help keep the clean-ups coming",
+  body: "ICUC began as a handful of volunteers on one beach. Every clean-up still needs gloves, sacks and a way to move what we pick up, and every confluence needs a room to meet in. A contribution of any size helps with both.",
+  where: {
+    title: "Where it goes",
+    items: [
+      {
+        title: "Clean-up supplies",
+        body: "Gloves, sacks and tools for the volunteers who turn up on a Saturday morning.",
+      },
+      {
+        title: "Moving what we collect",
+        body: "Getting the waste off the shore and to where it can be handled properly.",
+      },
+      {
+        title: "The confluence",
+        body: "Bringing clean-up movements from across India into one room, once a year.",
+      },
+    ],
+  },
+  tax: `Contributions go to ${site.legalName}. As an LLP it cannot issue 80G certificates, so a contribution is not tax-deductible.`,
+  form: {
+    amountLabel: "Choose an amount",
+    /** In rupees. The form starts on `defaultAmount`, which should be one of these. */
+    presets: [50, 100, 500, 1000, 2500, 5000],
+    defaultAmount: 1000,
+    customLabel: "Other amount",
+    customPlaceholder: "Any amount",
+    min: 50,
+    /** UPI caps an ordinary payment at ₹1,00,000, so a larger figure would only fail inside the app. */
+    max: 100000,
+    amountError: "Enter a whole amount between ₹50 and ₹1,00,000.",
+    name: { label: "Your name", placeholder: "Priya Sharma", error: "Please tell us your name." },
+    email: { label: "Email", placeholder: "you@example.com", error: "Enter a valid email address." },
+    phone: {
+      label: "Phone number",
+      hint: "Optional",
+      placeholder: "+91 98200 00000",
+      error: "Enter a valid phone number, with 10 digits.",
+    },
+    /** `{amount}` is replaced with the formatted amount, e.g. ₹1,000. */
+    submit: "Contribute {amount}",
+    opening: "Opening Razorpay…",
+    verifying: "Confirming your payment…",
+    secure: "Payments are processed by Razorpay. Your card, UPI or bank details go to Razorpay and never reach us.",
+  },
+  /**
+   * UPI, which is how the page takes money now. `id` is the LLP's UPI ID (VPA),
+   * read from `NEXT_PUBLIC_UPI_ID` so a test ID never lands in the code. In
+   * production it must be a business/merchant one on the LLP's current account,
+   * not a personal one: GPay and PhonePe refuse or cap app-link payments to
+   * personal UPI IDs. Unset, the page says contributions aren't set up yet.
+   * It is public by nature — the page prints it — hence `NEXT_PUBLIC_`.
+   *
+   * `payee` and `note` ride inside the payment link and show in the donor's
+   * app. Keep `note` short and plain — some apps reject punctuation in it.
+   */
+  upi: {
+    id: process.env.NEXT_PUBLIC_UPI_ID?.trim() ?? "",
+    payee: "India Clean-Up Confluence",
+    note: "Contribution to ICUC",
+    /**
+     * Whether phones get the amount picker and the "open your UPI app" buttons.
+     * Off while the UPI ID is a personal one: GPay refuses app-link payments to
+     * personal IDs ("You've exceeded the bank limit for this payment", even at
+     * ₹50), but a scanned QR code goes through. With this off, every screen gets
+     * the QR code and the UPI ID instead. Turn it on once `NEXT_PUBLIC_UPI_ID`
+     * is a merchant ID.
+     */
+    appLinks: false,
+    /** Phones: one button on Android (the system lists every UPI app), one per app on iPhone. */
+    pay: "Pay {amount} with a UPI app",
+    payNoAmount: "Pay with a UPI app",
+    iosIntro: "Choose your UPI app",
+    /**
+     * iOS has no UPI app chooser, so each app is opened by its own link scheme.
+     * The query string is the same standard UPI one in every case.
+     */
+    iosApps: [
+      { name: "Google Pay", scheme: "gpay://upi/pay" },
+      { name: "PhonePe", scheme: "phonepe://pay" },
+      { name: "Paytm", scheme: "paytmmp://pay" },
+    ],
+    iosOther: "Another UPI app",
+    appHint: "Opens your app with everything filled in. You just confirm and enter your UPI PIN.",
+    /** Computers: there is no UPI app to open, so the phone in their pocket scans the code. */
+    qrTitle: "Scan with your phone",
+    qrHint: "Open Google Pay, PhonePe, Paytm or your bank's app, scan this code and enter the amount.",
+    /** Phones, when `appLinks` is off: the code is on the same screen, so it can't simply be scanned. */
+    qrTitlePhone: "Pay by UPI",
+    qrHintPhone: "Copy the UPI ID below and pay it from Google Pay, PhonePe, Paytm or your bank's app. Or screenshot this code and open it from your app's QR scanner.",
+    /** Read aloud in place of the code. `{id}` is the UPI ID. */
+    qrAlt: "UPI QR code for {id}",
+    idLabel: "UPI ID",
+    copy: "Copy",
+    copied: "Copied",
+    after: "Paid? We only see the name on your UPI account, so if you'd like a thank-you, write to {email} with your name and the UPI reference.",
+    notConnected: "Contributions aren't set up yet. If you'd like to support ICUC, please write to {email}.",
+  },
+  /** The line under ICUC's name inside the Razorpay Checkout window (unused while the page is on UPI). */
+  checkoutDescription: "Contribution to ICUC",
+  /** `{amount}` and `{id}` are filled in. Shown in place of the form once a payment is verified. */
+  success: {
+    title: "Thank you",
+    body: "Your contribution of {amount} has gone through. It goes straight into the next clean-up.",
+    reference: "Payment reference: {id}. Keep it in case you need to reach us about this payment.",
+    again: "Contribute again",
+  },
+  /** `{email}` is replaced with `contact.email`, `{id}` with the Razorpay payment ID. */
+  error: {
+    notConnected: "Contributions aren't switched on yet. If you'd like to support ICUC, please write to {email}.",
+    failed: "Something went wrong before the payment started, so nothing was charged. Please try again, or write to {email}.",
+    cancelled: "Payment cancelled. Nothing was charged.",
+    declined: "The payment didn't go through: {reason} Nothing was charged.",
+    unverified:
+      "Your payment may have gone through, but we couldn't confirm it here. Please don't pay again — write to {email} with the payment reference {id} and we'll check.",
+  },
+};
+
+/**
  * The privacy policy, at `/privacy`.
  *
  * It exists because Meta requires a public policy URL before a WhatsApp
@@ -1456,7 +1595,7 @@ export const privacy = {
   eyebrow: "Legal",
   title: "Privacy policy",
   /** Update this line whenever the copy below changes. */
-  effective: "Effective 9 September 2026",
+  effective: "Effective 14 October 2026",
   lead:
     "This is what we know about you, where we got it, and how to make us stop. If you have just had a WhatsApp message from us and want the short answer, read the second section and then the one about stopping.",
   sections: [
@@ -1507,6 +1646,7 @@ export const privacy = {
             "Applying to Mentor Matchmaker, while applications were open — answers about your organisation: when it started, what it does, how it is funded, how you would turn it into a business, and how to reach whoever is pitching.",
             "The Red Fort clean-up tick box on the registration form — whether you wanted to join, which is a head count and nothing more.",
             "The contact form — your name, email, what your enquiry is about and your message.",
+            "Contributing — you pay from your own UPI app straight to our bank account, and our bank shows us the name on your UPI account, your UPI ID, the amount and the payment reference. Nothing about the payment is typed into this website, and your bank details and PIN never reach us.",
           ],
         },
         {
@@ -1525,6 +1665,7 @@ export const privacy = {
             "Reading Mentor Matchmaker applications and selecting the five NGOs who pitched.",
             "Counting heads for the Red Fort clean-up and telling those people where to be.",
             "Replying to enquiries sent through the contact form.",
+            "Taking contributions, keeping a record of them, and answering questions about a payment.",
           ],
         },
         {
@@ -1545,10 +1686,8 @@ export const privacy = {
             "Google — registrations are written to a Google Sheet in an account we control, and the confirmation emails you receive are sent from our Gmail account, both covered by [Google's privacy policy](https://policies.google.com/privacy).",
             "Web3Forms — the site's forms post through Web3Forms, which emails a copy of each submission to our inbox. See [Web3Forms' privacy policy](https://web3forms.com/privacy).",
             "Vercel — this website is hosted on Vercel, which keeps the server logs described above. See [Vercel's privacy policy](https://vercel.com/legal/privacy-policy).",
+            "Your UPI app and our bank — a contribution goes from the UPI app you choose (Google Pay, PhonePe, Paytm or your bank's own) to our bank account, under that app's and your bank's own privacy policies. This website only opens the app or shows the QR code; it never sees the payment.",
           ],
-        },
-        {
-          p: "There is no payment step anywhere on this website, so no payment processor receives anything about you. If that ever changes, the processor will be named here before it does.",
         },
       ] satisfies PrivacyBlock[],
     },
@@ -1583,6 +1722,7 @@ export const privacy = {
             "Registrations — kept for the event and for two years afterwards, so we can invite you to the next edition and keep a record of who came. Ask sooner and we delete sooner.",
             "Mentor Matchmaker applications — kept for the same two years, because the mentorship the panel awards carries on well past the event.",
             "Contact-form enquiries — kept in the ICUC inbox for two years.",
+            "Contributions — kept for as long as Indian accounting and tax law requires us to keep financial records. Because the law requires it, we cannot delete a payment record sooner, even if you ask.",
           ],
         },
       ] satisfies PrivacyBlock[],

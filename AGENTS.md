@@ -7,12 +7,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
 # ICUC website
 
 Marketing site for the India Clean-Up Confluence. Everything is statically
-prerendered — there is no database, no auth and no API routes.
+prerendered — there is no database and no auth, and two API routes:
+`/api/donate/order` and `/api/donate/verify`, left over from a Razorpay
+integration that is no longer used (see Donations below).
 
 `/` is the long landing page, `/carter-clean-up` is the movement's own page,
 `/contact` is the general enquiry form,
-`/privacy` is the privacy policy, and `/feedback` is a `noindex` page kept out of
-the nav and sitemap. Two more are `noindex` previews
+`/privacy` is the privacy policy, and `/feedback` is a `noindex` page kept out
+of the nav and sitemap. `/support` is in the nav (and so the footer) but is
+still `noindex` and out of the sitemap. Two more are `noindex` previews
 kept alive on purpose: `/proposal` (the homepage at the URL already shared with
 sponsors) and `/classic` (the homepage with `HeroSplit` in place of `Hero`).
 Those three homepage-shaped routes render the *same* section list in the same
@@ -277,7 +280,7 @@ leaf. Copy that arrangement.
 **Client components are the exception.** Only things that genuinely need state or
 effects carry `"use client"`: `SmartImage`, `Lightbox`, `PhotoStrip`, `Carousel`,
 `VideoEmbed`, `HoverVideo`, `CountUp`, `Reveal`, `ScrollProgress`, `TimelineRail`,
-`DriftingLitter`, `PhotoGrid`, `ContactForm`, `Header` (mobile nav), and the
+`DriftingLitter`, `PhotoGrid`, `ContactForm`, `UpiPay`, `Header` (mobile nav), and the
 interactive sections `Cover`, `Hero` and `HeroSplit`. Every other section —
 `Movement`, `Confluence`, `Editions`, `Icuc3`, `Stats`, `Changemakers`,
 `Gallery`, `Partners`, `CtaBand` and all six `carter/*` sections — is a server
@@ -380,6 +383,69 @@ one key per question, keyed by its `name`. `rating`
 is `"1"` to `"5"`, `choice` the chosen option's text, `multi` the chosen options
 joined with `", "`, and an unanswered optional question `""`. No nesting, no
 arrays, no other keys (`botcheck` is never sent).
+
+## Donations
+
+`/support` takes one-time contributions by **UPI, straight to the LLP's bank
+account** — no payment gateway. Razorpay was integrated first and then dropped:
+it asked for 12A and 80G registration for anything that collects contributions,
+and ICUC is an LLP, which has neither.
+
+`UpiPay` is the whole flow. On a phone the reader picks an amount and taps one
+button that opens their UPI app with the payee, amount and note filled in (the
+standard NPCI `upi://pay` link, built by `src/lib/upi.ts`). Android shows its own
+app chooser for that link, so it gets one button; iOS has no chooser, so an
+iPhone gets one button per app (`gpay://`, `phonepe://`, `paytmmp://`) plus a
+plain `upi://` fallback. On a computer, where there is no app to open, a QR code
+takes over for the phone in their pocket. Which of the two shows is the `md`
+breakpoint, not device sniffing. The QR is drawn by `support/page.tsx` at build
+time as one SVG path in `currentColor`, so the `qrcode` package never reaches the
+browser — keep it on the server. It carries no amount, since it is drawn once.
+
+Things to keep true:
+
+- **The UPI ID comes from `NEXT_PUBLIC_UPI_ID`**, never from the code, so a
+  personal ID used for testing can't be committed by accident. In production it
+  must be a business (merchant) UPI ID on the LLP's current account: GPay and
+  PhonePe refuse or cap app-link payments to personal UPI IDs. Unset, the page
+  says contributions aren't set up yet. It is inlined at build time, so a change
+  needs a rebuild (and a redeploy on Vercel).
+- **UPI caps an ordinary payment at ₹1,00,000** per payer per day, which is why
+  `donate.form.max` is that figure — anything larger only fails inside the app.
+- **Testing on a phone without deploying:** `npx next build && npx next start`,
+  then open `http://<this PC's Wi-Fi IP>:3000/support` on a phone on the same
+  network. Use `next start`, not `next dev`: the dev server blocks its own
+  scripts for any origin but `localhost` (see `allowedDevOrigins`), so the page
+  loads but nothing on it responds. The copy button falls back to
+  `execCommand("copy")` there, because `navigator.clipboard` only exists on https
+  and localhost.
+- **`donate.upi.appLinks` is off while the UPI ID is personal.** GPay refuses
+  payments opened from a link to a personal UPI ID with "You've exceeded the
+  bank limit for this payment", even at ₹50, though a scanned QR code to the
+  same ID goes through. So for now every screen shows the QR code and the UPI
+  ID, and the amount picker and app buttons are hidden, not deleted. Turn the
+  flag on once `NEXT_PUBLIC_UPI_ID` is a merchant ID (Google Pay for Business,
+  PhonePe Business or the bank's merchant app); expect to add its `mc` merchant
+  code to `upiLink` then, since Google's own link examples carry one.
+- **The site records nothing.** The bank statement is the record, and it shows
+  only the payer's UPI name, UPI ID, amount and reference — which is why the page
+  asks people to email if they want a thank-you.
+- **The page says "contribute", never "donate"**, and `/donate` permanently
+  redirects to `/support` in `next.config.ts`. ICUC is an LLP, not a charity.
+- **No 80G claim and no PAN field.** An LLP cannot issue 80G certificates, and
+  `donate.tax` says so plainly. Changing that is a legal decision, not a copy edit.
+
+The Razorpay code is still on disk and unused: `DonateForm`, `/api/donate/order`,
+`/api/donate/verify` and `src/lib/razorpay.ts`, plus the `form`/`success`/`error`
+copy in `donate`. The order route answers 503 with the keys unset. Delete all of
+it if Razorpay is not coming back; if it is, put `DonateForm` back on the page.
+
+The page is linked from `nav` (last item, "Support"), which the header and the
+footer both render. It stays `noindex` and out of the sitemap until the team has
+confirmed the draft copy in `donate.body`/`donate.where`; drop the `robots` line
+in `support/page.tsx` and add it to `sitemap.ts` then. The
+privacy policy describes UPI payments; if the page starts collecting anything
+itself, change those lines too.
 
 ## Before you call it done
 

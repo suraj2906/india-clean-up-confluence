@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
        * future edition may want the path back.
        */
       { source: "/register", destination: "/", permanent: false },
+      /**
+       * The payment page was `/donate` before it was reworded: ICUC is an LLP,
+       * so it takes contributions, not donations. Nothing links to the old path,
+       * but it was tested and may be bookmarked.
+       */
+      { source: "/donate", destination: "/support", permanent: true },
     ];
   },
 };

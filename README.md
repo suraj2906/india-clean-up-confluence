@@ -30,13 +30,15 @@ test suite.
 | `/contact`         | General enquiries                                                        |
 | `/privacy`         | The privacy policy                                                       |
 | `/feedback`        | Post-event feedback, reached by QR code — `noindex`, not in nav or sitemap |
+| `/support`         | One-time contributions by UPI — `noindex` until the UPI ID is set        |
 | `/proposal`        | The homepage at the URL shared with sponsors — `noindex`                 |
 | `/classic`         | The homepage with the split hero — `noindex`                             |
 
 `/`, `/proposal` and `/classic` render the same section list, so a section added to
 one almost always belongs in all three.
 
-There are no API routes.
+There are two API routes, `/api/donate/order` and `/api/donate/verify`, left
+over from a Razorpay integration that `/support` no longer uses (it takes UPI).
 
 `/register`, the ICUC 3.0 sign-up form, was removed once the event was over, along
 with its confirmation-email route and templates; it is in git history if a future
@@ -64,6 +66,7 @@ component to change what the site says.
 | Closing call to action                           | `cta`                                  |
 | Contact details and the form's subject dropdown  | `contact`                              |
 | Feedback questions                               | `feedback`                             |
+| Support page, amounts and payment messages        | `donate`                               |
 | Privacy policy                                   | `privacy`                              |
 | 404 page                                         | `notFound`                             |
 
@@ -107,6 +110,8 @@ redeploy — `NEXT_PUBLIC_*` values are baked in at build time.
 | -------------------------------- | ----------------------------------------------------------- |
 | `NEXT_PUBLIC_WEB3FORMS_KEY`      | `/contact` — mail to IndiaCleanupConfluence@gmail.com       |
 | `NEXT_PUBLIC_FEEDBACK_ENDPOINT`  | `/feedback` — the feedback Google Sheet                     |
+| `NEXT_PUBLIC_UPI_ID` | `/support` — the LLP's business UPI ID; read at build time |
+| `RAZORPAY_KEY_ID` `RAZORPAY_KEY_SECRET` | Unused — the old Razorpay routes (server-only) |
 
 Every form degrades without its variable: it says it isn't connected rather than
 failing silently. Feedback goes to its sheet only.
@@ -123,17 +128,20 @@ steps, tab layout and what the scripts refuse are in
 ```
 src/
 ├─ app/                 routes, plus 404, sitemap, robots, icons
+│  └─ api/              donate/order + donate/verify (Razorpay, unused)
 ├─ components/
 │  ├─ layout/           Header, Footer, Logo
 │  ├─ sections/         the landing page, one file per section
 │  │  └─ carter/        the /carter-clean-up sections
 │  ├─ ui/               SmartImage, Reveal, Carousel, PhotoGrid, Lightbox, WaveField, ShoreField …
 │  ├─ contact/          ContactForm
+│  ├─ donate/           UpiPay (live), DonateForm (unused Razorpay form)
 │  └─ feedback/         FeedbackForm
 ├─ content/site.ts      ← all content
 └─ lib/
    ├─ motion.ts         shared animation variants, EASE / SPRING / DRIFT
-   └─ waves.ts          the one set of curves every water drawing uses
+   ├─ waves.ts          the one set of curves every water drawing uses
+   └─ razorpay.ts       server-only order creation and signature checks
 scripts/
 ├─ registrations.gs     Apps Script for the ICUC 3.0 registrations sheet (form retired)
 └─ feedback.gs          Apps Script for the feedback sheet
@@ -151,6 +159,8 @@ respects `prefers-reduced-motion`.
 - [ ] Add `public/images/og.jpg` (1200×630) for link previews.
 - [ ] Fill in real changemakers and their portraits, then uncomment the section.
 - [ ] Replace the drafted founder bios in `carter` with the founders' own words.
+- [ ] Set `NEXT_PUBLIC_UPI_ID` (locally and on Vercel) to the LLP's business UPI ID, confirm the `donate` copy, then drop `noindex`
+      and add `/support` to the sitemap (it is already in `nav`).
 
 ## Deploying
 
