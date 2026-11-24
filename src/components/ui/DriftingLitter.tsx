@@ -13,8 +13,8 @@ import {
 } from "@/lib/waves";
 
 /**
- * Three pieces of litter riding the blue wave on the 404, each of which can be
- * swept up.
+ * A scatter of litter riding the blue wave on the 404, every piece of which can
+ * be swept up.
  *
  * Drawn rather than photographed, in the same flat `currentColor` silhouette
  * language as the mangroves in `ShoreField` — they share a frame, so a detailed
@@ -30,8 +30,8 @@ import {
  *   band's height), so both share one coordinate space.
  * - Each piece's resting height is the band's waterline, and it rises and falls
  *   by the band's real amplitude — `surfaceMidPx` / `surfaceAmpPx` off the same
- *   curve `ShoreField` draws. All three sit at the same base height, because
- *   they are on the same water; what separates them is where the wave is.
+ *   curve `ShoreField` draws. Every piece sits at the same base height, because
+ *   they are all on the same water; what separates them is where the wave is.
  * - Each piece is placed at a *fraction* of the band's width, which is what makes
  *   the lock possible: `wavePhaseAt` turns that fraction into a phase offset with
  *   the viewport width cancelled out, so a static `animation-delay` holds it at
@@ -80,6 +80,12 @@ type Piece = {
   key: string;
   /** Position across the band, as a fraction. Sets the wave phase. */
   at: number;
+  /**
+   * The breakpoint a piece first appears at. Left out, it floats at every width.
+   * Positions are fractions, so the gaps between pieces shrink with the screen;
+   * the extras join only once there is room for them not to overlap.
+   */
+  from?: "sm" | "lg" | "xl";
   /** Rendered size in px. */
   w: number;
   h: number;
@@ -93,16 +99,73 @@ type Piece = {
 /**
  * Where each piece sits, and how deep it floats.
  *
- * The positions are kept to the middle stretch so the pieces stay clear of the
- * mangrove stands anchored at both edges, and spaced so `wavePhaseAt` lands them
- * on visibly different parts of the wave — one near a crest, one near a trough,
- * one on the way between. That spread is a consequence of the positions, not a
- * separate dial: move a piece and its phase moves with it, which is the point.
+ * The positions are kept to the middle stretch — 0.27 to 0.78 — so that on a
+ * wide screen the pieces stay clear of the mangrove stands anchored at both
+ * edges, and spaced so `wavePhaseAt` spreads them over the whole wave: some on a
+ * crest, some in a trough, the rest on the way between. That spread is a
+ * consequence of the positions, not a separate dial: move a piece and its phase
+ * moves with it, which is the point. Never give a piece its own timing.
+ *
+ * Four float at every width (the stands nearly meet on a phone), and the rest
+ * join at `sm`, `lg` and `xl`. The list runs left to right, and the gaps were
+ * checked at the narrowest width each piece appears at.
  *
  * `waterline` is a property of the object, not the scene — a bottle lies low and
- * takes water over most of its body, a bag holds air and rides higher.
+ * takes water over most of its body, a bag or a foam tray holds air and rides
+ * higher, a cigarette butt barely breaks the surface.
  */
 const PIECES: Piece[] = [
+  {
+    key: "flipflop",
+    at: 0.27,
+    from: "xl",
+    w: 36,
+    h: 14,
+    box: [-20, -8, 40, 16],
+    // Foam, so it rides high.
+    waterline: 3,
+    draw: (
+      <>
+        <rect x="-18" y="-2" width="36" height="8" rx="4" fill="currentColor" />
+        <path
+          d="M-6,-2 C-3,-8 3,-8 7,-2"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+      </>
+    ),
+  },
+  {
+    key: "straw",
+    at: 0.29,
+    from: "sm",
+    w: 28,
+    h: 11,
+    box: [-16, -6, 32, 12],
+    waterline: 2,
+    draw: (
+      <path
+        d="M-14,3 L7,3 L13,-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    ),
+  },
+  {
+    key: "cap",
+    at: 0.325,
+    from: "lg",
+    w: 14,
+    h: 11,
+    box: [-8, -6, 16, 12],
+    waterline: 2,
+    draw: <rect x="-6" y="-4" width="12" height="8" rx="2" fill="currentColor" />,
+  },
   {
     key: "bottle",
     at: 0.36,
@@ -119,6 +182,55 @@ const PIECES: Piece[] = [
     ),
   },
   {
+    key: "packet",
+    at: 0.405,
+    from: "lg",
+    w: 30,
+    h: 19,
+    box: [-17, -11, 34, 22],
+    waterline: 2,
+    // Crimped at both ends, which is what makes it a crisp packet and not a box.
+    draw: (
+      <path
+        d="M-15,-8 L-12,-6 L-15,-3 L-12,0 L-15,3 L-12,6 L-15,9 L15,9 L12,6 L15,3 L12,0 L15,-3 L12,-6 L15,-8 Z"
+        fill="currentColor"
+      />
+    ),
+  },
+  {
+    key: "can",
+    at: 0.44,
+    from: "sm",
+    w: 30,
+    h: 19,
+    box: [-16, -10, 32, 20],
+    // Lying on its side, half full of water.
+    waterline: 0,
+    draw: (
+      <>
+        <rect x="-12" y="-7" width="24" height="14" rx="2" fill="currentColor" />
+        <rect x="-15" y="-6" width="4" height="12" rx="1.5" fill="currentColor" />
+        <rect x="11" y="-6" width="4" height="12" rx="1.5" fill="currentColor" />
+      </>
+    ),
+  },
+  {
+    key: "butt",
+    at: 0.475,
+    from: "lg",
+    w: 16,
+    h: 7,
+    box: [-9, -4, 18, 8],
+    // Barely breaks the surface.
+    waterline: -1,
+    draw: (
+      <>
+        <rect x="-8" y="-2" width="11" height="4" rx="1" fill="currentColor" />
+        <rect x="4" y="-2" width="5" height="4" rx="1" fill="currentColor" />
+      </>
+    ),
+  },
+  {
     key: "wrapper",
     at: 0.52,
     w: 34,
@@ -127,6 +239,51 @@ const PIECES: Piece[] = [
     // Sodden, so it sits lowest of the three.
     waterline: 0,
     draw: <path d="M-18,2 L-9,-9 L-1,-3 L7,-12 L18,-4 L13,6 L2,3 L-6,10 Z" fill="currentColor" />,
+  },
+  {
+    key: "rings",
+    at: 0.56,
+    from: "xl",
+    w: 40,
+    h: 16,
+    box: [-22, -9, 44, 18],
+    waterline: 1,
+    // The six-pack holder: two rows of three loops.
+    draw: (
+      <g fill="none" stroke="currentColor" strokeWidth="2.5">
+        <ellipse cx="-12" cy="-3" rx="6" ry="3.5" />
+        <ellipse cx="0" cy="-3" rx="6" ry="3.5" />
+        <ellipse cx="12" cy="-3" rx="6" ry="3.5" />
+        <ellipse cx="-12" cy="4" rx="6" ry="3.5" />
+        <ellipse cx="0" cy="4" rx="6" ry="3.5" />
+        <ellipse cx="12" cy="4" rx="6" ry="3.5" />
+      </g>
+    ),
+  },
+  {
+    key: "cup",
+    at: 0.61,
+    w: 20,
+    h: 24,
+    box: [-11, -14, 22, 26],
+    waterline: 4,
+    draw: (
+      <>
+        <path d="M-9,-9 L9,-9 L6,10 L-6,10 Z" fill="currentColor" />
+        <rect x="-10" y="-12" width="20" height="3" rx="1.5" fill="currentColor" />
+      </>
+    ),
+  },
+  {
+    key: "tray",
+    at: 0.645,
+    from: "lg",
+    w: 36,
+    h: 14,
+    box: [-20, -8, 40, 16],
+    // Polystyrene: almost all of it stays dry.
+    waterline: 4,
+    draw: <path d="M-18,-5 L18,-5 L15,6 L-15,6 Z" fill="currentColor" />,
   },
   {
     key: "bag",
@@ -146,7 +303,43 @@ const PIECES: Piece[] = [
       </>
     ),
   },
+  {
+    key: "net",
+    at: 0.74,
+    from: "xl",
+    w: 36,
+    h: 18,
+    box: [-20, -10, 40, 20],
+    waterline: 2,
+    // A tangle of old fishing line.
+    draw: (
+      <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d="M-18,4 C-10,-8 -2,10 6,-2 S16,-6 18,4" />
+        <path d="M-14,-4 C-6,6 2,-8 10,4 S16,8 14,-2" />
+        <path d="M-10,8 C-4,0 4,0 12,8" />
+      </g>
+    ),
+  },
+  {
+    key: "bottle-small",
+    at: 0.775,
+    from: "xl",
+    w: 40,
+    h: 18,
+    box: [-30, -14, 60, 28],
+    waterline: 3,
+    draw: (
+      <>
+        <rect x="-26" y="-9" width="44" height="18" rx="9" fill="currentColor" />
+        <rect x="16" y="-4.5" width="10" height="9" rx="2.5" fill="currentColor" />
+        <rect x="24" y="-6" width="4" height="12" rx="1.5" fill="currentColor" />
+      </>
+    ),
+  },
 ];
+
+/** Tailwind needs whole class names in the source, so each breakpoint is spelled out. */
+const SHOW_FROM = { sm: "hidden sm:block", lg: "hidden lg:block", xl: "hidden xl:block" } as const;
 
 /**
  * How far down to push a piece so its own waterline lands on the water's.
@@ -260,7 +453,7 @@ export function DriftingLitter() {
           // overwriting another.
           <div
             key={piece.key}
-            className="absolute -translate-x-1/2"
+            className={`absolute -translate-x-1/2 ${piece.from ? SHOW_FROM[piece.from] : ""}`}
             style={{ left: `${piece.at * 100}%`, bottom: REST_PX }}
           >
             <div

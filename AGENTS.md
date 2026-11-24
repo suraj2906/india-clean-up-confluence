@@ -158,9 +158,11 @@ for white copy on a dark band (`Hero`). `ShoreField` is its daylight twin for
 and carries `CarterHero` and the 404; its front layer is `shell`, so the picture
 runs out into whatever sits below instead of ending on a line. Both are plain
 markup, so the scenery costs no client JavaScript. `DriftingLitter` on the 404 is
-the one exception: three sweepable pieces of litter that ride `ShoreField`'s
-`sea` band, deriving their bob from the same constants rather than eyeballing the
-curve — so moving a wave moves the litter with it.
+the one exception: a scatter of sweepable litter (four pieces on a phone,
+fourteen on a wide screen) that rides `ShoreField`'s `sea` band. Each piece's
+bob, height and timing come from the same constants as the wave, and its wave
+phase comes from its position, so moving a wave moves the litter with it. To add
+a piece, give it a position (`at`) and nothing else to do with timing.
 
 **Images may not exist on disk.** The photo set arrives in batches, so at any
 moment some paths in `site.ts` point at nothing. As of the last pass the gallery
